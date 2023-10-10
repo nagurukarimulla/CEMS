@@ -1,0 +1,41 @@
+<!--<template>
+
+
+    <div class= "slds-align_absolute-center">
+            <lightning-carousel >                 
+                <template for:each= {slides} for:item ="item">                             
+                   <lightning-carousel-image scroll-duration = {slideDuration}
+                    key = {item.id}             
+                    src = {item.image}
+                    header = {item.header}
+                    description = {item.description}
+                    alternative-text = {item.alttext}                    
+                    >
+                    </lightning-carousel-image>                                    
+                </template>                                              
+            </lightning-carousel>                
+        
+    </div>
+
+</template>-->
+<template>
+
+
+    <div class= "slds-align_absolute-center" >
+            <lightning-carousel scroll-duration = {slideDuration}>                 
+                <template for:each= {wiredSlides.data} for:item ="item">                             
+                   <lightning-carousel-image 
+                    key = {item.id}             
+                    src = {item.myappmarket__image__c}
+                    header = {item.myappmarket__Heading__c}
+                    description = {item.myappmarket__Description__c}
+                    alternative-text = {item.myappmarket__altText__c} 
+                    href = {item.myappmarket__image__c}
+                    >
+                    </lightning-carousel-image>                                    
+                </template>                                              
+            </lightning-carousel>                
+        
+    </div>
+
+</template>

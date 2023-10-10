@@ -1,0 +1,16 @@
+<template>
+    <lightning-card title="Selected Folder" variant="base">
+    <div class="slds-m-top_medium">
+        <template if:true={selectedFolder}>
+            <h2>Selected Folder Details</h2>
+            
+            <p>Name: {folderName}</p>
+            <p>Folder Id: {folderId}</p>
+        </template>
+        <template if:false={selectedFolder}>
+            <p>No folder selected</p>
+        </template>
+    </div>
+</lightning-card>
+</template>
+

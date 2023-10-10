@@ -1,0 +1,5 @@
+<!-- SearchChild -->
+<aura:component>
+    <aura:attribute name="searchOutput" type="String"/>
+    <lightning:input name="input1" label="Search Output value" value="{!v.searchOutput}"/>
+</aura:component>

@@ -1,0 +1,7 @@
+<aura:component implements="flexipage:availableForAllPageTypes">
+<aura:registerEvent name="OAppEvent" type="c:OverrideAppEvent" />
+<div class="slds-card">
+<lightning:input type="text" label="Override Search Field" aura:id="overridefield"/>
+<lightning:button variant="brand" label="Override"  onclick="{!c.publishOverrideField}"/>
+</div>
+</aura:component>	

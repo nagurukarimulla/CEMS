@@ -1,0 +1,18 @@
+<aura:component controller="searchController">
+    <aura:registerEvent name="dataBindevent" type="c:DataBinder"/>
+
+    <aura:attribute name="dataRecord" type="Object"/>
+    <aura:attribute name="rowIndex" type="Integer" />
+    <aura:attribute name="fieldName" type="String"/>
+    <aura:attribute name="fieldValue" type="String"/>
+    <aura:attribute name="isEditMode" type="Boolean"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:handler name="change" value="{!v.fieldValue}" action="{!c.fieldChangeAction}"/>
+    <aura:renderIf isTrue="{!v.isEditMode}">
+        <lightning:input value="{!v.fieldValue}" />
+        <aura:set attribute="else">
+            {!v.fieldValue}
+        </aura:set>
+    </aura:renderIf>
+    
+</aura:component>

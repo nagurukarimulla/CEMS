@@ -1,0 +1,7 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+<aura:attribute name="numbers" type="List"/>
+<lightning:button onclick="{!c.getNumbers}" label="Display Numbers" />
+<aura:iteration var="num" items="{!v.numbers}">
+  {!num.value}
+</aura:iteration>
+</aura:component>

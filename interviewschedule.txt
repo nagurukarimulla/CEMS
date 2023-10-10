@@ -1,0 +1,558 @@
+<template>
+   
+    <lightning-card title="Interview Records">
+        
+        <c-create-interview-scheduler onscheduleinterview={handleScheduleInterview} 
+                                      onopenscheduleinterview={handleOpenScheduleInterview}>
+                                    </c-create-interview-scheduler>
+        <template if:true={showFormInParent}>
+            <div class="slds-m-around_medium">
+                <lightning-input type="datetime-local" label="Select Date" value={selectedDateTime} onchange={handleDateTimeChange}></lightning-input>
+            </div>
+
+            <div class="slds-m-around_medium">
+                <lightning-combobox
+                    label="Select Round"
+                    options={picklistValues}
+                    onchange={handleRoundChange}
+                ></lightning-combobox>
+            </div>
+            <lightning-datatable
+                key-field="Id"
+                data={interviewData}
+                columns={columns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+      </template>
+    </lightning-card>
+</template>
+
+import { LightningElement, wire, api} from 'lwc';
+import getInterviewData from '@salesforce/apex/CEMSSchedulerController.getInterviewData';
+import { getPicklistValues } from 'lightning/uiObjectInfoApi';
+
+import Round_Field from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+
+export default class CEMSSchedulerTable extends LightningElement {
+    selectedRound = '';
+    picklistValues; // Add roundOptions property
+    showFormInParent = true;
+    selectedDateTime;
+   
+    
+    interviewData;
+    columns = [
+       
+        { label: 'Date', fieldName: 'CEMS_Interview_Start_Time__c' },
+        { label: 'Applicant', fieldName: 'Name' },
+        { label: 'Status', fieldName: 'CEMS_Interview_Status__c' },
+        { label: 'Panel', fieldName: 'CEMS_Interview_Panel__r.Name' },
+        { label: 'Date', fieldName: 'CEMS_Interview_Round__c' },
+        
+    ];
+
+    @wire(getPicklistValues, { recordTypeId: '012DO0000008XetYAE', fieldApiName: Round_Field})
+    loadPicklistValues({ data, error }) {
+        if (data) {
+            this.picklistValues = data.values;
+            console.log(this.picklistValues);
+        } else if (error) {
+            // Handle error if necessary
+            console.error('Error loading picklist values:', error);
+        }
+    }
+
+    @wire(getInterviewData)
+    wiredInterviewData({ error, data }) {
+        if (data) {
+            this.interviewData = data.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+            console.log(JSON.stringify(this.interviewData));
+        } else if (error) {
+            // Handle error if needed
+        }
+    }
+    
+
+    handleRoundChange(event) {
+        this.selectedRound = event.detail.value;
+        this.filterDataByRound();
+    }
+
+    filterDataByRound() {
+        
+    }  
+
+    handleDateTimeChange(event) {
+        this.selectedDateTime = event.target.value;
+        // Perform any additional logic or actions based on the selected datetime
+    }
+   
+     handleScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = false;
+
+    }
+
+    handleOpenScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = true;
+
+    }
+    
+    
+}
+
+<template>
+    <template if:false={showForm}>
+        <lightning-button label="Schedule Interview" onclick={handleScheduleInterview} variant="brand"></lightning-button>
+    </template>
+    <template if:true={showForm}>
+        <lightning-card title="Create record using lightning-record-form">
+            <lightning-button label="Close Schedule" onclick={handleCloseSchedule} variant="brand"></lightning-button>
+            <lightning-record-form
+                object-api-name={objectApiName}
+                fields={fieldList}
+                onsuccess={successHandler}
+            ></lightning-record-form>
+        </lightning-card>
+    </template>
+</template>
+
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+import INTERVIEW_SCHEDULER_OBJECT from '@salesforce/schema/CEMS_Internal_Scheduler__c';
+import INTERVIEW_PANEL_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Panel__c';
+import INTERVIEW_STARTTIME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Start_Time__c';
+import INTERVIEW_ENDTIME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_End_Time__c';
+import INTERVIEW_NAME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.Name';
+import INTERVIEW_LOCATION_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Location__c';
+import INTERVIEW_ROUND_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+import INTERVIEW_JOBAPPLICATION_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Job_Application_ID__c';
+import INTERVIEW_MEETINGLINK_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Meeting_Link__c';
+import INTERVIEW_INTERVIEWSTATUS_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Status__c';
+
+
+export default class CreateInterviewScheduler extends LightningElement {
+    @api recordId;
+    @track showForm = false;
+    objectApiName = INTERVIEW_SCHEDULER_OBJECT;
+    fieldList = [INTERVIEW_PANEL_FIELD, INTERVIEW_STARTTIME_FIELD, INTERVIEW_ENDTIME_FIELD, INTERVIEW_NAME_FIELD, INTERVIEW_LOCATION_FIELD, INTERVIEW_ROUND_FIELD, INTERVIEW_JOBAPPLICATION_FIELD, INTERVIEW_MEETINGLINK_FIELD, INTERVIEW_INTERVIEWSTATUS_FIELD];
+    
+
+    successHandler(event) {
+        console.log(event.detail.id);
+        const toastEvent = new ShowToastEvent({
+            title: 'Interview scheduled',
+            message: 'Record ID: ' + event.detail.id,
+            variant: 'success'
+        });
+        this.dispatchEvent(toastEvent);
+    }
+   
+  
+    handleScheduleInterview() {
+        // Logic to handle the "Schedule Interview" button click
+        // You can perform any necessary actions here
+        
+        // Dispatch a custom event to notify the parent component
+        this.showForm = true;
+        const event = new CustomEvent('scheduleinterview');
+        this.dispatchEvent(event);
+    }
+
+    handleCloseSchedule() {
+        this.showForm = false;
+        const event = new CustomEvent('openscheduleinterview');
+        this.dispatchEvent(event);
+    }
+}
+public with sharing class CEMSSchedulerController {
+    @AuraEnabled(cacheable=true)
+    public static List<CEMS_Internal_Scheduler__c> getInterviewData() {
+        List<CEMS_Internal_Scheduler__c> interviewRecords = [SELECT Name, 
+                                                             CEMS_Interview_End_Time__c,
+                                                             CEMS_Interview_Panel__c,
+                                                             CEMS_Interview_Panel__r.Name, 
+                                                             CEMS_Interview_Round__c, 
+                                                              CEMS_Interview_Status__c, 
+                                                             CEMS_Interview_Start_Time__c
+                                                             //(SELECT Name FROM CEMS_Interview_Panel__r) 
+                                                             FROM CEMS_Internal_Scheduler__c
+                                                             WHERE RecordType.DeveloperName IN ('CEMS_Client_Interview', 'CEMS_Company_Interview') 
+                                                             WITH SECURITY_ENFORCED];
+        System.debug('Interview Records: ' + interviewRecords);
+        return interviewRecords;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+updated code night 11:17 pm june 20 2023:
+===========================================
+
+<template>
+	<lightning-card>
+
+		<c-create-interview-scheduler onscheduleinterview={handleScheduleInterview}
+			onopenscheduleinterview={handleOpenScheduleInterview}>
+		</c-create-interview-scheduler>
+		<template if:true={showFormInParent} >
+			<!-- <div class="slds-m-around_medium" style="margin-top:-25px;">
+					<lightning-input type="datetime-local" label="" value={selectedDateTime} onchange={handleDateTimeChange}></lightning-input>
+				</div>
+	      
+				<div class="slds-m-around_medium" style="width:180px;margin-top:80px;float:right;">
+					<lightning-combobox
+						label="Select Round"
+						options={picklistValues}
+						onchange={handleRoundChange}
+					></lightning-combobox>
+				</div> -->
+			<div class="slds-grid slds-gutters" style="margin-top:-40px;">
+				<div class="slds-col">
+					<lightning-input type="datetime-local" label="" value={selectedDateTime}
+						onchange={handleDateTimeChange} data-id="resetPicklist"></lightning-input>
+				</div>
+				<div class="slds-col">
+					<lightning-combobox label="Select Round" options={picklistValues}
+						onchange={handleRoundChange} data-id="resetPicklist"></lightning-combobox>
+				</div>
+                <div class="slds-col" style="margin-top:24px;">
+                <lightning-button variant="brand-outline" label="ResetFilter" title="titleName" onclick={handleResetFilter}></lightning-button>
+            </div>
+			</div>
+			<br/>
+				<div style="display: flex;min-height: 300px; flex: 1;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+						<lightning-datatable key-field="Id" data={interviewData} columns={columns}
+							hide-checkbox-column="true" onrowaction={handleRowAction}>
+						</lightning-datatable>
+			</div>
+		</template>
+		<!-- <lightning-datatable data={interviewData} columns={columns} key-field="id" hide-checkbox-column="true"
+			onrowaction={handleRowAction}></lightning-datatable> -->
+		<template if:true={modalContainer}>
+			<section class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container" style="min-width:90%;">
+					<header class="slds-modal__header">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+							title="Close" onclick={closeModalAction}>
+							<lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+								size="small"></lightning-icon>
+						</button>
+						<h2 class="slds-text-heading_medium slds-hyphenate">Interview Schedule Detail</h2>
+					</header>
+
+					<div class="slds-modal__content slds-p-around_medium">
+						<table class="slds-table slds-table_bordered slds-table_col-bordered slds-table_cell-buffer"
+							style="width:100%;">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Applicant</th>
+									<th>Status</th>
+									<th>Panel</th>
+									<th>Round</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>{displayModelRow.CEMS_Interview_Start_Time__c}</td>
+									<td>{displayModelRow.Name}</td>
+									<td>{displayModelRow.CEMS_Interview_Status__c}</td>
+									<td>{displayModelRow.CEMS_Interview_Panel__r.Name}</td>
+									<td>{displayModelRow.CEMS_Interview_Round__c}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<footer class="slds-modal__footer">
+						<lightning-button variant="brand" label="Close" title="Close" onclick={closeModalAction}>
+						</lightning-button>
+					</footer>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open"></div>
+		</template>
+	</lightning-card>
+</template>
+
+import { LightningElement, track, wire } from 'lwc';
+    import getDataFromContact from '@salesforce/apex/CEMSSchedulerController.getInterviewData';
+    import { getPicklistValues } from 'lightning/uiObjectInfoApi';
+    
+    import Round_Field from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+    const columns = [
+        {
+            label: 'View',
+            type: 'button-icon',
+            initialWidth: 75,
+            typeAttributes: {
+                iconName: 'action:preview',
+                title: 'Preview',
+                variant: 'border-filled',
+                alternativeText: 'View'
+            }
+        },
+        { label: 'Date', fieldName: 'CEMS_Interview_Start_Time__c' },
+        { label: 'Applicant', fieldName: 'Name' },
+        { label: 'Status', fieldName: 'CEMS_Interview_Status__c' },
+        { label: 'Panel', fieldName: 'CEMS_Interview_Panel__r.Name' },
+        { label: 'Round', fieldName: 'CEMS_Interview_Round__c' },
+    
+    ];
+    
+    export default class CEMSSchedulerTable extends LightningElement {
+        @track columns = columns;
+        @track contactRow;
+        @track rowOffset = 0;
+        @track recordList;
+        @track modalContainer = false;
+        @track displayModelRow;
+        //@wire(getDataFromContact) wireContact;
+        selectedRound = '';
+        picklistValues; // Add roundOptions property
+        showFormInParent = true;
+        selectedDateTime;
+        interviewData;
+    
+        originalColumns = [...this.columns]; // Store original columns for reference
+        @wire(getPicklistValues, { recordTypeId: '012DO0000008XetYAE', fieldApiName: Round_Field})
+        loadPicklistValues({ data, error }) {
+            if (data) {
+                this.picklistValues = data.values;
+                console.log(this.picklistValues);
+            } else if (error) {
+                // Handle error if necessary
+                console.error('Error loading picklist values:', error);
+            }
+        }
+        originalData = [];
+        @wire(getDataFromContact)
+        wiredInterviewData({ error, data }) {
+            if (data) {
+                this.originalData = [...data]; // Assign the original data
+                this.interviewData = data.map(record => {
+                    if (record.CEMS_Interview_Panel__r) {
+                        return Object.assign(
+                            { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                            record
+                        );
+                    }
+                    return record;
+                });
+                console.log(JSON.stringify(this.interviewData));
+            } else if (error) {
+                // Handle error if needed
+            }
+        }
+    
+    
+        handleRowAction(event) {
+            const dataRow = event.detail.row;
+            console.log('dataRow@@ ' + JSON.stringify(dataRow));
+            this.displayModelRow = dataRow;
+            console.log('contactRow## ' + JSON.stringify(dataRow));
+            this.modalContainer = true;
+        }
+    
+        closeModalAction() {
+            this.modalContainer = false;
+            // console.log("hello:" + this.contactRow);
+            // setTimeout(() => {
+            //     eval("$A.get('e.force:refreshView').fire();");
+            // }, 1000);
+    
+        }
+        handleRoundChange(event) {
+            this.selectedRound = event.detail.value;
+            this.filterDataByRound();
+        }
+    
+        filterDataByRound() {
+            
+        }  
+    
+        handleDateTimeChange(event) {
+            this.selectedDateTime = event.target.value;
+            this.filterDataByDateTime();
+        }
+       
+         handleScheduleInterview() {
+            // Logic to handle the "Schedule Interview" event
+            this.showFormInParent = false;
+    
+        }
+    
+        handleOpenScheduleInterview() {
+            // Logic to handle the "Schedule Interview" event
+            this.showFormInParent = true;
+    
+        }
+        handleRoundChange(event) {
+            this.selectedRound = event.detail.value;
+            this.filterDataByRound();
+        }
+        
+        filterDataByRound() {
+            if (this.selectedRound) {
+                const filteredData = this.originalData.filter(record =>
+                    record.CEMS_Interview_Round__c === this.selectedRound
+                );
+                this.interviewData = filteredData.map(record => {
+                    if (record.CEMS_Interview_Panel__r) {
+                        return Object.assign(
+                            { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                            record
+                        );
+                    }
+                    return record;
+                });
+            } else {
+                // No round selected, display all records
+                this.interviewData = this.originalData.map(record => {
+                    if (record.CEMS_Interview_Panel__r) {
+                        return Object.assign(
+                            { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                            record
+                        );
+                    }
+                    return record;
+                });
+            }
+            this.columns = this.originalColumns; // Reset columns to original state
+        }
+      
+handleResetFilter() {
+    this.interviewData = this.originalData.map(record => {
+        if (record.CEMS_Interview_Panel__r) {
+            return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+            );
+        }
+        return record;
+    });
+    this.columns = this.originalColumns;
+
+    let interviewRound = this.template.querySelector('lightning-combobox[data-id="resetPicklist"]');
+    interviewRound.value = '';
+
+    let interviewDate = this.template.querySelector('lightning-input[data-id="resetPicklist"]');
+    interviewDate.value = '';
+}
+filterDataByDateTime() {
+    if (this.selectedDateTime) {
+        const selectedDate = new Date(this.selectedDateTime).toDateString();
+        const filteredData = this.originalData.filter(record =>
+            new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+        );
+        this.interviewData = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+                return Object.assign(
+                    { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                    record
+                );
+            }
+            return record;
+        });
+    } else {
+        // No date/time selected, display all records
+        this.interviewData = this.originalData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+                return Object.assign(
+                    { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                    record
+                );
+            }
+            return record;
+        });
+    }
+    
+}
+    }
+
+
+<template>
+    <template if:false={showForm}>
+        <lightning-button label="Schedule Interview" onclick={handleScheduleInterview} variant="brand" style="float:right;margin-top:4px;"></lightning-button>
+    </template>
+    <br/>
+    <template if:true={showForm}>
+        <lightning-card title="Schedule an interview">
+            <lightning-button label="Close Schedule" onclick={handleCloseSchedule} variant="brand"></lightning-button>
+            <lightning-record-form
+                object-api-name={objectApiName}
+                fields={fieldList}
+                onsuccess={successHandler}
+                oncancel={handleCloseSchedule}
+            ></lightning-record-form>
+        </lightning-card>
+    </template>
+</template>
+
+
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+import INTERVIEW_SCHEDULER_OBJECT from '@salesforce/schema/CEMS_Internal_Scheduler__c';
+import INTERVIEW_PANEL_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Panel__c';
+import INTERVIEW_STARTTIME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Start_Time__c';
+import INTERVIEW_ENDTIME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_End_Time__c';
+import INTERVIEW_NAME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.Name';
+import INTERVIEW_LOCATION_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Location__c';
+import INTERVIEW_ROUND_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+import INTERVIEW_JOBAPPLICATION_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Job_Application_ID__c';
+import INTERVIEW_MEETINGLINK_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Meeting_Link__c';
+import INTERVIEW_INTERVIEWSTATUS_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Status__c';
+
+
+export default class CreateInterviewScheduler extends LightningElement {
+    @api recordId;
+    @track showForm = false;
+    objectApiName = INTERVIEW_SCHEDULER_OBJECT;
+    fieldList = [INTERVIEW_PANEL_FIELD, INTERVIEW_STARTTIME_FIELD, INTERVIEW_ENDTIME_FIELD, INTERVIEW_NAME_FIELD, INTERVIEW_LOCATION_FIELD, INTERVIEW_ROUND_FIELD, INTERVIEW_JOBAPPLICATION_FIELD, INTERVIEW_MEETINGLINK_FIELD, INTERVIEW_INTERVIEWSTATUS_FIELD];
+    
+
+    successHandler(event) {
+        console.log(event.detail.id);
+        const toastEvent = new ShowToastEvent({
+            title: 'Interview scheduled',
+            message: 'Record ID: ' + event.detail.id,
+            variant: 'success'
+        });
+        this.dispatchEvent(toastEvent);
+    }
+   
+  
+    handleScheduleInterview() {
+        // Logic to handle the "Schedule Interview" button click
+        // You can perform any necessary actions here
+        
+        // Dispatch a custom event to notify the parent component
+        this.showForm = true;
+        const event = new CustomEvent('scheduleinterview');
+        this.dispatchEvent(event);
+    }
+
+    handleCloseSchedule() {
+        this.showForm = false;
+        const event = new CustomEvent('openscheduleinterview');
+        this.dispatchEvent(event);
+    }
+}

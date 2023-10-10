@@ -1,0 +1,2138 @@
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    
+    @api selectedRecords;
+    @track showModal = false;
+    @track isVirtual = false;
+    @track venueDetails = '';
+    @track meetingLink = '';
+    @track locationDetails = '';
+
+    // Handles the button click event to send bulk emails
+    handleBulkEmails() {
+        // Check if there are any selected records
+        if (!this.selectedRecords || this.selectedRecords.length === 0) {
+            this.showToast('Error', 'No records selected', 'error');
+            return;
+        }
+
+        // Prepare the list of records to be sent in the request
+        let interviewRecords = [];
+        this.selectedRecords.forEach(record => {
+            let interviewRecord = {};
+            interviewRecord.Id = record.Id;
+            interviewRecord.EMS_Interview_Date__c = record.EMS_Interview_Date__c;
+            interviewRecord.EMS_Interview_Start_Time__c = record.EMS_Interview_Start_Time__c;
+            interviewRecord.EMS_Interview_End_Time__c = record.EMS_Interview_End_Time__c;
+            interviewRecord.EMS_Interview_Round__c = record.EMS_Interview_Round__c;
+            interviewRecord.EMS_Interview_Type__c = record.EMS_Interview_Type__c;
+            interviewRecord.EMS_Interview_Status__c = record.EMS_Interview_Status__c;
+            interviewRecord.EMS_Meeting_Link__c = record.EMS_Meeting_Link__c;
+            interviewRecord.EMS_Job_Application_ID__c = record.EMS_Job_Application_ID__c;
+            interviewRecord.EMS_Candidate_Name__c = record.EMS_Candidate_Name__c;
+            interviewRecord.EMS_Interview_Location__c = record.EMS_Interview_Location__c;
+            interviewRecord.EMS_Interviewer_Name__c = record.EMS_Interviewer_Name__c;
+            interviewRecord.EMS_Interviewer_Email__c = record.EMS_Interviewer_Email__c;
+            interviewRecord.EMS_Applicant_Email__c = record.EMS_Applicant_Email__c;
+            interviewRecord.EMS_Interview_Stage__c = record.EMS_Interview_Stage__c;
+            interviewRecord.EMS_Decline_Reason__c = record.EMS_Decline_Reason__c;
+            interviewRecords.push(interviewRecord);
+        });
+
+        // Prepare the request payload
+        let payload = {
+            interviewRecords: interviewRecords,
+            isVirtual: this.isVirtual,
+            venueDetails: this.venueDetails,
+            meetingLink: this.meetingLink,
+            locationDetails: this.locationDetails
+        };
+
+        // Call the Apex method to send bulk emails
+        sendBulkEmails({ payload: JSON.stringify(payload) })
+            .then(result => {
+                // Display success message
+                this.showToast('Success', 'Bulk emails sent', 'success');
+
+                // Close the modal
+                this.showModal = false;
+            })
+            .catch(error => {
+                // Display error message
+                this.showToast('Error', error.body.message, 'error');
+            });
+    }
+
+    // Displays a toast message
+    showToast(title, message, variant) {
+        const event = new ShowToastEvent({
+            title: title,
+            message: message,
+            variant: variant
+        });
+        this.dispatchEvent(event);
+    }
+    get interviewDetails() {
+        if (this.record.EMS_Interview_Type__c === 'Virtual') {
+            return `Meeting Link: ${this.record.EMS_Meeting_Link__c}`;
+        } else if (this.record.EMS_Interview_Type__c === 'In-Person') {
+            return `Location Details: ${this.record.EMS_Interview_Location__c}`;
+        }
+        return '';
+    }
+   
+  
+    handleBulkEmails() {
+        // Get all the checkboxes and filter out the unchecked ones
+        const checkboxes = Array.from(this.template.querySelectorAll('lightning-input[type="checkbox"]'));
+        const selectedRecords = checkboxes
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.dataset.id);
+    
+        // Check if there are any selected records
+        if (selectedRecords.length === 0) {
+            this.showToast('Error', 'No records selected', 'error');
+            return;
+        }
+    
+        // Prepare the list of records to be
+// Handles the button click event to send a single interview email
+// Handles the button click event to send a single interview email
+sendInterviewEmail(event) {
+    // Get the selected record
+    let selectedRecord = event.target.closest('lightning-card').key;
+
+    // Prepare the request payload
+    let payload = {
+        interviewRecordId: selectedRecord,
+        isVirtual: this.isVirtual,
+        venueDetails: this.venueDetails,
+        meetingLink: this.meetingLink,
+        locationDetails: this.locationDetails
+    };
+
+    // Call the Apex method to send a single email
+    sendInterviewEmail({ payload: JSON.stringify(payload) })
+        .then(result => {
+            // Display success message
+            this.showToast('Success', 'Email sent', 'success');
+        })
+        .catch(error => {
+            // Display error message
+            this.showToast('Error', error.body.message, 'error');
+        });
+}
+
+// Handles the button click event to show/hide interview details
+handleDetailsClick(event) {
+    // Get the selected record
+    let selectedRecord = event.target.closest('lightning-card').key;
+
+    // Update the showDetails property of the record
+    let updatedRecords = [...this.records];
+    let recordIndex = updatedRecords.findIndex(record => record.Id === selectedRecord);
+    updatedRecords[recordIndex].showDetails = !updatedRecords[recordIndex].showDetails;
+    this.records = updatedRecords;
+}
+
+// Handles the row selection event of the datatable
+handleRowSelection(event) {
+    this.selectedRows = event.detail.selectedRows;
+};
+
+
+}
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    
+    @api selectedRecords;
+    @track showModal = false;
+    @track isVirtual = false;
+    @track venueDetails = '';
+    @track meetingLink = '';
+    @track locationDetails = '';
+
+    // Handles the button click event to send bulk emails
+    handleBulkEmails() {
+        // Get all the checkboxes and filter out the unchecked ones
+        const checkboxes = Array.from(this.template.querySelectorAll('lightning-input[type="checkbox"]'));
+        const selectedRecords = checkboxes
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.dataset.id);
+    
+        // Check if there are any selected records
+        if (selectedRecords.length === 0) {
+            this.showToast('Error', 'No records selected', 'error');
+            return;
+        }
+    
+        // Prepare the list of records to be sent in the request
+        let interviewRecords = [];
+        selectedRecords.forEach(record => {
+            let interviewRecord = {};
+            interviewRecord.Id = record.Id;
+            interviewRecord.EMS_Interview_Date__c = record.EMS_Interview_Date__c;
+            interviewRecord.EMS_Interview_Start_Time__c = record.EMS_Interview_Start_Time__c;
+            interviewRecord.EMS_Interview_End_Time__c = record.EMS_Interview_End_Time__c;
+            interviewRecord.EMS_Interview_Round__c = record.EMS_Interview_Round__c;
+            interviewRecord.EMS_Interview_Type__c = record.EMS_Interview_Type__c;
+            interviewRecord.EMS_Interview_Status__c = record.EMS_Interview_Status__c;
+            interviewRecord.EMS_Meeting_Link__c = record.EMS_Meeting_Link__c;
+            interviewRecord.EMS_Job_Application_ID__c = record.EMS_Job_Application_ID__c;
+            interviewRecord.EMS_Candidate_Name__c = record.EMS_Candidate_Name__c;
+            interviewRecord.EMS_Interview_Location__c = record.EMS_Interview_Location__c;
+            interviewRecord.EMS_Interviewer_Name__c = record.EMS_Interviewer_Name__c;
+            interviewRecord.EMS_Interviewer_Email__c = record.EMS_Interviewer_Email__c;
+            interviewRecord.EMS_Applicant_Email__c = record.EMS_Applicant_Email__c;
+            interviewRecord.EMS_Interview_Stage__c = record.EMS_Interview_Stage__c;
+            interviewRecord.EMS_Decline_Reason__c = record.EMS_Decline_Reason__c;
+            interviewRecords.push(interviewRecord);
+        });
+    
+        // Prepare the request payload
+        let payload = {
+            interviewRecords: interviewRecords,
+            isVirtual: this.isVirtual,
+            venueDetails: this.venueDetails,
+            meetingLink: this.meetingLink,
+            locationDetails: this.locationDetails
+        };
+    
+        // Call the Apex method to send bulk emails
+        sendBulkEmails({ payload: JSON.stringify(payload) })
+            .then(result => {
+                // Display success message
+                this.showToast('Success', 'Bulk emails sent', 'success');
+    
+                // Close the modal
+                this.showModal = false;
+            })
+            .catch(error => {
+                // Display the error message
+this.showToast('Error', error.body.message, 'error');
+});
+}
+// Handles the change event of the virtual checkbox
+handleVirtualChange(event) {
+    this.isVirtual = event.target.checked;
+}
+
+// Handles the change event of the venue details input field
+handleVenueDetailsChange(event) {
+    this.venueDetails = event.target.value;
+}
+
+// Handles the change event of the meeting link input field
+handleMeetingLinkChange(event) {
+    this.meetingLink = event.target.value;
+}
+
+// Handles the change event of the location details input field
+handleLocationDetailsChange(event) {
+    this.locationDetails = event.target.value;
+}
+
+// Shows the modal
+showModalPopup() {
+    this.showModal = true;
+}
+
+// Hides the modal
+hideModalPopup() {
+    this.showModal = false;
+}
+
+// Shows a toast message
+showToast(title, message, variant) {
+    const event = new ShowToastEvent({
+        title: title,
+        message: message,
+        variant: variant
+    });
+    this.dispatchEvent(event);
+}
+}
+*/
+
+/*import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api title
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        //{ label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' },
+        { label: 'Interviewer Email', fieldName: 'EMS_Interviewer_Email__c', type: 'email' }
+        
+    ];
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        
+    }
+
+    // Fetches the interview records from the server
+    getInterviewRecords() {
+        getInterviewRecords()
+            .then(result => {
+                this.records = result;
+            })
+            .catch(error => {
+                console.error('Error fetching interview records: ', error);
+                this.showToast('Error', error.body.message, 'error');
+            });
+    }
+
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const interviewIds = this.selectedRecords.map(record => record.Id);
+        console.log(JSON.stringify('Interview Ids List :' + interviewIds));
+        if (interviewIds.length > 0) {
+            sendBulkEmails({ interviewIds })
+            
+    .then(result => {
+        console.log('result: '+ JSON.stringify(result));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'Emails sent successfully',
+                variant: 'success'
+            })
+        );
+    })
+    .catch(error => {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: error.body.message,
+                variant: 'error'
+            })
+        );
+    });
+
+               
+    
+}
+    }
+}
+*/
+
+
+
+
+/*
+    // Sends bulk email to selected candidates
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const emailAddresses = this.selectedRecords.map(record => record.EMS_Applicant_Email__c);
+        console.log(JSON.stringify('Email Addresses List :' + emailAddresses));
+        if (emailAddresses.length > 0) {
+            sendBulkEmails({ emailAddresses })
+                .then(result => {
+                    console.log('result: '+ JSON.stringify(result));
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Emails sent successfully',
+                            variant: 'success'
+                        })
+                    );
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+        } else {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please select at least one candidate to send emails',
+                    variant: 'error'
+                })
+            );
+        }
+    }*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import  searchRecords  from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'text' },
+        { label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__c', type: 'text' }
+    ];
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+    
+    handleSearchKeyChange(event) {
+        let searchKey = event.target.value.toLowerCase();
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(searchKey);
+        });
+    }
+    searchRecords() {
+        let searchKey = this.template.querySelector('lightning-input[type="search"]').value.toLowerCase();
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(searchKey);
+        });
+    }
+    
+    
+    handleSendEmails() {
+        let emailAddresses = this.selectedRecords.map(record => record.EMS_Candidate_Email__c);
+        sendBulkEmails({ emailAddresses: emailAddresses })
+            .then(result => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Emails sent successfully',
+                        variant: 'success'
+                    })
+                );
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: error.body.message,
+                        variant: 'error'
+                    })
+                );
+            });
+    }
+    handleSearchKeyChange(event) {
+        let searchKey = event.target.value.toLowerCase();
+        searchRecords({ searchKey: searchKey })
+            .then(result => {
+                this.records = result;
+                this.displayedRecords = this.records;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+}    
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import fetchRecords from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'text' },
+        { label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__c', type: 'text' }
+    ];
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+    
+    handleSearchKeyChange(event) {
+        let searchKey = event.target.value.toLowerCase();
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(searchKey);
+        });
+    }
+    handleSearchRecords() {
+        let searchKey = this.template.querySelector('lightning-input[type="search"]').value.toLowerCase();
+        fetchRecords({ searchKey: searchKey })
+            .then(result => {
+                this.records = result;
+                this.displayedRecords = this.records;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+    
+    handleSendEmails() {
+        let emailAddresses = this.selectedRecords.map(record => record.EMS_Candidate_Email__c);
+        sendBulkEmails({ emailAddresses: emailAddresses })
+            .then(result => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Emails sent successfully',
+                        variant: 'success'
+                    })
+                );
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: error.body.message,
+                        variant: 'error'
+                    })
+                );
+            });
+    }
+}    
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import fetchRecords from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'text' },
+        { label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__c', type: 'text' }
+    ];
+
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+
+    handleSearchKeyChange(event) {
+        let searchKey = event.target.value.toLowerCase();
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(searchKey);
+        });
+    }
+
+    handleSearchRecords() {
+        let searchKey = this.template.querySelector('lightning-input[type="search"]').value.toLowerCase();
+        fetchRecords({ searchKey: searchKey })
+            .then(result => {
+                this.records = result;
+                this.displayedRecords = this.records;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    handleSendEmails() {
+        let emailAddresses = this.selectedRecords.map(record => record.EMS_Candidate_Email__c);
+        sendBulkEmails({ emailAddresses: emailAddresses })
+            .then(result => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Emails sent successfully',
+                        variant: 'success'
+                    })
+                );
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: error.body.message,
+                        variant: 'error'
+                    })
+                );
+            });
+    }
+
+    handleRowSelection(event) {
+        let selectedRows = event.detail.selectedRows;
+        this.selectedRecords = selectedRows;
+    }
+
+    handleDetailsClick(event) {
+        let recordId = event.target.dataset.id;
+        let index = this.records.findIndex(record => record.Id === recordId);
+        let record = JSON.parse(JSON.stringify(this.records[index]));
+        record.showDetails = !record.showDetails;
+        this.records.splice(index, 1, record);
+    }
+
+    get interviewDetails() {
+        return `This is a ${this.records[0].EMS_Interview_Type__c} interview for the position of ${this.records[0].EMS_Job_Position__c} scheduled at ${this.records[0].EMS_Interview_Location__c}.`;
+    }
+}
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import fetchRecords from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'text' },
+        { label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__c', type: 'text' }
+    ];
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+    
+    handleSearchKeyChange(event) {
+        let searchKey = event.target.value.toLowerCase();
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(searchKey);
+        });
+    }
+    
+    handleSearchRecords() {
+        let searchKey = this.template.querySelector('lightning-input[type="search"]').value.toLowerCase();
+        fetchRecords({ searchKey: searchKey })
+            .then(result => {
+                this.records = result;
+                this.displayedRecords = this.records;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+    
+    handleSendEmails() {
+        let emailAddresses = this.selectedRecords.map(record => record.EMS_Candidate_Email__c);
+        sendBulkEmails({ emailAddresses: emailAddresses })
+            .then(result => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Emails sent successfully',
+                        variant: 'success'
+                    })
+                );
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: error.body.message,
+                        variant: 'error'
+                    })
+                );
+            });
+    }
+}
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import fetchRecords from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+const COLUMNS = [
+    { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+    { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+    { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+    { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'text' },
+    { label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__c', type: 'text' }
+];
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = COLUMNS;
+    @track searchKey = '';
+
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+
+    handleSearchKeyChange(event) {
+        this.searchKey = event.target.value.toLowerCase();
+        this.filterRecords();
+    }
+
+    handleSearchRecords() {
+        fetchRecords({ searchKey: this.searchKey })
+        .then(result => {
+            this.records = result;
+            this.displayedRecords = this.records.map(record => {
+                return {
+                    ...record,
+                    showDetails: false
+                };
+            });
+            this.filterRecords();
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+    handleRowSelection(event) {
+        const selectedRows = event.detail.selectedRows;
+        this.selectedRecords = selectedRows;
+    }
+    
+    handleDetailsClick(event) {
+        const selectedId = event.currentTarget.dataset.id;
+        const selectedRecord = this.selectedRecords.find(record => record.Id === selectedId);
+        selectedRecord.showDetails = !selectedRecord.showDetails;
+        this.selectedRecords = [...this.selectedRecords];
+    }
+
+    /*
+    handleDetailsClick(event) {
+        const recordId = event.target.dataset.id;
+        const displayedRecord = this.displayedRecords.find(record => record.Id === recordId);
+        displayedRecord.showDetails = !displayedRecord.showDetails;
+        event.target.label = displayedRecord.showDetails ? 'Hide Details' : 'Show Details';
+    }
+    */
+/*
+    handleSendEmails() {
+        const emailAddresses = this.selectedRecords.map(record => record.EMS_Applicant_Email__c);
+        if (emailAddresses.length > 0) {
+            sendBulkEmails({ emailAddresses })
+                .then(result => {
+                    console.log('result: '+ JSON.stringify(result));
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Emails sent successfully',
+                            variant: 'success'
+                        })
+                    );
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+        } else {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please select at least one candidate to send emails',
+                    variant: 'error'
+                })
+            );
+        }
+    }
+    
+
+    filterRecords() {
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(this.searchKey);
+        });
+    }
+}
+*/
+
+
+
+
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import fetchRecords from '@salesforce/apex/InterviewEmailController.searchRecords';
+
+const COLUMNS = [
+    { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+    { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+    //{ label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+    { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+    { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+    { label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+    { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' }
+    
+      
+
+    //{ label: 'Interviewer Name', fieldName: 'EMS_Interviewer_Name__r.Name', type: 'text' }
+];
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = COLUMNS;
+    @track searchKey = '';
+    @track showDataTable = false;
+
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+    }
+
+    handleSearchKeyChange(event) {
+        this.searchKey = event.target.value.toLowerCase();
+        this.filterRecords();
+    }
+
+    handleSearchRecords() {
+        fetchRecords({ searchKey: this.searchKey })
+        .then(result => {
+            this.records = result;
+            this.displayedRecords = this.records.map(record => {
+                return {
+                    ...record,
+                    
+                    showDetails: false
+                };
+            });
+            this.filterRecords();
+            this.showDataTable = true; // set showDataTable to true
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+    
+    
+    
+    
+
+    handleRowSelection(event) {
+        const selectedRows = event.detail.selectedRows;
+        this.selectedRecords = selectedRows;
+    }
+
+   
+
+    handleSendEmails() {
+        const emailAddresses = this.selectedRecords.map(record => record.EMS_Applicant_Email__c);
+        if (emailAddresses.length > 0) {
+            sendBulkEmails({ emailAddresses })
+                .then(result => {
+                    console.log('result: '+ JSON.stringify(result));
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Emails sent successfully',
+                            variant: 'success'
+                        })
+                    );
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+        } else {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please select at least one candidate to send emails',
+                    variant: 'error'
+                })
+            );
+        }
+    }
+    
+    filterRecords() {
+        this.displayedRecords = this.records.filter(record => {
+            return record.EMS_Candidate_Name__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interview_Type__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interview_Status__c.toLowerCase().includes(this.searchKey) ||
+                record.EMS_Interviewer_Name__c.toLowerCase().includes(this.searchKey);
+        });
+    }
+    
+}
+*/
+/*
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+
+const COLUMNS = [
+    { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+    { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+    { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+    { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+    { label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+    { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' }
+];
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api selectedRecords = [];
+    @track records = [];
+    @track displayedRecords = [];
+    @track columns = COLUMNS;
+    @track showDataTable = false;
+
+    connectedCallback() {
+        this.records = JSON.parse(JSON.stringify(this.selectedRecords));
+        this.displayedRecords = this.records;
+        this.showDataTable = true;
+    }
+
+    handleRowSelection(event) {
+        const selectedRows = event.detail.selectedRows;
+        this.selectedRecords = selectedRows;
+    }
+
+    handleSendEmails() {
+        const emailAddresses = this.selectedRecords.map(record => record.EMS_Applicant_Email__c);
+        if (emailAddresses.length > 0) {
+            sendBulkEmails({ emailAddresses })
+                .then(result => {
+                    console.log('result: '+ JSON.stringify(result));
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Emails sent successfully',
+                            variant: 'success'
+                        })
+                    );
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+        } else {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please select at least one candidate to send emails',
+                    variant: 'error'
+                })
+            );
+        }
+    }
+}
+*/
+/*
+import { LightningElement, track, api, wire } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+import updateInterviewSchedulingRecords from '@salesforce/apex/InterviewEmailController.updateInterviewSchedulingRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api title;
+    saveDraftValue = [];
+    data = [];
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text', editable:true },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date', editable:true },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text', editable:true },
+        { label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist', editable:true },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist', editable:true },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email', editable:true }
+        
+    ];
+    @wire(updateInterviewSchedulingRecords)
+    interviewData(result){
+        console.log("result:"+JSON.stringify(result))
+
+        if(result.error){
+            this.data = undefined;
+        }else if( result.data){
+            this.data = result.data;
+
+            console.log("this.data:"+JSON.stringify(this.data))
+        }
+    }
+    handleSave(event){
+
+        const updatedfield = event.detail.draftValues;
+        this.saveDraftValue = event.detail.draftValues;
+        console.log('updatedfield:'+JSON.stringify(updatedfield))
+        console.log('saveDraftValue:'+JSON.stringify(this.saveDraftValue))
+
+        updateInterviewSchedulingRecords({interviewData :  this.saveDraftValue})
+        .then( result =>{
+            console.log("apex result:"+JSON.stringify(result))
+
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: result,
+                    message: result,
+                    variant: 'success'
+                })
+            );
+        })
+        .catch(error=>{
+            console.error("err:"+JSON.stringify(error))
+           
+        })
+    } 
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        
+    }
+
+    // Fetches the interview records from the server
+    getInterviewRecords() {
+        getInterviewRecords()
+            .then(result => {
+                this.records = result;
+            })
+            .catch(error => {
+                console.error('Error fetching interview records: ', error);
+                this.showToast('Error', error.body.message, 'error');
+            });
+    }
+
+    // Sends bulk email to selected candidates
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const emailAddresses = this.selectedRecords.map(record => record.EMS_Applicant_Email__c);
+        console.log(JSON.stringify(emailAddresses));
+        if (emailAddresses.length > 0) {
+            sendBulkEmails({ emailAddresses })
+                .then(result => {
+                    console.log('result: '+ JSON.stringify(result));
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Emails sent successfully',
+                            variant: 'success'
+                        })
+                    );
+                })
+                .catch(error => {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: error.body.message,
+                            variant: 'error'
+                        })
+                    );
+                });
+        } else {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please select at least one candidate to send emails',
+                    variant: 'error'
+                })
+            );
+        }
+    }
+
+    
+}*/
+
+<!--
+<template>
+    <lightning-card title="Send Interview Emails">
+        <template if:true={records}>
+            <lightning-datatable
+                key-field="Id"
+                data={records}
+                columns={columns}
+                onrowselection={handleRowSelection}>
+            </lightning-datatable>
+            <template if:true={selectedRows}>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRows} for:item="record">
+                        <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                            <div class="slds-p-around_medium">
+                                <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                                <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                                <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                                <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                                <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                                <p>Interview Location: {record.EMS_Interview_Location__c}</p>
+                                <template if:true={record.showDetails}>
+                                    <p>{record.EMS_Interview_Details__c}</p>
+                                </template>
+                                <lightning-button
+                                  variant="brand"
+                                  label="Show Details"
+                                  onclick={handleDetailsClick}>
+                                 </lightning-button>
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <p>{interviewDetails}</p>
+                                </template>
+                                
+                                <lightning-button
+                                    variant="brand"
+                                    label="Send Interview Email"
+                                    onclick={sendInterviewEmail}>
+                                </lightning-button>
+                            </div>
+                        </lightning-card>
+                    </template>
+                </div>
+            </template>
+        </template>
+    </lightning-card>
+    <lightning-button
+        variant="brand"
+        label="Send Bulk Emails"
+        onclick={sendBulkEmails}>
+    </lightning-button>
+</template>
+-->
+
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <template if:true={records}>
+            <lightning-datatable
+                key-field="Id"
+                data={records}
+                columns={columns}
+                onrowselection={handleRowSelection}>
+                <template for:each={records} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <template if:true={selectedRows}>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRows} for:item="record">
+                        <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                            <div class="slds-p-around_medium">
+                                <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                                <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                                <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                                <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                                <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                                <p>Interview Location: {record.EMS_Interview_Location__c}</p>
+                                <template if:true={record.showDetails}>
+                                    <p>{record.EMS_Interview_Details__c}</p>
+                                </template>
+                                <lightning-button
+                                  variant="brand"
+                                  label="Show Details"
+                                  onclick={handleDetailsClick}>
+                                 </lightning-button>
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <p>{interviewDetails}</p>
+                                </template>
+                                
+                                <lightning-button
+                                    variant="brand"
+                                    label="Send Interview Email"
+                                    onclick={sendInterviewEmail}>
+                                </lightning-button>
+                            </div>
+                        </lightning-card>
+                    </template>
+                </div>
+            </template>
+        </template>
+    </lightning-card>
+    <lightning-button
+        variant="brand"
+        label="Send Bulk Emails"
+        onclick={sendBulkEmails}>
+    </lightning-button>
+</template>
+-->
+
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <template if:true={records}>
+            <lightning-datatable
+                key-field="Id"
+                data={records}
+                columns={columns}
+                onrowselection={handleRowSelection}>
+                <template for:each={records} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <div class="slds-m-around_medium">
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <template if:true={record.EMS_Interview_Type__c}>
+                            <div class="col interview-details">
+                                <p><strong>Interview Details:</strong></p>
+                            </div>
+                        </template>
+                        <div class="slds-p-around_medium">
+                            
+                            <p><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                            <p><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                            <p><strong>interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                            <p><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                            <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                            
+                            
+                        </div>
+                    </lightning-card>
+                </template>
+            </div>
+            <lightning-button
+                variant="brand"
+                label="Send Bulk Emails"
+                onclick={sendBulkEmails}>
+            </lightning-button>
+        </template>
+    </lightning-card>
+</template>
+-->
+
+<!--<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        <p class="slds-text-heading_small"><strong>interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+-->
+
+<!--<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Confirm Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        <p class="slds-text-heading_small"><strong>interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer Email:</strong> {record.EMS_Interviewer_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+-->
+-----------------------------
+<!--<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}
+                        class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered">
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        <p class="slds-text-heading_small"><strong>interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+-->
+
+
+
+
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <div class="slds-m-around_small">
+            <lightning-input
+                label="Search"
+                type="search"
+                value={searchKey}
+                onchange={handleSearchKeyChange}
+            ></lightning-input>
+            <lightning-button
+                variant="brand"
+                label="Search"
+                onclick={searchRecords}
+            ></lightning-button>
+        </div>
+        <template if:true={records}>
+            <lightning-datatable
+                key-field="Id"
+                data={displayedRecords}
+                columns={columns}
+                onrowselection={handleRowSelection}>
+                <template for:each={displayedRecords} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <div class="slds-m-around_medium">
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <div class="slds-p-around_medium">
+                            <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                            <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                            <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                            <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                            <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                            <p>Interview Location: {record.EMS_Interview_Location__c}</p>
+                            <template if:true={record.showDetails}>
+                                <p>{record.EMS_Interview_Details__c}</p>
+                            </template>
+                            <lightning-button
+                                variant="brand"
+                                label="Show Details"
+                                onclick={handleDetailsClick}>
+                            </lightning-button>
+                            <template if:true={record.EMS_Interview_Type__c}>
+                                <p>{interviewDetails}</p>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </template>
+            </div>
+            <lightning-button
+                variant="brand"
+                label="Send Bulk Emails"
+                onclick={sendBulkEmails}>
+            </lightning-button>
+        </template>
+    </lightning-card>
+</template>
+-->
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <div class="slds-m-around_small">
+            <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+            <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+        </div>
+        <template if:true={displayedRecords}>
+            <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                <template for:each={displayedRecords} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <div class="slds-m-around_medium">
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <div class="slds-p-around_medium">
+                            <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                            <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                            <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                            <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                            <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                            <p>Interview Location: {record.EMS_Interview_Location__c}</p>
+                            <template if:true={record.showDetails}>
+                                <p>{record.EMS_Interview_Details__c}</p>
+                            </template>
+                            <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick}></lightning-button>
+                            <template if:true={record.EMS_Interview_Type__c}>
+                                <p>{interviewDetails}</p>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </template>
+            </div>
+            <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+        </template>
+    </lightning-card>
+</template>
+-->
+
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <div class="slds-m-around_small">
+            <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+            <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+        </div>
+        <template if:true={displayedRecords}>
+            <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                <template for:each={displayedRecords} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <div class="slds-m-around_medium">
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <div class="slds-p-around_medium">
+                            <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                            <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                            <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                            <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                            <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                            <p>Interview Location: {record.EMS_Interview_Location__c}</p>
+                            <template if:true={record.showDetails}>
+                                <p>{record.EMS_Interview_Details__c}</p>
+                            </template>
+                            <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                            <template if:true={record.EMS_Interview_Type__c}>
+                                <p>{interviewDetails}</p>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </template>
+            </div>
+            <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+        </template>
+    </lightning-card>
+</template>
+-->
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <div class="slds-m-around_small">
+            <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+            <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+        </div>
+        <template if:true={displayedRecords}>
+            <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                <template for:each={displayedRecords} for:item="record">
+                    <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                </template>
+            </lightning-datatable>
+            <div class="slds-m-around_medium">
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <div class="slds-p-around_medium">
+                            <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                            <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                            <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                            <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                            <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                            <p>Candidate Email: {record.EMS_Applicant_Email__c}</p>
+                            <template if:true={record.showDetails}>
+                                <p>{record.EMS_Interview_Details__c}</p>
+                                <lightning-button variant="brand" label="Hide Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                            </template>
+                            <template if:false={record.showDetails}>
+                                <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                            </template>
+                            <template if:true={record.EMS_Interview_Type__c}>
+                                <p>{interviewDetails}</p>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </template>
+            </div>
+            <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+        </template>
+    </lightning-card>
+</template>
+-->
+<!--<template>
+    <lightning-card title="Send Interview Emails">
+        <div class="slds-m-around_small">
+            <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+            <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+        </div>
+        <template if:true={showDataTable}>
+            <div class="slds-m-around_medium">
+                <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                    <template for:each={displayedRecords} for:item="record">
+                        <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                    </template>
+                </lightning-datatable>
+            </div>
+            <div class="slds-m-around_medium" if:true={selectedRecords.length}>
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c}>
+                        <div class="slds-p-around_medium">
+                            <p>Interview Date: {record.EMS_Interview_Date__c}</p>
+                            <p>Interview Time: {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                            <p>Interview Type: {record.EMS_Interview_Type__c}</p>
+                            <p>Interview Status: {record.EMS_Interview_Status__c}</p>
+                            <p>Interviewer Name: {record.EMS_Interviewer_Name__c}</p>
+                            <p>Candidate Email: {record.EMS_Applicant_Email__c}</p>
+                            <template if:true={record.showDetails}>
+                                <p>{record.EMS_Interview_Details__c}</p>
+                                <lightning-button variant="brand" label="Hide Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                            </template>
+                            <template if:false={record.showDetails}>
+                                <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                            </template>
+                            <template if:true={record.EMS_Interview_Type__c}>
+                                <p>{interviewDetails}</p>
+                            </template>
+                        </div>
+                    </lightning-card>
+                </template>
+                <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+            </div>
+            <template if:false={selectedRecords.length}>
+                <div class="slds-m-around_medium">Please select at least one record.</div>
+            </template>
+        </template>
+        <template if:false={showDataTable}>
+            <div class="slds-m-around_small">No data to display</div>
+        </template>
+    </lightning-card>
+</template>
+-->
+<!--<template>
+    <div class="container">
+      <lightning-card title="Send Interview Emails">
+        <div class="search-container">
+          <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+          <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+        </div>
+        <template if:true={showDataTable}>
+          <div class="table-container">
+            <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+              <template for:each={displayedRecords} for:item="record">
+                <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+              </template>
+            </lightning-datatable>
+          </div>
+          <div class="selected-records-container" if:true={selectedRecords.length}>
+            <template for:each={selectedRecords} for:item="record">
+              <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="record-card">
+                <div class="card-content">
+                  <div class="row">
+                    <div class="col">
+                      <p><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                      <p><strong>Interview Time:</strong> {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                      <p><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                      <p><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                      <p><strong>Interviewer Name:</strong> {record.EMS_Interviewer_Name__c}</p>
+                      <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                      <template if:true={record.showDetails}>
+                        <p><strong>Interview Details:</strong></p>
+                        <p>{record.EMS_Interview_Details__c}</p>
+                        <lightning-button variant="brand" label="Hide Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                      </template>
+                      <template if:false={record.showDetails}>
+                        <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick} data-id={record.Id}></lightning-button>
+                      </template>
+                    </div>
+                    <template if:true={record.EMS_Interview_Type__c}>
+                      <div class="col interview-details">
+                        <p><strong>Interview Details:</strong></p>
+                        <p>{interviewDetails}</p>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </lightning-card>
+            </template>
+            <div class="send-emails-container">
+              <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+            </div>
+          </div>
+          <template if:false={selectedRecords.length}>
+            <div class="no-records-container">Please select at least one record.</div>
+          </template>
+        </template>
+        <template if:false={showDataTable}>
+          <div class="no-data-container">No data to display</div>
+        </template>
+      </lightning-card>
+    </div>
+  </template>
+-->
+
+<!--<template>
+    <div class="container">
+      <lightning-card title="Send Interview Emails" class="card">
+        <div class="search-container">
+          <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange} class="search-input"></lightning-input>
+          <lightning-button variant="brand" label="Search" onclick={handleSearchRecords} class="search-btn"></lightning-button>
+        </div>
+  
+        <template if:true={showDataTable}>
+          <div class="datatable-container">
+            <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection} class="datatable">
+              <template for:each={displayedRecords} for:item="record">
+                <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="checkbox"></lightning-input>
+              </template>
+            </lightning-datatable>
+          </div>
+  
+          <div class="card-container" if:true={selectedRecords.length}>
+            <template for:each={selectedRecords} for:item="record">
+              <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="interview-card">
+                <div class="record-details">
+                  <div class="details-row">
+                    <p class="details-label">Interview Date:</p>
+                    <p class="details-value">{record.EMS_Interview_Date__c}</p>
+                  </div>
+  
+                  <div class="details-row">
+                    <p class="details-label">Interview Time:</p>
+                    <p class="details-value">{record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                  </div>
+  
+                  <div class="details-row">
+                    <p class="details-label">Interview Type:</p>
+                    <p class="details-value">{record.EMS_Interview_Type__c}</p>
+                  </div>
+  
+                  <div class="details-row">
+                    <p class="details-label">Interview Status:</p>
+                    <p class="details-value">{record.EMS_Interview_Status__c}</p>
+                  </div>
+  
+                  <div class="details-row">
+                    <p class="details-label">Interviewer Name:</p>
+                    <p class="details-value">{record.EMS_Interviewer_Name__c}</p>
+                  </div>
+  
+                  <div class="details-row">
+                    <p class="details-label">Candidate Email:</p>
+                    <p class="details-value">{record.EMS_Applicant_Email__c}</p>
+                  </div>
+  
+                  <template if:false={record.showDetails}>
+                    <div class="details-row">
+                      <lightning-button variant="brand" label="Show Details" onclick={handleDetailsClick} data-id={record.Id} class="show-btn"></lightning-button>
+                    </div>
+                  </template>
+  
+                  <template if:true={record.showDetails}>
+                    <div class="details-row">
+                      <lightning-button variant="brand" label="Hide Details" onclick={handleDetailsClick} data-id={record.Id} class="hide-btn"></lightning-button>
+                    </div>
+  
+                    <div class="details-row">
+                      <p class="details-label">Interview Details:</p>
+                      <p class="details-value">{record.EMS_Interview_Details__c}</p>
+                    </div>
+                  </template>
+  
+                  <template if:true={record.EMS_Interview_Type__c}>
+                    <div class="details-row">
+                      <p class="details-label">Interview Notes:</p>
+                      <lightning-input type="textarea" name="notes" label="Enter notes" onchange={handleNotesChange} data-id={record.Id} class="notes-input"></lightning-input>
+                      </div>
+                      </template>
+                      <template if:true={record.showEmail}>
+                        <div class="details-row">
+                          <lightning-button variant="brand" label="Hide Email" onclick={handleEmailClick} data-id={record.Id} class="hide-btn"></lightning-button>
+                        </div>
+          
+                        <div class="details-row">
+                          <p class="details-label">Interview Email:</p>
+                          <p class="details-value">{record.emailContent}</p>
+                        </div>
+                      </template>
+          
+                      <template if:false={record.showEmail}>
+                        <div class="details-row">
+                          <lightning-button variant="brand" label="Send Interview Email" onclick={handleEmailClick} data-id={record.Id} class="send-email-btn"></lightning-button>
+                        </div>
+                      </template>
+                    </div>
+                  </lightning-card>
+                </template>
+              </div>
+          
+              <div class="button-container">
+                <lightning-button variant="brand" label="Schedule Interviews" onclick={handleScheduleClick} class="schedule-btn"></lightning-button>
+              </div>
+            </template>
+          
+            <template if:true={showModal}>
+              <div class="modal-backdrop slds-backdrop slds-backdrop_open"></div>
+              <div class="modal-container slds-modal slds-fade-in-open">
+                <div class="modal-header slds-modal__header">
+                  <h2 class="modal-title slds-text-heading_medium">{modalTitle}</h2>
+                  <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleModalClose}>
+                    <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                  </button>
+                </div>
+                <div class="modal-content slds-modal__content">{modalContent}</div>
+                <div class="modal-footer slds-modal__footer">{modalFooter}</div>
+              </div>
+            </template>
+          </lightning-card>
+        </div>
+    </template>-->
+
+
+   <!--<template>
+        <div class="container">
+            <lightning-card title="Send Interview Emails">
+                <div class="search-container">
+                    <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+                    <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+                </div>
+                <template if:true={showDataTable}>
+                    <div class="table-container">
+                        <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                            <template for:each={displayedRecords} for:item="record">
+                                <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                            </template>
+                        </lightning-datatable>
+                    </div>
+                    <div class="selected-records-container" if:true={selectedRecords.length}>
+                        <template for:each={selectedRecords} for:item="record">
+                            <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="record-card">
+                                <div class="card-content">
+                                    <div class="row">
+                                        <template if:true={record.EMS_Interview_Type__c}>
+                                            <div class="col interview-details">
+                                                <p><strong>Interview Details:</strong></p>
+                                                <p>{interviewDetails}</p>
+                                            </div>
+                                        </template>
+                                        <div class="col">
+                                            <p><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                            <p><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                            <p><strong>Interview Time:</strong> {record.EMS_Interview_Start_Time__c} - {record.EMS_Interview_End_Time__c}</p>
+                                            <p><strong>Interviewer Name:</strong> {record.EMS_Interviewer_Name__c}</p>
+                                            <p><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                            <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </lightning-card>
+                        </template>
+                        <div class="send-emails-container">
+                            <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+                        </div>
+                    </div>
+                    <template if:false={selectedRecords.length}>
+                        <div class="no-records-container">Please select at least one record.</div>
+                    </template>
+                </template>
+                <template if:false={showDataTable}>
+                    <div class="no-data-container">No data to display</div>
+                </template>
+            </lightning-card>
+        </div>
+    </template>
+-->
+<!--<template>
+    <div class="container">
+        <lightning-card title="Send Interview Emails">
+            <div class="search-container">
+                <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+                <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+            </div>
+            <template if:true={showDataTable}>
+                <div class="table-container">
+                    <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                        <template for:each={displayedRecords} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="selected-records-container" if:true={selectedRecords.length}>
+                    <template for:each={selectedRecords} for:item="record">
+                        <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="record-card">
+                            <div class="card-content">
+                                <div class="row">
+                                    <template if:true={record.EMS_Interview_Type__c}>
+                                        <div class="col interview-details">
+                                            <p><strong>Interview Details:</strong></p>
+                                            <p>{interviewDetails}</p>
+                                        </div>
+                                    </template>
+                                    <div class="col">
+                                        <p><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        
+                                        <p><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p><strong>Interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                        <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </template>
+                    <div class="send-emails-container">
+                        <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+                    </div>
+                </div>
+                <template if:false={selectedRecords.length}>
+                    <div class="no-records-container">Please select at least one record.</div>
+                </template>
+            </template>
+            <template if:false={showDataTable}>
+                <div class="no-data-container">No data to display</div>
+            </template>
+        </lightning-card>
+    </div>
+</template>
+-->
+
+<!--<template>
+    <div class="container">
+        <lightning-card title="Send Interview Emails">
+            <div class="search-container">
+                <lightning-input label="Search" type="search" value={searchKey} onchange={handleSearchKeyChange}></lightning-input>
+                <lightning-button variant="brand" label="Search" onclick={handleSearchRecords}></lightning-button>
+            </div>
+            <template if:true={showDataTable}>
+                <div class="table-container">
+                    <lightning-datatable 
+                        key-field="Id" 
+                        data={displayedRecords} 
+                        columns={columns} 
+                        onrowselection={handleRowSelection} 
+                        editable = true
+                        onsave={saveHandleAction}
+                        draft-values={draftValues}  
+                        
+                    >
+                        <template for:each={displayedRecords} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="selected-records-container" if:true={selectedRecords.length}>
+                    <template for:each={selectedRecords} for:item="record">
+                        <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="record-card">
+                            <div class="card-content">
+                                <div class="row">
+                                    <div class="col">
+                                        <p><strong>Interview Date:</strong> <lightning-input type="date" value={record.EMS_Interview_Date__c} onchange={handleInputChange} data-field="EMS_Interview_Date__c"></lightning-input></p>
+                                        <p><strong>Interview Type:</strong> 
+                                            <lightning-combobox name="InterviewType" value={record.EMS_Interview_Type__c} placeholder="-Select-" options={interviewTypeOptions} onchange={handleInputChange} data-field="EMS_Interview_Type__c"></lightning-combobox>
+                                        </p>
+                                        <p><strong>Interview Start Time:</strong> <lightning-input type="time" value={record.EMS_Interview_Start_Time__c} onchange={handleInputChange} data-field="EMS_Interview_Start_Time__c"></lightning-input></p>
+                                        <p><strong>Interview End Time:</strong> <lightning-input type="time" value={record.EMS_Interview_End_Time__c} onchange={handleInputChange} data-field="EMS_Interview_End_Time__c"></lightning-input></p>
+                                        <p><strong>Interviewer Name:</strong> <lightning-input type="text" value={record.EMS_Interviewer_Name__c} onchange={handleInputChange} data-field="EMS_Interviewer_Name__c"></lightning-input></p>
+                                        <p><strong>Interview Status:</strong> 
+                                            <lightning-combobox name="InterviewStatus" value={record.EMS_Interview_Status__c} placeholder="-Select-" options={interviewStatusOptions} onchange={handleInputChange} data-field="EMS_Interview_Status__c"></lightning-combobox>
+                                        </p>
+                                        <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <lightning-button variant="brand" label="Save" onclick={handleSaveRecord} data-id={record.Id}></lightning-button>
+                            </div>
+                        </lightning-card>
+                    </template>
+                    <div class="send-emails-container">
+                        <lightning-button variant="brand" label="Send Emails" onclick={handleSendEmails}></lightning-button>
+                    </div>
+                </div>
+                <template if:false={selectedRecords.length}>
+                    <div class="no-records-container">Please select at least one record.</div>
+                </template>
+            </template>
+            <template if:false={showDataTable}>
+                <div class="no-data-container">No data to display</div>
+            </template>
+        </lightning-card>
+    </div>
+</template>
+-->
+
+<!--<template>
+    <div class="container">
+        <lightning-card title="Send Interview Emails">
+            <div class="table-container">
+                <lightning-datatable key-field="Id" data={displayedRecords} columns={columns} onrowselection={handleRowSelection}>
+                    <template for:each={displayedRecords} for:item="record">
+                        <lightning-input key={record.Id} type="checkbox" data-id={record.Id}></lightning-input>
+                    </template>
+                </lightning-datatable>
+            </div>
+            <div class="selected-records-container" if:true={selectedRecords.length}>
+                <template for:each={selectedRecords} for:item="record">
+                    <lightning-card key={record.Id} title={record.EMS_Candidate_Name__c} class="record-card">
+                        <div class="card-content">
+                            <div class="row">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="col interview-details">
+                                        <p><strong>Interview Details:</strong></p>
+                                        <p>{interviewDetails}</p>
+                                    </div>
+                                </template>
+                                <div class="col">
+                                    <p><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                    <p><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                    <p><strong>Interview StartTime:</strong> {record.EMS_Interview_Start_Time__c}</p>
+                                    <p><strong>Interview EndTime:</strong> {record.EMS_Interview_End_Time__c}</p>
+                                    <p><strong>Interviewer Name:</strong> {record.EMS_Interviewer_Name__r.Name}</p>
+                                    <p><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                    <p><strong>Interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                    <p><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </lightning-card>
+                </template>
+                <div class="send-emails-container">
+                    <lightning-button variant="brand" label="Send Bulk Emails" onclick={handleSendEmails}></lightning-button>
+                </div>
+            </div>
+            <template if:false={selectedRecords.length}>
+                <div class="no-records-container">Please select at least one record.</div>
+            </template>
+        </lightning-card>
+    </div>
+</template>
+-->
+
+<!--<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        
+                        columns={columns}
+                        onrowselection={handleRowSelection}
+                        show-row-number-column
+                        onsave={handleSave}
+                        draft-values={saveDraftValue}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        <p class="slds-text-heading_small"><strong>interview Stage:</strong> {record.EMS_Interview_Stage__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+-->
+
+
+
+
+
+
+
+

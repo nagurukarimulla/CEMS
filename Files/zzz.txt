@@ -1,0 +1,18 @@
+{
+    "zip_code": "08701",
+    "lat": 40.077023,
+    "lng": -74.200327,
+    "city": "Lakewood",
+    "state": "NJ",
+    "timezone": {
+        "timezone_identifier": "America/New_York",
+        "timezone_abbr": "EST",
+        "utc_offset_sec": -18000,
+        "is_dst": "F"
+    },
+    "acceptable_city_names": [],
+    "area_codes": [
+        732,
+        848
+    ]
+}

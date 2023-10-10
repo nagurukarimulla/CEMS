@@ -1,0 +1,905 @@
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import skillsFetched from '@salesforce/apex/FetchSkillsFromJobOpening.skillsFetched';
+import saveRatingsAndComments from '@salesforce/apex/FetchSkillsFromJobOpening.saveRatingsAndComments';
+
+export default class SkillsFeedback extends LightningElement {
+    @api recordId; // Record ID passed as an attribute
+    @track skills;
+    @track feedbackRecords = [];
+    @track showComponent = false; // Property to control component visibility
+    @track showButton = true; // Property to control button visibility
+
+    handleOpen() {
+        this.showButton = false; // Hide the button
+        this.showComponent = true; // Show the component
+    }
+
+    handleClose() {
+        this.showComponent = false; // Hide the component
+        this.showButton = true; // Show the button
+    }
+
+
+    @wire(skillsFetched, { recordId: '$recordId' })
+    wiredSkills({ data, error }) {
+        if (data) {
+          
+            this.skills = data;
+            console.log('skills'+this.skills);
+            this.initializeFeedbackRecords();
+        } else if (error) {
+            console.error(error);
+        }
+    }
+
+    initializeFeedbackRecords() {
+        // Initialize feedbackRecords with existing values for each skill
+        this.feedbackRecords = this.skills.map(skill => {
+            const existingRecord = this.feedbackRecords.find(record => record.SkillName === skill);
+    
+            if (existingRecord) {
+                return {
+                    ...existingRecord,
+                    Id: this.recordId,
+                    SkillName: skill
+                };
+            }
+    
+            const record = {};
+            record.Id = this.recordId;
+            record.SkillName = skill;
+            record.SkillRating = null;
+            record.SkillComment = '';
+            return record;
+        });
+    
+        console.log('Skills:', this.skills);
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+    handleRatingChange(event) {
+        const skillName = event.target.dataset.skill;
+        const value = parseInt(event.target.value);
+        
+        console.log('Skill Name:', skillName);
+        console.log('Rating Value:', value);
+
+        // Update the corresponding skill rating field in feedbackRecords
+        this.feedbackRecords = this.feedbackRecords.map(record => {
+            if (record.SkillName === skillName) {
+                return { ...record, SkillRating: value };
+            }
+           
+            return record;
+        });
+        
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+
+    handleCommentChange(event) {
+        const skillName = event.target.dataset.skill;
+        const value = event.target.value;
+        
+        console.log('Skill Name:', skillName);
+        console.log('Comment Value:', value);
+
+        // Cancel the previous timeout if it exists
+        if (this.commentChangeTimeout) {
+            clearTimeout(this.commentChangeTimeout);
+        }
+
+        // Set a new timeout to update the feedback records after 1 second
+        this.commentChangeTimeout = setTimeout(() => {
+            // Update the corresponding skill comment field in feedbackRecords
+            this.feedbackRecords = this.feedbackRecords.map(record => {
+                if (record.SkillName === skillName) {
+                    return { ...record, SkillComment: value };
+                }
+              
+                return record;
+            });
+
+            console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+        }, 1000);
+    }
+    handleAddSkill() {
+        const newSkill = {
+            SkillName: '', // You can initialize with a default value or leave it empty
+            SkillRating: null,
+            SkillComment: ''
+        };
+    
+        this.feedbackRecords = [...this.feedbackRecords, newSkill];
+    }
+    
+
+    handleSave() {
+        // Check if any feedback record has empty rating or comment
+        const isFeedbackEmpty = this.feedbackRecords.some(
+            record => record.SkillRating === null || record.SkillComment === ''
+        );
+    
+        if (isFeedbackEmpty) {
+            // Show a toast notification for the validation error
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please enter ratings and comments for all skills',
+                    variant: 'error',
+                })
+            );
+            return;
+        }
+    
+        // Generate unique IDs for each feedback record if needed
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    
+        // Make a copy of feedbackRecords
+        const feedbackrec = [...this.feedbackRecords];
+    
+        console.log('Feedback Records with IDs:', JSON.stringify(feedbackrec));
+    
+        const saveFeedback = async () => {
+            try {
+                // Call the Apex method to save the ratings and comments
+                await saveRatingsAndComments({ records: feedbackrec, recordId: this.recordId });
+    
+                // Show a toast notification for successful save
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Ratings and comments saved successfully',
+                        variant: 'success',
+                    })
+                );
+    
+                // Reset the feedbackRecords to clear the form
+                this.initializeFeedbackRecords();
+                   // Hide the component and show the button after saving
+                this.showComponent = false;
+                this.showButton = true;
+            } catch (error) {
+                // Handle the error in saving
+                console.error('Error saving ratings and comments:', error);
+    
+                // Show a toast notification for the error
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Error saving ratings and comments',
+                        variant: 'error',
+                    })
+                );
+            }
+        };
+    
+        saveFeedback();
+    }
+
+    handleReset() {
+        this.feedbackRecords = this.feedbackRecords.map(record => ({
+            ...record,
+            SkillRating: null,
+            SkillComment: '',
+        }));
+    
+        const inputFields = this.template.querySelectorAll('lightning-input');
+        const textAreas = this.template.querySelectorAll('lightning-textarea');
+    
+        inputFields.forEach(field => {
+            field.value = null;
+        });
+    
+        textAreas.forEach(area => {
+            area.value = null;
+        });
+    }
+    
+    
+                }
+                
+    
+        
+        
+<template>
+    <template if:true={showButton}>
+        <div class="slds-text-align_center slds-m-top_medium slds-theme_shade slds-theme_alert-texture">
+            <lightning-button label="Open Skills Feedback" onclick={handleOpen} variant="brand" class="slds-button slds-button_brand"></lightning-button>
+        </div>
+    </template>
+    
+    
+    <template if:true={showComponent}>
+    <template if:true={skills}>
+        <div class="slds-box slds-theme_shade slds-theme_alert-texture">
+            <h2 class="slds-text-heading_medium slds-text-color_success slds-p-bottom_small slds-border_bottom">
+                <lightning-icon icon-name="standard:feedback" size="medium" class="slds-m-right_small"></lightning-icon>
+                Technical Skills Feedback
+            </h2>
+        </div>
+        
+
+        <div class="container">
+            <template for:each={skills} for:item="skill">
+                <div key={skill} class="skill-row">
+                    <div class="skill-name">{skill}</div>
+                    <div class="rating-container">
+                        <lightning-input type="number" min="0" max="5" step="1" data-skill={skill}
+                            label="Rating" onchange={handleRatingChange} class="rating-input"></lightning-input>
+                    </div>
+                    <div class="comment-container">
+                        <lightning-textarea max-length="255" data-skill={skill} label="Comment" onchange={handleCommentChange} class="comment-textarea">
+                        </lightning-textarea>
+                    </div>
+                </div>
+            </template>
+        </div>
+        <div class="button-container">
+            <div class="slds-text-align_left">
+                <lightning-button label="Reset Feedback" onclick={handleReset} variant="destructive-text"></lightning-button>
+            </div>
+            <div class="slds-text-align_center">
+                <lightning-button label="Close Feedback" onclick={handleClose}></lightning-button>
+            </div>
+            <div class="slds-text-align_right">
+                <lightning-button label="Save Feedback" onclick={handleSave} variant="Brand Outline"></lightning-button>
+            </div>
+            <div class="slds-text-align_center slds-m-top_medium">
+                <lightning-button label="Add Skill" onclick={handleAddSkill} variant="brand" class="slds-button slds-button_brand"></lightning-button>
+            </div>
+        </div>
+    </template>
+    <template if:false={skills}>
+        <div class="slds-card">
+            <div class="slds-card__body">
+                <p>No skills found.</p>
+            </div>
+        </div>
+    </template>
+</template>
+
+</template>
+
+
+
+
+public class FetchSkillsFromJobOpening {
+    @AuraEnabled(cacheable=true)
+    public static List<String> skillsFetched(String recordId) {
+        List<String> skills = new List<String>();
+        
+        try {
+            List<EMS_Feedback__c> feedbackList = [
+                SELECT Id, Name, EMS_Feedback_for_Interview__c
+                FROM EMS_Feedback__c
+                WHERE Id = :recordId
+            ];
+            
+            System.debug('Feedback records: ' + feedbackList);
+            
+            Set<String> interviewIds = new Set<String>();
+            for (EMS_Feedback__c feedback : feedbackList) {
+                interviewIds.add(feedback.EMS_Feedback_for_Interview__c);
+            }
+            
+            List<EMS_Interview_Scheduling__c> interviewList = [
+                SELECT Id, Name, EMS_Job_Application_ID__c
+                FROM EMS_Interview_Scheduling__c
+                WHERE Id = :interviewIds
+            ];
+            
+            System.debug('Interview records: ' + interviewList);
+            
+            Set<String> jobApplicationIds = new Set<String>();
+            for (EMS_Interview_Scheduling__c interview : interviewList) {
+                jobApplicationIds.add(interview.EMS_Job_Application_ID__c);
+            }
+            
+            List<EMS_Job_Applications__c> jobApplicationList = [
+                SELECT Id, Name, EMS_Job_Opening__c
+                FROM EMS_Job_Applications__c
+                WHERE Id = :jobApplicationIds
+            ];
+            
+            System.debug('Job Application records: ' + jobApplicationList);
+            
+            Set<String> jobOpeningIds = new Set<String>();
+            for (EMS_Job_Applications__c jobApplication : jobApplicationList) {
+                jobOpeningIds.add(jobApplication.EMS_Job_Opening__c);
+            }
+            
+            EMS_Job_Opening__c jobOpening = [
+                SELECT Id, Name, Skills__c
+                FROM EMS_Job_Opening__c
+                WHERE Id = :jobOpeningIds
+            ];
+            
+            System.debug('Job Opening record: ' + jobOpening);
+            
+            if (jobOpening != null && !String.isEmpty(jobOpening.Skills__c)) {
+                skills = jobOpening.Skills__c.split(';');
+                System.debug('Skills from multi-select picklist: ' + skills);
+            }
+        } catch (Exception e) {
+            System.debug('Error occurred: ' + e.getMessage());
+        }
+        
+        return skills;
+    }
+    
+@AuraEnabled(cacheable=false)
+public static void saveRatingsAndComments(List<FeedbackRecord> records, String recordId) {
+    List<EMS_Feedback__c> feedbackList = new List<EMS_Feedback__c>();
+    List<String> skills = skillsFetched(recordId);
+    Map<Integer, String> skillFieldMap = createSkillFieldMap();
+
+    EMS_Feedback__c feedback = new EMS_Feedback__c(Id = recordId);
+    for (FeedbackRecord record : records) {
+        String skillName = record.SkillName;
+        Integer skillRating = record.SkillRating;
+        String skillComment = record.SkillComment;
+
+        if (skills.contains(skillName)) {
+            Integer skillIndex = skills.indexOf(skillName) + 1;
+            String fieldRating = skillFieldMap.get(skillIndex) + '_Rating__c';
+            String fieldComment = 'Skill' + skillIndex + '_Comment__c';
+            String fieldSkill = 'Skill' + skillIndex + '__c';
+
+            feedback.put(fieldRating, skillRating);
+            feedback.put(fieldComment, skillComment);
+            feedback.put(fieldSkill, skillName);
+        }
+    }
+
+    feedbackList.add(feedback);
+
+     Database.SaveResult[] saveResults = Database.update(feedbackList, false);
+    for (Database.SaveResult saveResult : saveResults) {
+        if (saveResult.isSuccess()) {
+            System.debug('Feedback record updated successfully.');
+        } else {
+            for (Database.Error error : saveResult.getErrors()) {
+                System.debug('Error updating feedback record: ' + error.getMessage());
+            }
+            throw new AuraHandledException('Error saving ratings and comments.');
+        }
+    }
+}
+
+
+private static Map<Integer, String> createSkillFieldMap() {
+    Map<Integer, String> skillFieldMap = new Map<Integer, String>();
+    skillFieldMap.put(1, 'EMS_Skill1');
+    skillFieldMap.put(2, 'EMS_Skill2');
+    skillFieldMap.put(3, 'EMS_Skill3');
+    skillFieldMap.put(4, 'EMS_Skill4');
+    skillFieldMap.put(5, 'EMS_Skill5');
+    skillFieldMap.put(6, 'EMS_Skill6');
+    skillFieldMap.put(7, 'EMS_Skill7');
+    return skillFieldMap;
+}
+
+
+
+public class FeedbackRecord {
+    @AuraEnabled
+    public String Id { get; set; }
+    
+    @AuraEnabled
+    public String SkillName { get; set; }
+    
+    @AuraEnabled
+    public Integer SkillRating { get; set; } 
+    
+    @AuraEnabled
+    public String SkillComment { get; set; } 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public class FetchSkillsFromJobOpening {
+    @AuraEnabled(cacheable=true)
+    public static List<String> skillsFetched(String recordId) {
+        List<String> skill = new List<String>();
+        
+        try {
+            List<EMS_Feedback__c> feedback = [SELECT Id, Name, EMS_Feedback_for_Interview__c  From EMS_Feedback__c WHERE Id = :recordId];
+            System.debug(feedback);
+            Set<String> fids = new Set<String>();
+            for(EMS_Feedback__c f : feedback){
+                fids.add(f.EMS_Feedback_for_Interview__c);
+            }
+            List<EMS_Interview_Scheduling__c> interview = [SELECT Id, Name, EMS_Job_Application_ID__c FROM EMS_Interview_Scheduling__c WHERE Id = :fids];
+            System.debug(interview);
+            Set<String> ids = new Set<String>();
+            for(EMS_Interview_Scheduling__c is : interview){
+                ids.add(is.EMS_Job_Application_ID__c);
+            }
+           List<EMS_Job_Applications__c> jobApp = [SELECT Id, Name, EMS_Job_Opening__c FROM EMS_Job_Applications__c WHERE Id = :ids];
+            System.debug(jobApp);
+            Set<String> jids = new Set<String>();
+            for(EMS_Job_Applications__c jobap : jobApp){
+                jids.add(jobap.EMS_Job_Opening__c);
+            }
+            EMS_Job_Opening__c jobOpening = [SELECT Id, Name, Skills__c FROM EMS_Job_Opening__c WHERE Id = :jids];
+           System.debug(jobOpening);
+            
+            if (jobOpening != null && !String.isEmpty(jobOpening.Skills__c)) {
+                skill = jobOpening.Skills__c.split(';');
+                System.debug('Skills from multi-select picklist: ' + skill);
+            }
+        } catch (Exception e) {
+            System.debug('Error occurred: ' + e.getMessage());
+        }
+        
+        return skill;
+    }
+    
+@AuraEnabled(cacheable=false)
+public static void saveRatingsAndComments(List<FeedbackRecord> records, String recordId) {
+    List<EMS_Feedback__c> feedbackList = new List<EMS_Feedback__c>();
+    List<String> skills = skillsFetched(recordId);
+    Map<Integer, String> skillFieldMap = createSkillFieldMap();
+
+    EMS_Feedback__c feedback = new EMS_Feedback__c(Id = recordId);
+    for (FeedbackRecord record : records) {
+        String skillName = record.SkillName;
+        Integer skillRating = record.SkillRating;
+        String skillComment = record.SkillComment;
+
+        if (skills.contains(skillName)) {
+            Integer skillIndex = skills.indexOf(skillName) + 1;
+            String fieldRating = skillFieldMap.get(skillIndex) + '_Rating__c';
+            String fieldComment = 'Skill' + skillIndex + '_Comment__c';
+            String fieldSkill = 'Skill' + skillIndex + '__c';
+
+            feedback.put(fieldRating, skillRating);
+            feedback.put(fieldComment, skillComment);
+            feedback.put(fieldSkill, skillName);
+        }
+    }
+
+    feedbackList.add(feedback);
+
+    try {
+        update feedbackList;
+    } catch (Exception e) {
+        System.debug('Error saving ratings and comments: ' + e.getMessage());
+        throw new AuraHandledException('Error saving ratings and comments: ' + e.getMessage());
+    }
+}
+
+
+private static Map<Integer, String> createSkillFieldMap() {
+    Map<Integer, String> skillFieldMap = new Map<Integer, String>();
+    skillFieldMap.put(1, 'EMS_Skill1');
+    skillFieldMap.put(2, 'EMS_Skill2');
+    skillFieldMap.put(3, 'EMS_Skill3');
+    skillFieldMap.put(4, 'EMS_Skill4');
+    skillFieldMap.put(5, 'EMS_Skill5');
+    skillFieldMap.put(6, 'EMS_Skill6');
+    skillFieldMap.put(7, 'EMS_Skill7');
+    return skillFieldMap;
+}
+
+
+
+public class FeedbackRecord {
+    @AuraEnabled
+    public String Id { get; set; }
+    
+    @AuraEnabled
+    public String SkillName { get; set; }
+    
+    @AuraEnabled
+    public Integer SkillRating { get; set; } 
+    
+    @AuraEnabled
+    public String SkillComment { get; set; } 
+}
+
+========================================================================
+updated code date : june 10 2023
+
+<template>
+    <template if:true={showButton}>
+        <div class="slds-text-align_center slds-m-top_medium slds-theme_shade slds-theme_alert-texture">
+            <lightning-button label="Open Skills Feedback" onclick={handleOpen} variant="brand" class="slds-button slds-button_brand"></lightning-button>
+        </div>
+    </template>
+
+    <template if:true={showComponent}>
+        <template if:true={skills}>
+            <div class="slds-box slds-theme_shade slds-theme_alert-texture">
+                <h2 class="slds-text-heading_medium slds-text-color_success slds-p-bottom_small slds-border_bottom">
+                    <lightning-icon icon-name="standard:feedback" size="medium" class="slds-m-right_small"></lightning-icon>
+                    Technical Skills Feedback
+                </h2>
+            </div>
+
+            <div class="container">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout">
+                    <thead>
+                        <tr>
+                            <th scope="col">Skills</th>
+                            <th scope="col">Rating</th>
+                            <th scope="col">Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={skills} for:item="skill">
+                            <tr key={skill}>
+                                <td>{skill}</td>
+                                <td>
+                                    <div class="rating-container">
+                                        <lightning-input type="number" min="0" max="5" step="1" data-skill={skill}
+                                             onchange={handleRatingChange} class="rating-input"></lightning-input>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="comment-container">
+                                        <lightning-input type="text" max-length="100" data-skill={skill} onchange={handleCommentChange} class="comment-textarea">
+                                        </lightning-input>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-container">
+                <div class="slds-text-align_left">
+                    <lightning-button label="Reset Feedback" onclick={handleReset} variant="destructive-text"></lightning-button>
+                </div>
+                <div class="slds-text-align_center">
+                    <lightning-button label="Close Feedback" onclick={handleClose}></lightning-button>
+                </div>
+                <div class="slds-text-align_right">
+                    <lightning-button label="Save Feedback" onclick={handleSave} variant="Brand Outline"></lightning-button>
+                </div>
+            </div>
+
+            <div class="scroll-container" style="margin-top: 20px;">
+                <div class="scroll-text">Please complete all ratings and comments for each skill in the form. Your cooperation is appreciated.</div>
+            </div>
+
+
+        </template>
+        <template if:false={skills}>
+            <div class="slds-card slds-p-around_medium">
+                <div class="slds-card__body">
+                    <p>No skills found.</p>
+                </div>
+            </div>
+        </template>
+    </template>
+</template>
+
+
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import skillsFetched from '@salesforce/apex/FetchSkillsFromJobOpening.skillsFetched';
+import saveRatingsAndComments from '@salesforce/apex/FetchSkillsFromJobOpening.saveRatingsAndComments';
+
+export default class SkillsFeedback extends LightningElement {
+    @api recordId; // Record ID passed as an attribute
+    @track skills;
+    @track feedbackRecords = [];
+    @track showComponent = false; // Property to control component visibility
+    @track showButton = true; // Property to control button visibility
+    commentChangeTimeout
+
+    handleOpen() {
+        this.showButton = false; // Hide the button
+        this.showComponent = true; // Show the component
+    }
+
+    handleClose() {
+        this.showComponent = false; // Hide the component
+        this.showButton = true; // Show the button
+    }
+
+
+    @wire(skillsFetched, { recordId: '$recordId' })
+    wiredSkills({ data, error }) {
+        if (data) {
+          
+            this.skills = data;
+            console.log('skills'+this.skills);
+            this.initializeFeedbackRecords();
+        } else if (error) {
+            console.error(error);
+        }
+    }
+
+    initializeFeedbackRecords() {
+        // Initialize feedbackRecords with existing values for each skill
+        this.feedbackRecords = this.skills.map(skill => {
+            const existingRecord = this.feedbackRecords.find(record => record.SkillName === skill);
+    
+            if (existingRecord) {
+                return {
+                    ...existingRecord,
+                    Id: this.recordId,
+                    SkillName: skill
+                };
+            }
+    
+            const record = {};
+            record.Id = this.recordId;
+            record.SkillName = skill;
+            record.SkillRating = null;
+            record.SkillComment = '';
+            return record;
+        });
+    
+        console.log('Skills:', this.skills);
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+    handleRatingChange(event) {
+        const skillName = event.target.dataset.skill;
+        const value = parseInt(event.target.value);
+        
+        console.log('Skill Name:', skillName);
+        console.log('Rating Value:', value);
+
+        // Update the corresponding skill rating field in feedbackRecords
+        this.feedbackRecords = this.feedbackRecords.map(record => {
+            if (record.SkillName === skillName) {
+                return { ...record, SkillRating: value };
+            }
+           
+            return record;
+        });
+        
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+
+    handleCommentChange(event) {
+        const skillName = event.target.dataset.skill;
+        const value = event.target.value;
+        
+        console.log('Skill Name:', skillName);
+        console.log('Comment Value:', value);
+
+        // Cancel the previous timeout if it exists
+        if (this.commentChangeTimeout) {
+            clearTimeout(this.commentChangeTimeout);
+        }
+
+        // Set a new timeout to update the feedback records after 1 second
+        this.commentChangeTimeout = setTimeout(() => {
+            // Update the corresponding skill comment field in feedbackRecords
+            this.feedbackRecords = this.feedbackRecords.map(record => {
+                if (record.SkillName === skillName) {
+                    return { ...record, SkillComment: value };
+                }
+              
+                return record;
+            });
+
+            console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+        }, 750);
+    }
+
+    handleSave() {
+        // Check if any feedback record has empty rating or comment
+        const isFeedbackEmpty = this.feedbackRecords.some(
+            record => record.SkillRating === null || record.SkillComment === ''
+        );
+    
+        if (isFeedbackEmpty) {
+            // Show a toast notification for the validation error
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please enter ratings and comments for all skills',
+                    variant: 'error',
+                })
+            );
+            return;
+        }
+    
+        // Generate unique IDs for each feedback record if needed
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    
+        // Make a copy of feedbackRecords
+        const feedbackrec = [...this.feedbackRecords];
+    
+        console.log('Feedback Records with IDs:', JSON.stringify(feedbackrec));
+    
+        const saveFeedback = async () => {
+            try {
+                // Call the Apex method to save the ratings and comments
+                await saveRatingsAndComments({ records: feedbackrec, recordId: this.recordId });
+    
+                // Show a toast notification for successful save
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Ratings and comments saved successfully',
+                        variant: 'success',
+                    })
+                );
+    
+                // Reset the feedbackRecords to clear the form
+                this.initializeFeedbackRecords();
+                   // Hide the component and show the button after saving
+                this.showComponent = false;
+                this.showButton = true;
+            } catch (error) {
+                // Handle the error in saving
+                console.error('Error saving ratings and comments:', error);
+    
+                // Show a toast notification for the error
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Error saving ratings and comments',
+                        variant: 'error',
+                    })
+                );
+            }
+        };
+    
+        saveFeedback();
+    }
+
+    handleReset() {
+        this.feedbackRecords = this.feedbackRecords.map(record => ({
+            ...record,
+            SkillRating: null,
+            SkillComment: '',
+        }));
+    
+        const inputFields = this.template.querySelectorAll('lightning-input');
+        const textAreas = this.template.querySelectorAll('lightning-textarea');
+    
+        inputFields.forEach(field => {
+            field.value = null;
+        });
+    
+        textAreas.forEach(area => {
+            area.value = null;
+        });
+    }
+    
+    
+                }
+
+.container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  margin-top: 0.2rem; /* Adjust this value to decrease the top space */
+}
+
+.skill-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+.rating-container {
+  flex: 1;
+  margin-bottom: 0.6rem;
+}
+
+.comment-container {
+  flex: 2;
+  margin-bottom: 0.6rem;
+}
+
+.rating-input {
+  width: 180px;
+}
+
+.comment-textarea {
+  resize: vertical;
+  height: 60px;
+  margin-top: 0.5rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.container table {
+  background-color: #f9f9f9;
+  border-collapse: collapse; /* Merge table borders */
+  border-spacing: 0; /* Remove spacing between table cells */
+}
+
+.container tbody tr {
+  height: 25px; /* Adjust the height as needed */
+}
+
+.container th,
+.container td {
+  padding: 4px 8px; /* Adjust the padding as needed */
+}
+
+.container thead th {
+  background-color: #e0e0e0;
+}
+
+.container tbody tr:nth-child(odd) {
+  background-color: #fce4ec; /* Light Pink */
+}
+
+.container tbody tr:nth-child(even) {
+  background-color: #bbdefb; /* Light Blue */
+}
+
+.scroll-container {
+  border: 1px solid #d45d5d;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.scroll-text {
+  text-align: right;
+  transform: translateX(100%);
+  animation: my-animation 15s linear infinite;
+}
+
+@keyframes my-animation {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.button-container .slds-text-align_left lightning-button {
+  background-color: #ff9999;
+  color: white;
+}
+
+.button-container .slds-text-align_center lightning-button {
+  background-color: #99ccff;
+  color: white;
+}
+
+.button-container .slds-text-align_right lightning-button {
+  background-color: #66cc99;
+  color: white;
+}
+
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+      <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__RecordAction</target>
+    </targets>
+</LightningComponentBundle>

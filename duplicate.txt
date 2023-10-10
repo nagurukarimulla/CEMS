@@ -1,0 +1,753 @@
+InterviewEmailController.apxc
+
+public with sharing class InterviewEmailController {
+  
+@AuraEnabled
+public static void sendBulkEmails(List<Id> interviewIds) {
+    List<EMS_Interview_Scheduling__c> interviewList = [SELECT Id, EMS_Interview_Date__c, EMS_Interview_End_Time__c, EMS_Interview_Round__c, EMS_Interview_Start_Time__c, EMS_Interview_Status__c, EMS_Interview_Type__c, EMS_Meeting_Link__c, EMS_Interviewer_Name__c, EMS_Job_Application_ID__c, EMS_Candidate_Name__c, EMS_Interview_Location__c, EMS_Interviewer_Email__c, EMS_Applicant_Email__c, EMS_Interview_Stage__c, EMS_Decline_Reason__c FROM EMS_Interview_Scheduling__c WHERE EMS_Interview_Status__c = 'Accepted' AND Id IN :interviewIds];
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    
+    for(EMS_Interview_Scheduling__c interview : interviewList) {
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        String[] toAddresses = new String[] { };
+        
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c };
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c };
+        }
+        
+        email.setToAddresses(toAddresses);
+        email.setSubject('Interview Schedule Details');
+        String body = '';
+        
+        // Add both in-person and virtual interview details to the email body
+        DateTime startDateTime = DateTime.newInstance(interview.EMS_Interview_Date__c, interview.EMS_Interview_Start_Time__c);
+        DateTime endDateTime = DateTime.newInstance(interview.EMS_Interview_Date__c, interview.EMS_Interview_End_Time__c);
+        body += 'Your interview is scheduled for ' + startDateTime.format('MM/dd/yyyy hh:mm a') + ' - ' + endDateTime.format('hh:mm a') + ' (UTC).\n';
+        
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            body += 'The interview will be held virtually. Please use the following link to join the virtual interview: ' + interview.EMS_Meeting_Link__c + '\n';
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            body += 'The interview will be held in-person at the following location: ' + interview.EMS_Interview_Location__c + '\n';
+        }
+        
+        email.setPlainTextBody(body);
+        emails.add(email);
+    }
+
+    // check if emails list is not empty before calling Messaging.sendEmail()
+    System.debug('Number of emails in the list: ' + emails.size());
+    if(!emails.isEmpty()) {
+        System.debug('Sending emails...');
+        Messaging.sendEmail(emails);
+    }
+    System.debug('Email sending completed');
+}
+
+
+@AuraEnabled
+public static List<EMS_Interview_Scheduling__c> getInterviewRecords() {
+    List<EMS_Interview_Scheduling__c> interviewList = [SELECT Id, EMS_Interview_Date__c, EMS_Interview_End_Time__c, 
+                                                      EMS_Interview_Round__c, EMS_Interview_Start_Time__c, 
+                                                      EMS_Interview_Status__c, EMS_Interview_Type__c, 
+                                                      EMS_Meeting_Link__c, EMS_Interviewer_Name__c, 
+                                                      EMS_Job_Application_ID__c, EMS_Candidate_Name__c, 
+                                                      EMS_Interview_Location__c, EMS_Interviewer_Email__c, 
+                                                      EMS_Applicant_Email__c, EMS_Interview_Stage__c, 
+                                                      EMS_Decline_Reason__c 
+                                                      FROM EMS_Interview_Scheduling__c];
+    return interviewList;
+}
+ 
+}
+
+
+
+InterviewEmailControllerTest.Apxc
+
+
+
+
+
+
+
+
+
+EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+
+        jobopening.EMS_Department__c = 'IT';
+
+        jobopening.EMS_Experience__c = '0-1 Yr(Fresher)';
+
+        jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+
+        jobopening.EMS_Minimum_Salary__c = 9000;
+
+        jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+
+        jobopening.EMS_Open_Date__c = Date.today();
+
+        jobopening.Hire_by_Date__c = Date.today();
+
+        jobopening.EMS_Maximum_Salary__c = 70000;
+
+        insert jobopening;
+
+
+
+
+
+
+
+
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if a new record was inserted or the field value was updated
+        if (Trigger.isInsert || Trigger.isUpdate && (Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c || Trigger.oldMap.get(record.Id).EMS_Interview_Location__c != record.EMS_Interview_Location__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the meeting link or location is available
+            String emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c;
+            
+            if (!String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If a meeting link is available, add it to the email body
+                emailBody += '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            }
+            
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                // If a location is available, add it to the email body
+                emailBody += '\nInterview Location: ' + record.EMS_Interview_Location__c;
+            } else if (String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If neither a meeting link nor a location is available, don't send an email
+                continue;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*
+
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if the EMS_meeting_Link__c field is not empty and a new record was inserted or the field value was updated
+        if (!String.isBlank(record.EMS_Meeting_Link__c) && (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the interview location field is empty or not
+            String emailBody;
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c + '\nInterview Location: ' + record.EMS_Interview_Location__c + '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            } else {
+                emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c + '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if the EMS_meeting_Link__c field is not empty and a new record was inserted or the field value was updated
+        if (!String.isBlank(record.EMS_Meeting_Link__c) && (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the interview location field is empty or not
+            String emailBody;
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c + '\nInterview Location: ' + record.EMS_Interview_Location__c + '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            } else if (String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If there is no meeting link or location specified, don't send an email
+                continue;
+            } else {
+                emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c + '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if the EMS_meeting_Link__c field is not empty and a new record was inserted or the field value was updated
+        if (!String.isBlank(record.EMS_Meeting_Link__c) && (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the interview location field is empty or not
+            String emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c;
+            
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                emailBody += '\nInterview Location: ' + record.EMS_Interview_Location__c;
+            }
+            
+            if (!String.isBlank(record.EMS_Meeting_Link__c)) {
+                emailBody += '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            } else if (String.isBlank(record.EMS_Interview_Location__c)) {
+                // If there is no meeting link or location specified, don't send an email
+                continue;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if the EMS_meeting_Link__c field is not empty and a new record was inserted or the field value was updated
+        if (!String.isBlank(record.EMS_Meeting_Link__c) && (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Create the email body based on whether the interview location field is empty or not
+            String emailBody = EmailBuilder.buildEmailBody(record);
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if the EMS_meeting_Link__c field is not empty and a new record was inserted or the field value was updated
+        if (!String.isBlank(record.EMS_Meeting_Link__c) && (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c)) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the interview location field is empty or not
+            String emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c;
+            
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                emailBody += '\nInterview Location: ' + record.EMS_Interview_Location__c;
+            }
+            
+            if (!String.isBlank(record.EMS_Meeting_Link__c)) {
+                emailBody += '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages if at least one of meeting link or meeting location is specified
+    if (emailsToSend.size() > 0) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'naguruk@cittacore.com';
+    
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if a new record was inserted or the field value was updated
+        if (Trigger.isInsert || Trigger.isUpdate && Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c) {
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the meeting link or location is available
+            String emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\nWe are excited to invite you to an interview for the position of ' + record.EMS_Job_Application_ID__c + '. The details of the interview are as follows:\n\nInterviewer Name: ' + record.EMS_Interviewer_Name__c + '\nInterview Date: ' + record.EMS_Interview_Date__c + '\nInterview Start Time: ' + record.EMS_Interview_Start_Time__c + '\nInterview End Time: ' + record.EMS_Interview_End_Time__c;
+            
+            if (!String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If a meeting link is available, add it to the email body
+                emailBody += '\n\nPlease use the following link to access the online meeting: ' + record.EMS_Meeting_Link__c;
+            }
+            
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                // If a location is available, add it to the email body
+                emailBody += '\nInterview Location: ' + record.EMS_Interview_Location__c;
+            } else if (String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If neither a meeting link nor a location is available, don't send an email
+                continue;
+            }
+            
+            email.setPlainTextBody(emailBody); // Set the email body
+            
+            // Add the email message to the list of emails to send
+            emailsToSend.add(email);
+        }
+    }
+    
+    // Send the email messages
+    if (!emailsToSend.isEmpty()) {
+        Messaging.sendEmail(emailsToSend);
+    }
+}
+*/
+
+
+
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<Messaging.SingleEmailMessage> emailsToSend = new List<Messaging.SingleEmailMessage>();
+    String senderEmail = 'shilpas@cittacore.com';
+
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        // Check if a new record was inserted or the field value was updated
+        if (Trigger.isInsert || Trigger.isUpdate && 
+           (Trigger.oldMap.get(record.Id).EMS_Meeting_Link__c != record.EMS_Meeting_Link__c || 
+            Trigger.oldMap.get(record.Id).EMS_Interview_Location__c != record.EMS_Interview_Location__c)) {
+            
+            // Create a new email message
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setSenderDisplayName('Interview Scheduler'); // Set the sender display name
+            email.setReplyTo(senderEmail);
+            email.setToAddresses(new String[] { record.EMS_Applicant_Email__c }); // Set the recipient email address
+            email.setSubject('Interview Details'); // Set the email subject
+            
+            // Set the email body based on whether the meeting link or location is available
+            String emailBody = 'Dear ' + record.EMS_Candidate_Name__c + ',\n\n';
+            
+            // Add the meeting link part
+            if (!String.isBlank(record.EMS_Meeting_Link__c)) {
+                emailBody += 'I am pleased to inform you that we have scheduled an online interview for the ' + record.EMS_Job_Application_ID__c + ' role with our company. The interview will be held on ' + record.EMS_Interview_Date__c + ' at ' + record.EMS_Interview_Start_Time__c + ' through Microsoft Teams.\n\nPlease ensure that you have a stable internet connection and a working camera and microphone for the interview. We recommend logging in 5 minutes before the scheduled interview time to avoid any technical difficulties.\n\nPlease find the meeting link attached to this email for your convenience: ' + record.EMS_Meeting_Link__c + '. If you have any questions or concerns, please feel free to reply to this email or contact me at [Recruiter\'s Contact Information].\n\n';
+            }
+            
+            // Add the location part
+            if (!String.isBlank(record.EMS_Interview_Location__c)) {
+                emailBody += 'We would like to inform you that an interview has been scheduled for you on ' + record.EMS_Interview_Date__c + ' at ' + record.EMS_Interview_Start_Time__c + '. The interview will be held at our office located at ' + record.EMS_Interview_Location__c + '.\n\nPlease ensure that you arrive at the venue at least 15 minutes prior to the scheduled time. Please carry a printout of this email for security purposes.\n\nDuring the interview, we will be assessing your suitability for the role based on your experience, qualifications, and alignment with our organizational goals and objectives. We encourage you to come prepared to discuss these aspects in detail.\n\nPlease be aware that the interview process for this position may involve multiple rounds, and we will keep you informed about the status of your application throughout the process.\n\n';
+            } else if (String.isBlank(record.EMS_Meeting_Link__c)) {
+                // If neither a meeting link nor a location is available, don't send an email
+                continue;
+           // Set the email body and add a message to notify the recruiter
+if (String.isBlank(emailBody)) {
+System.debug('No meeting link or location available for ' + record.Name + ', skipping email');
+continue;
+} else {
+email.setPlainTextBody(emailBody);
+emailsToSend.add(email);
+System.debug('Email added to send queue for ' + record.Name);
+}
+}
+}
+        // Send the emails
+if (!emailsToSend.isEmpty()) {
+    Messaging.sendEmail(emailsToSend);
+    System.debug(emailsToSend.size() + ' emails sent successfully');
+}
+    }
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    InterviewSchedulerEmailService.sendInterviewDetailsEmail(Trigger.new);
+}
+*/
+/*
+trigger SendMeetingLinkEmail on EMS_Interview_Scheduling__c (after insert, after update) {
+    List<EMS_Interview_Scheduling__c> interviewsToUpdate = new List<EMS_Interview_Scheduling__c>();
+    for (EMS_Interview_Scheduling__c interview : Trigger.new) {
+        if (Trigger.isInsert || (Trigger.isUpdate && interview.EMS_Meeting_Link__c != Trigger.oldMap.get(interview.Id).EMS_Meeting_Link__c)) {
+            interviewsToUpdate.add(interview);
+        }
+    }
+    if (!interviewsToUpdate.isEmpty()) {
+        InterviewSchedulerEmailService.sendInterviewDetailsEmail(interviewsToUpdate);
+    }
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+
+        jobopening.EMS_Department__c = 'IT';
+
+        jobopening.EMS_Experience__c = '0-1 Yr(Fresher)';
+
+        jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+
+        jobopening.EMS_Minimum_Salary__c = 9000;
+
+        jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+
+        jobopening.EMS_Open_Date__c = Date.today();
+
+        jobopening.Hire_by_Date__c = Date.today();
+
+        jobopening.EMS_Maximum_Salary__c = 70000;
+
+        insert jobopening;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <lightning-input 
+        label="Search" 
+        value={searchTerm} 
+        onchange={handleSearchTermChange}
+        class="slds-input slds-input--small slds-m-right_small slds-grow search-input"
+        variant="label-hidden"
+        placeholder="Search...">
+        <lightning-icon 
+          icon-name="utility:search" 
+          slot="icon" 
+          size="x-small" 
+          class="slds-icon slds-icon_x-small slds-icon-text-default slds-m-left_x-small search-icon">
+        </lightning-icon>
+      </lightning-input>
+
+    
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Confirm Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer Email:</strong> {record.EMS_Interviewer_Email__c}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+
+
+
+
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api title
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        //{ label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' },
+        { label: 'Interviewer Email', fieldName: 'EMS_Interviewer_Email__c', type: 'email' }
+        
+    ];
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        
+    }
+          // Handles the search term change event
+          handleSearchTermChange(event) {
+            this.searchTerm = event.target.value;
+            this.getInterviewRecords();
+        }
+
+   // Fetches the interview records from the server
+getInterviewRecords() {
+    getInterviewRecords()
+        .then(result => {
+            // Filter the records based on the search term
+            if (this.searchTerm) {
+                const regex = new RegExp(this.searchTerm, "i");
+                this.records = result.filter(record =>
+                    regex.test(record.EMS_Candidate_Name__c) ||
+                    regex.test(record.EMS_Interview_Type__c) ||
+                    regex.test(record.EMS_Interview_Status__c) ||
+                    regex.test(record.EMS_Applicant_Email__c) ||
+                    regex.test(record.EMS_Interviewer_Email__c)
+                );
+            } else {
+                this.records = result;
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const interviewIds = this.selectedRecords.map(record => record.Id);
+        console.log(JSON.stringify('Interview Ids List :' + interviewIds));
+        if (interviewIds.length > 0) {
+            sendBulkEmails({ interviewIds })
+            
+    .then(result => {
+        console.log('result: '+ JSON.stringify(result));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'Emails sent successfully',
+                variant: 'success'
+            })
+        );
+    })
+    .catch(error => {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: error.body.message,
+                variant: 'error'
+            })
+        );
+    });
+
+               
+    
+}
+    }
+}
+
+
+
+
+
+
+
+
+
+
+.slds-card {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  }
+  /* Style the search input */
+.slds-input.search-input {
+  border-radius: 10px;
+  padding: 0 12px;
+  box-shadow: none;
+  background-color: #f4f6f9;
+  width: 200px;
+}
+
+/* Style the search icon */
+.slds-icon.search-icon {
+  color: #a3acb8;
+}
+  
+  .slds-card__header {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d8dde6;
+  padding: 0.75rem 1rem;
+  }
+  
+  .slds-card__body {
+  padding: 1rem;
+  }
+  
+  .datatable-container {
+  height: 300px;
+  overflow: auto;
+  }
+  
+  .slds-checkbox {
+  margin-right: 0.5rem;
+  }
+  
+  .slds-card_boundary {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  }
+  
+  .slds-card__header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  }
+  
+  .slds-text-heading_small {
+  font-size: 0.875rem;
+  }
+  
+  .slds-text-color_error {
+  color: #dc3545;
+  }
+  
+  .lightning-input-container {
+  margin-bottom: 0.5rem;
+  }

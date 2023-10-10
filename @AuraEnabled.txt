@@ -1,0 +1,123 @@
+ @AuraEnabled
+public static String insertEmployeeTraining(String email, String trainingRecordId) {
+    try {
+        // Retrieve the Training record and its record type ID
+        CEMS_Training__c trainingRecord = [SELECT Id, RecordTypeId FROM CEMS_Training__c WHERE Id = :trainingRecordId LIMIT 1];
+        system.debug('trainingRecord' + trainingRecord);
+
+        Id trainingRecordTypeId = trainingRecord.RecordTypeId;
+        system.debug('trainingRecordTypeId' + trainingRecordTypeId);
+
+        if (trainingRecordTypeId != null) {
+            // Retrieve the Personnel record based on the provided email
+            CEMS_Personnel__c personnelRecord = [SELECT Id, RecordTypeId, CEMS_Work_Email__c, CEMS_Personal_Email__c FROM CEMS_Personnel__c WHERE CEMS_Work_Email__c = :email LIMIT 1];
+            system.debug('personnelRecord' + personnelRecord);
+
+            if (personnelRecord != null) {
+                // Create the Employee Training records based on the Training object's record types
+                List<Employee_Training__c> employeeTrainingList = new List<Employee_Training__c>();
+                system.debug('employeeTrainingList' + employeeTrainingList);
+                      if(trainingRecordTypeId == '012DO0000008XdvYAE') {
+                    Employee_Training__c employeeTraining2 = new Employee_Training__c();
+                    employeeTraining2.CEMS_Certification_Name__c = trainingRecord.Id;
+                    employeeTraining2.CEMS_Employee_Name__c = personnelRecord.Id;
+                    // Set other field values for the second record type
+
+                    employeeTrainingList.add(employeeTraining2);
+                    system.debug('employeeTraining2' + employeeTraining2);
+
+                }
+                if (trainingRecordTypeId == '012DO0000008Xe0YAE') {
+                    Employee_Training__c employeeTraining1 = new Employee_Training__c();
+                    employeeTraining1.CEMS_Learning_Name__c = trainingRecord.Id;
+                    employeeTraining1.CEMS_Employee_Name__c = personnelRecord.Id;
+                    // Set other field values for the first record type
+
+                    employeeTrainingList.add(employeeTraining1);
+                    system.debug('employeeTraining1' + employeeTraining1);
+
+                } 
+
+              
+                    insert employeeTrainingList;
+                
+            }
+
+        }
+
+        return 'Employee training registered successfully';
+    } catch (Exception e) {
+        // Handle any exceptions that occurred during the process
+        String errorMessage = 'An error occurred while registering employee training: ' + e.getMessage();
+        System.debug(errorMessage);
+        throw new AuraHandledException(errorMessage);
+    }
+}
+
+
+
+
+  <template>
+    <lightning-card>
+    <c-custom-toast-messages></c-custom-toast-messages>
+    <div class="slds-tabs_default">
+      <ul class="slds-tabs_default__nav" role="tablist">
+        <li class="slds-tabs_default__item" title="Certificates" role="presentation">
+          <a class="slds-tabs_default__link" href="#" role="tab" tabindex="0" aria-selected={isCertificatesTabSelected} aria-controls="tab-certificates" onclick={handleTabClick} data-tab="certificates" id="tab-certificates__item">Certificates</a>
+        </li>
+        <li class="slds-tabs_default__item" title="Learnings" role="presentation">
+          <a class="slds-tabs_default__link" href="#" role="tab" tabindex="-1" aria-selected={isLearningsTabSelected} aria-controls="tab-learnings" onclick={handleTabClick} data-tab="learnings" id="tab-learnings__item">Learnings</a>
+        </li>
+      </ul>
+      <div id="tab-certificates" class={certificatesTabClass} role="tabpanel" aria-labelledby="tab-certificates__item">
+        <div class="slds-grid slds-wrap">
+          <template for:each={certificates} for:item="certificate">
+            <div class="slds-col slds-size_1-of-4" key={certificate.Id}>
+              <div class="slds-card_boundary slds-p-around_small card" style="margin:5px;min-height:60px;">
+                <a href="#" onclick={toggleCertificateDetails} data-id={certificate.Id}>{certificate.CEMS_Certificate_Name__c}</a>
+                <div class="slds-card_boundary slds-p-around_small card certificate-details" data-id={certificate.Id} hidden>
+                  <p>Description: {certificate.CEMS_Description__c}</p>
+                  <p>Level: {certificate.Certificate_Level__c}</p>
+                  <p>Category: {certificate.Category__c}</p>
+                  <p>Designated Days: {certificate.CEMS_Designated_Days__c}</p>
+                  <p>Resource: {certificate.CEMS_Resource_URl__c}</p>
+                  <a class="slds-button" href="#" onclick={handleRegisterClick} data-id={certificate.Id}>Register</a>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div id="tab-learnings" class={learningsTabClass} role="tabpanel" aria-labelledby="tab-learnings__item">
+        <div class="slds-grid slds-wrap">
+          <template for:each={learnings} for:item="learning">
+            <div class="slds-col slds-size_1-of-4" key={learning.Id}>
+              <div class="slds-card_boundary slds-p-around_small card" style="margin:5px;">
+                <a href="#" onclick={toggleLearningDetails} data-id={learning.Id}>{learning.CEMS_Learning_Name__c}</a>
+                <div class="slds-card_boundary slds-p-around_small card learning-details" data-id={learning.Id} hidden>
+                  <p>Description: {learning.CEMS_Description__c}</p>
+                  <p>Category: {learning.Category__c}</p>
+                  <p>Designated Days: {learning.CEMS_Designated_Days__c}</p>
+                  <p>Link: {learning.CEMS_Registration_URL__c}</p>
+                  <a class="slds-button" href="#" onclick={handleRegisterClick} data-id={learning.Id}>Register</a>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+   
+
+    </lightning-card>
+  </template>
+
+
+Proficiently contributed to the development and enhancement of the interview scheduler feature within the Cittacore employee management system.
+Designed and implemented automatic workflows for the creation of interview schedule records upon successful completion of prescreening examinations by applicants.
+Implemented functionality to automatically generate feedback objects when the status of an interview schedule was marked as "completed."
+Developed triggers, validation rules, record types, and objects to support the interview scheduler feature.
+Created Lightning Web Components (LWC) tailored specifically for the HR department in the experience site.
+Successfully built components for managing interview schedule feedback and panel objects, allowing for easy creation, updating, and deletion based on predefined conditions.
+Ensured seamless functionality for the public site, enabling employees from the interview panel to provide feedback.
+Skillfully implemented components that displayed interview feedback in both editable and read-only formats as required.

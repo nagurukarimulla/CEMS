@@ -1,0 +1,32 @@
+1.How to use Junction Object in project?
+
+Junction Object is used to create many-to-many relationships between
+objects. If you take the Recruiting application example, you can see that
+a Position can be linked to many Candidates, and a Candidate can apply
+for different Positions. To create this data model you need a third object
+"Job Application" that links the two objects.
+
+2.What is profile and Role in salesforce?
+
+Ans: Profile: Profile is object level and field level access and it is
+mandatory for all users.
+Role: Role is Record level access and it is not mandatory for all users.
+
+3.What is OWD?
+
+Ans: Organization-Wide Sharing Defaults (OWD) defines the base line
+setting for the organization. It defines the level of access to the user can
+see the other user's records. OWD can be Private, Public Read Only,
+Public Read and Write.
+
+9.What is the difference between permission sets and sharing rules?
+Answer: A Permission Set is a collection of settings and permissions that give users access to 
+various tools and functions. Permission sets extend users’ functional access without changing
+ their profiles.
+
+Sharing rules are used to extend sharing access to users in public groups, roles, or 
+territories. Sharing rules give particular users greater access by making automatic 
+exceptions to your org-wide sharing settings.
+
+
+

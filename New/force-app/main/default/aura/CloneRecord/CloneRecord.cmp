@@ -1,0 +1,13 @@
+<aura:component controller="CloneRecordControllerOppo"
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute type="Opportunity[]" name="oppoList"/>
+    <aura:attribute name="mycolumns" type="List"/>
+   
+    <aura:handler name="init" value="{!this}" action="{!c.fetchOppo}"/>
+   
+    <lightning:datatable data="{! v.oppoList }"
+                         columns="{! v.mycolumns }"
+                         keyField="id"
+                         hideCheckboxColumn="flase"
+                        onrowaction="{!c.viewRecord}"/>
+</aura:component>

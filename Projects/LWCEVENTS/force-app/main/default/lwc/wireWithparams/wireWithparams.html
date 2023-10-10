@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="Apex Wire Demo with params">
+        <div class="slds-var-p-around_medium">
+            <lightning-combobox
+                name="type"
+                lable="Choose your Origin"
+                value={selectedOrigin}
+                options={originOptions}
+                onchange={originHandler}
+            ></lightning-combobox>
+            <template if:true={filteredOrigin.data}>
+                <template for:each={filteredOrigin.data} for:item="cases">
+                    <div class="slds-box slds-box_xx-small" key={cases.Id}>
+                        <p><strong>Account Name:</strong> {cases.AccountId}</p>
+                        <p><strong>Prority:</strong> {cases.Priority}</p>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

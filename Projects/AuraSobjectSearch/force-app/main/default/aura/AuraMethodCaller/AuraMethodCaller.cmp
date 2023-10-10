@@ -1,0 +1,6 @@
+<aura:component implements="flexipage:availableForAllPageTypes">
+<aura:attribute name="knowMoreD" type="String"/>
+<c:AuraMethod aura:id="auramethod"/>
+<lightning:button label="Component Details" onclick="{!c.knowMore}"/>
+{!v.knowMoreD}
+</aura:component>

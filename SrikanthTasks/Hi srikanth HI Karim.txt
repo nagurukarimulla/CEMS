@@ -1,0 +1,112 @@
+Hi srikanth HI Karim
+
+teaching : java ,python
+
+around 1 yr 
+
+developer
+
+rest,apex
+
+basics admin
+
+
+certification : admin,pd1
+
+
+----------------------------------------------
+Basics
+
+Profile vs Role
+
+evry usr has to have profile --- custom profile,system profiles
+
+
+role ?
+position in the organisation --- ?
+access to records ?
+
+role --- controll object access?   -- OWD
+
+-------------------------------
+OWD ---  importance ?
+
+sharing settings?
+
+share a record manually,
+manual sharing,criteria based sharing
+
+-----------------------------
+
+apex share---?
+
+
+----------------------------------------------------
+validation rule?
+
+workflow rule?
+----------------------------------------------------
+
+relationship fields?
+master detail----rollup summary,junction objects
+lookup---
+
+----------------------------------
+apex
+triggers
+
+
+-----------------------------------------
+
+account object 
+total amount--------------
+
+
+contact object ---- to account lookup
+amount--------------
+
+
+A1---Total amount = 60
+
+c1 - amount =10
+c2 - amount =20
+c3 - amount =30
+
+
+--------------------------------
+
+
+
+on which object write a triggers   ---- account
+and on what operation you calculate    ----- update,
+
+Rollup summary with lookups
+
+
+batch apex
+database.stateful,
+
+
+-----?
+
+
+APEX
+
+collections
+----------------
+list -- elemets are stored in order,duplicates are allowed
+set -- un order , no duplicates
+map  --  key values
+
+------------------------
+
+Map<String,List<String>> acccountNameContactNameList
+
+A1 - c1,c2,c3,c4
+A2 - c5,c6
+A3 - c7,c8,c9,c10,c11
+
+
+--------------------------
+
+Map<Accountnames,List<relatedContactNames> =

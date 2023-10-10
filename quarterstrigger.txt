@@ -1,0 +1,223 @@
+trigger CalculateOverallRating on EMS_Performance__C (after insert, after update) {
+    // Get the IDs of all the Performance records being processed
+    Set<Id> performanceIds = new Set<Id>();
+    for (EMS_Performance__C performance : Trigger.new) {
+        performanceIds.add(performance.Id);
+    }
+    
+    // Query for all the related custom objects
+    List<EMS_Performance_Quarter_1__c> q1Records = [SELECT Id, Rating__c, Performance__r.Join_Date__c FROM EMS_Performance_Quarter_1__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_2__c> q2Records = [SELECT Id, Rating__c, Performance__r.Join_Date__c FROM EMS_Performance_Quarter_2__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_3__c> q3Records = [SELECT Id, Rating__c, Performance__r.Join_Date__c FROM EMS_Performance_Quarter_3__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_4__c> q4Records = [SELECT Id, Rating__c, Performance__r.Join_Date__c FROM EMS_Performance_Quarter_4__c WHERE EMS_Performance__C IN :performanceIds];
+    
+    // Loop through the Performance records and calculate the overall rating
+    for (EMS_Performance__C performance : Trigger.new) {
+        Integer quarter = Date.newInstance(performance.Join_Date__c.year(), performance.Join_Date__c.month(), performance.Join_Date__c.day()).quarter();
+        Double overallRating = 0.0;
+        Integer count = 0;
+        
+        if (quarter == 1) {
+            for (EMS_Performance_Quarter_1__c q1Record : q1Records) {
+                overallRating += q1Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+                overallRating += q2Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Rating__c;
+                count++;
+            }
+        } else if (quarter == 2) {
+            for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+                overallRating += q2Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Rating__c;
+                count++;
+            }
+        } else if (quarter == 3) {
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Rating__c;
+                count++;
+            }
+        } else if (quarter == 4) {
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Rating__c;
+                count++;
+            }
+        }
+        
+        // Calculate the overall rating for the Performance record
+        if (count > 0) {
+            performance.Overall_Rating__c = overallRating / count;
+        }
+    }
+}
+
+
+
+trigger CalculateOverallRating on EMS_Performance__C (after insert, after update) {
+    // Get the IDs of all the Performance records being processed
+    Set<Id> performanceIds = new Set<Id>();
+    for (EMS_Performance__C performance : Trigger.new) {
+        performanceIds.add(performance.Id);
+    }
+    
+    // Query for all the related custom objects
+    List<EMS_Performance_Quarter_1__c> q1Records = [SELECT Id, Q1_Overall_Rating__c, EMS_Performance__r.EMS_Join_Date__c FROM EMS_Performance_Quarter_1__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_2__c> q2Records = [SELECT Id, Q2_Overall_Rating__c, EMS_Performance__r.EMS_Join_Date__c FROM EMS_Performance_Quarter_2__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_3__c> q3Records = [SELECT Id, Q3_Overall_Rating__c, EMS_Performance__r.EMS_Join_Date__c FROM EMS_Performance_Quarter_3__c WHERE EMS_Performance__C IN :performanceIds];
+    List<EMS_Performance_Quarter_4__c> q4Records = [SELECT Id, Q4_Overall_Rating__c, EMS_Performance__r.EMS_Join_Date__c FROM EMS_Performance_Quarter_4__c WHERE EMS_Performance__C IN :performanceIds];
+    
+    // Loop through the Performance records and calculate the overall rating
+    for (EMS_Performance__C performance : Trigger.new) {
+        Integer quarter = Date.newInstance(performance.EMS_Join_Date__c.year(), performance.EMS_Join_Date__c.month(), performance.EMS_Join_Date__c.day()).quarter();
+        Double overallRating = 0.0;
+        Integer count = 0;
+        
+        if (quarter == 1) {
+            for (EMS_Performance_Quarter_1__c q1Record : q1Records) {
+                overallRating += q1Record.Q1_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+                overallRating += q2Record.Q2_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Q3_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Q4_Overall_Rating__c;
+                count++;
+            }
+        } else if (quarter == 2) {
+            for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+                overallRating += q2Record.Q2_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Q3_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Q4_Overall_Rating__c;
+                count++;
+            }
+        } else if (quarter == 3) {
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += q3Record.Q3_Overall_Rating__c;
+                count++;
+            }
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Q4_Overall_Rating__c;
+                count++;
+            }
+        } else if (quarter == 4) {
+            for (EMS_Performance_Quarter_4__c q4Record : q4Records) {
+                overallRating += q4Record.Q4_Overall_Rating__c;
+                count++;
+            }
+        }
+        
+        // Calculate the overall rating for the Performance record
+        if (count > 0) {
+            performance.EMS_Average_Rating__c = overallRating / count;
+        }
+    }
+}
+
+
+
+
+
+trigger CalculateOverallRating on EMS_Performance__c (after insert, after update) {
+    // Get the IDs of all the Performance records being processed
+    Set<Id> performanceIds = new Set<Id>();
+    for (EMS_Performance__c performance : Trigger.new) {
+        performanceIds.add(performance.Id);
+    }
+    
+    // Query for all the related custom objects
+    List<EMS_Performance_Quarter_1__c> q1Records = [SELECT Id, Q1_Overall_Rating__c, EMS_Performance__c FROM EMS_Performance_Quarter_1__c WHERE EMS_Performance__c IN :performanceIds];
+    List<EMS_Performance_Quarter_2__c> q2Records = [SELECT Id, Q2_Overall_Rating__c, EMS_Performance__c FROM EMS_Performance_Quarter_2__c WHERE EMS_Performance__c IN :performanceIds];
+    List<EMS_Performance_Quarter_3__c> q3Records = [SELECT Id, Q3_Overall_Rating__c, EMS_Performance__c FROM EMS_Performance_Quarter_3__c WHERE EMS_Performance__c IN :performanceIds];
+    List<EMS_Performance_Quarter_4__c> q4Records = [SELECT Id, Q4_Overall_Rating__c, EMS_Performance__c FROM EMS_Performance_Quarter_4__c WHERE EMS_Performance__c IN :performanceIds];
+    
+    // Loop through the Performance records and calculate the overall rating
+    for (EMS_Performance__c performance : Trigger.new) {
+        Integer quarter = Date.newInstance(performance.EMS_Join_Date__c.year(), performance.EMS_Join_Date__c.month(), performance.EMS_Join_Date__c.day()).quarter();
+        Decimal overallRating = 0.0;
+        Integer count = 0;
+        
+        if (quarter == 1) {
+            for (EMS_Performance_Quarter_1__c q1Record : q1Records) {
+                overallRating += Decimal.valueOf(q1Record.Q1_Overall_Rating__c);
+                count++;
+            }
+            for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+                overallRating += Decimal.valueOf(q2Record.Q2_Overall_Rating__c);
+                count++;
+            }
+            for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+                overallRating += Decimal.valueOf(q3Record.Q3_Overall_Rating__c);
+                       count++;
+
+        overallRating = overallRating.divide(Decimal.valueOf(count), 2, RoundingMode.HALF_UP);
+
+        performanceRecord.Q1_Overall_Rating__c = q1Records.isEmpty() ? null : overallRating;
+        performanceRecord.Q2_Overall_Rating__c = q2Records.isEmpty() ? null : overallRating;
+        performanceRecord.Q3_Overall_Rating__c = q3Records.isEmpty() ? null : overallRating;
+
+        update performanceRecord;
+    } else if (quarter == 2) {
+        for (EMS_Performance_Quarter_2__c q2Record : q2Records) {
+            overallRating += Decimal.valueOf(q2Record.Q2_Overall_Rating__c);
+            count++;
+        }
+        for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+            overallRating += Decimal.valueOf(q3Record.Q3_Overall_Rating__c);
+            count++;
+        }
+
+        count++;
+
+        overallRating = overallRating.divide(Decimal.valueOf(count), 2, RoundingMode.HALF_UP);
+
+        performanceRecord.Q2_Overall_Rating__c = q2Records.isEmpty() ? null : overallRating;
+        performanceRecord.Q3_Overall_Rating__c = q3Records.isEmpty() ? null : overallRating;
+
+        update performanceRecord;
+    } else if (quarter == 3) {
+        for (EMS_Performance_Quarter_3__c q3Record : q3Records) {
+            overallRating += Decimal.valueOf(q3Record.Q3_Overall_Rating__c);
+            count++;
+        }
+
+        count++;
+
+        overallRating = overallRating.divide(Decimal.valueOf(count), 2, RoundingMode.HALF_UP);
+
+        performanceRecord.Q3_Overall_Rating__c = q3Records.isEmpty() ? null : overallRating;
+
+        update performanceRecord;
+    }
+}
+

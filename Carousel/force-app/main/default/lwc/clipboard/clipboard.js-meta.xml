@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>56.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>MyCustomFlowScreen</masterLabel>
+    <description>Custom Flow Screen</description>
+    <targets>
+    <target>lightning__AppPage</target>
+    <target>lightning__HomePage</target>
+    <target>lightning__RecordPage</target>
+    <target>lightning__FlowScreen</target>
+</targets>
+
+
+<targetConfigs>
+    <targetConfig targets="lightning__FlowScreen">
+        <property name="Title" label="Contact Title" type="String"/>
+        <property name="Email" label="Contact Email" type="String"/>
+        <property name="Phone" label="Contact Phone" type="String"/>
+        <property name="AccountName" label="Contact Account Name" type="String"/>
+    </targetConfig>
+</targetConfigs>
+  
+</LightningComponentBundle>

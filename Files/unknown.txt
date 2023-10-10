@@ -1,0 +1,60 @@
+public with sharing class ObjectCollector {
+    
+    @AuraEnabled(cacheable=true)
+    public static List<String> getObjectNamesByProfile(String profileName) {
+        List<String> objectNames = new List<String>();
+        Map<String, Schema.SObjectType> allObjects = Schema.getGlobalDescribe();
+        
+        for (Schema.SObjectType objType : allObjects.values()) {
+            if (objType.getDescribe().isQueryable() && objType.getDescribe().isUpdateable() && 
+                objType.getDescribe().isCreateable() && objType.getDescribe().isDeletable() &&
+                Schema.SObjectType.Profile.isCreateable()) {
+                
+                Map<String, Schema.SObjectField> fieldMap = objType.getDescribe().fields.getMap();
+                Set<String> fieldSet = new Set<String>();
+                
+                for (String fieldName : fieldMap.keySet()) {
+                    if (fieldMap.get(fieldName).getDescribe().isUpdateable() && 
+                        fieldMap.get(fieldName).getDescribe().isCreateable()) {
+                        fieldSet.add(fieldName);
+                    }
+                }
+                
+                if (Schema.SObjectType.Profile.getDescribe().isUpdateable() &&
+                    Schema.SObjectType.PermissionSet.isCreateable() &&
+                    Schema.SObjectType.PermissionSetAssignment.isCreateable()) {
+                    
+                    if (fieldSet.isEmpty() || Schema.sObjectType.Profile.isUpdateable()) {
+                        objectNames.add(objType.getDescribe().getName());
+                    } else {
+                        String soql = 'SELECT Id FROM ' + objType.getDescribe().getName() +
+                                      ' WHERE ' + String.join(new List<String>(fieldSet), ' = NULL AND ') + ' = NULL';
+                        try {
+                            Database.query(soql);
+                            objectNames.add(objType.getDescribe().getName());
+                        } catch (QueryException ex) {
+                            // ignore objects where the SOQL query fails
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Filter the list based on profile permissions
+        List<String> allowedObjects = new List<String>();
+        for (String objName : objectNames) {
+            if (Schema.sObjectType.Profile.isUpdateable()) {
+                Boolean isAccessible = Schema.sObjectType.Profile.isObjectAccessible(profileName, objName);
+                if (isAccessible) {
+                    allowedObjects.add(objName);
+                }
+            }
+        }
+        
+        return allowedObjects;
+    }
+}
+
+
+User currentUser = [SELECT Profile.Name FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1]; 
+String profileName = currentUser.Profile.Name;

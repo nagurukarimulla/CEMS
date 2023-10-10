@@ -1,0 +1,22 @@
+<template>
+    <div class="c-container">
+        <lightning-card>
+            <h3 slot="title">
+                <lightning-icon icon-name="utility:connected_apps" size="small"></lightning-icon>
+                Multi-Select Lookup Component
+            </h3>
+            <p class="slds-p-horizontal_small">
+                <c-multi-select-folders label-name="Search Folders" object-api-name="Folder__c"
+                    field-api-names="Id,Name" filter-field-api-name="Name" icon-name="standard:contact"
+                    onretrieve={selectItemEventHandler} onremove={deleteItemEventHandler}>
+                </c-multi-select-folders>
+            </p><br><br>
+            <template if:true={isItemExists}>
+                <h3 class="slds-p-horizontal_small">
+                    Message from Parent Component <br/>
+                    You have chosen: {selectedItemsToDisplay}
+                </h3>
+            </template>
+        </lightning-card>
+    </div>
+</template>

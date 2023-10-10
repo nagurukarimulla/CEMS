@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" description="OverrideAppEvent">
+    <aura:attribute name="overrideField" type="String" />
+
+</aura:event>

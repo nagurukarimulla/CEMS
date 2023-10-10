@@ -1,0 +1,24 @@
+@isTest
+private class PackageClassTest {
+    
+    @isTest
+    static void testGetMetadata() {
+        // Create test MetaChangeNew__c records
+        MetaChangeNew__c meta1 = new MetaChangeNew__c(Name='Test Section 1', Member__c='Test Member 1');
+        MetaChangeNew__c meta2 = new MetaChangeNew__c(Name='Test Section 1', Member__c='Test Member 2');
+        MetaChangeNew__c meta3 = new MetaChangeNew__c(Name='Test Section 2', Member__c='Test Member 3');
+        insert new List<MetaChangeNew__c>{meta1, meta2, meta3};
+        
+        // Call the getMetadata() method of PackageClass
+        String result = PackageClass.getMetadata();
+        
+        // Verify that the output is as expected
+        System.assertNotEquals(null, result, 'Result should not be null');
+        System.assert(result.contains('<version>55.0</version>'), 'Result should contain version 55.0');
+        System.assert(result.contains('<name>TestSection1</name>'), 'Result should contain TestSection1');
+        System.assert(result.contains('<members>TestMember1</members>'), 'Result should contain TestMember1');
+        System.assert(result.contains('<members>TestMember2</members>'), 'Result should contain TestMember2');
+        System.assert(result.contains('<name>TestSection2</name>'), 'Result should contain TestSection2');
+        System.assert(result.contains('<members>TestMember3</members>'), 'Result should contain TestMember3');
+    }
+}

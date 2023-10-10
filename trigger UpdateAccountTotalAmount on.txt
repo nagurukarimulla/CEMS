@@ -1,0 +1,57 @@
+trigger UpdateAccountTotalAmount on Contact (after insert, after update, after delete) {
+    
+    // Create a set to hold the Account Ids that are affected
+    Set<Id> accountIds = new Set<Id>();
+    
+    // Iterate through the Contact records and add the associated Account Id to the set
+    for (Contact c : Trigger.new) {
+        accountIds.add(c.AccountId);
+    }
+    
+    // Query the Account records associated with the Contacts and their Total Amount field
+    Map<Id, Account> accountsMap = new Map<Id, Account>([SELECT Id, Total_Amount__c,
+                                                           (SELECT Id, Amount__c FROM Contacts)
+                                                           FROM Account
+                                                           WHERE Id IN :accountIds]);
+    
+    // Iterate through the Accounts and update the Total Amount field with the sum of Contact amounts
+    for (Account a : accountsMap.values()) {
+        Decimal totalAmount = 0;
+        for (Contact c : a.Contacts) {
+            totalAmount += c.Amount__c;
+        }
+        a.Total_Amount__c = totalAmount;
+    }
+    
+    // Update the modified Account records
+    update accountsMap.values();
+}
+
+
+
+
+// Creating map of string, Listof string as key value pairs
+Map<String, List<String>> accountToContactMap = new Map<String, List<String>>();
+// Querying and creating contactList
+List<Contact> contactList = [SELECT Id, Name, Account.Name FROM Contact];
+
+// Loop through the contact records and add the related Account and Contact names to the map
+for (Contact contact : contactList) {
+    String accountName = contact.Account.Name;
+    String contactName = contact.Name;
+    
+    if (!accountToContactMap.containsKey(accountName)) {
+        // If the account name doesn't exist in the map, create a new list
+        accountToContactMap.put(accountName, new List<String>());
+    }
+    
+    // Adding the contact name to the list for the respective account name
+    accountToContactMap.get(accountName).add(contactName);
+}
+
+// Displaying the Account to Contact map in a proper format 
+System.debug('Account to Contact Map:');
+for (String accountName : accountToContactMap.keySet()) {
+    System.debug('Account Name: ' + accountName);
+    System.debug('Contact Names: ' + accountToContactMap.get(accountName));
+}

@@ -1,0 +1,736 @@
+@isTest
+public class InterviewEmailControllerTest {
+    @isTest
+    static void testGetInterviewRecords() {
+         EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Employee_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+        // Create test data
+        EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+            EMS_Interview_Date__c = Date.today().addDays(8),
+            EMS_Interview_Start_Time__c = Time.newInstance(10, 0, 0, 0),
+            EMS_Interview_End_Time__c = Time.newInstance(11, 0, 0, 0),
+            EMS_Interview_Type__c = 'In Person Interview',
+            //EMS_Interviewer_Email__c = 'test-interviewer@test.com',
+            //EMS_Applicant_Email__c = 'test-applicant@test.com',
+            EMS_Interview_Location__c = 'Hyd',
+            EMS_Interview_Round__c = 'Technical Round',
+            EMS_Interview_Status__c = 'Rescheduled'
+        );
+        insert interview;
+
+        // Call the method
+        List<EMS_Interview_Scheduling__c> interviewList = InterviewEmailController.getInterviewRecords();
+
+        // Verify the result
+        System.assertEquals(1, interviewList.size());
+        System.assertEquals(interview.Id, interviewList[0].Id);
+        System.assertEquals(interview.EMS_Interview_Date__c, interviewList[0].EMS_Interview_Date__c);
+        System.assertEquals(interview.EMS_Interview_Start_Time__c, interviewList[0].EMS_Interview_Start_Time__c);
+        System.assertEquals(interview.EMS_Interview_End_Time__c, interviewList[0].EMS_Interview_End_Time__c);
+        System.assertEquals(interview.EMS_Interview_Type__c, interviewList[0].EMS_Interview_Type__c);
+        //System.assertEquals(interview.EMS_Interviewer_Email__c, interviewList[0].EMS_Interviewer_Email__c);
+        //System.assertEquals(interview.EMS_Applicant_Email__c, interviewList[0].EMS_Applicant_Email__c);
+        System.assertEquals(interview.EMS_Interview_Location__c, interviewList[0].EMS_Interview_Location__c);
+        System.assertEquals(interview.EMS_Interview_Round__c, interviewList[0].EMS_Interview_Round__c);
+        System.assertEquals(interview.EMS_Interview_Status__c, interviewList[0].EMS_Interview_Status__c);
+    }
+}
+    /*
+    @isTest
+static void testSendBulkEmails() {
+    
+    
+    EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Employee_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+    
+    EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+        EMS_Job_Application_ID__c=jobApp.Id,
+        EMS_Interview_Date__c=Date.today().addDays(2),
+        EMS_Interview_Start_Time__c=Time.newInstance(10, 0, 0, 0),
+        EMS_Interview_End_Time__c=Time.newInstance(11, 0, 0, 0),
+        EMS_Interview_Type__c='In Person Interview', 
+        EMS_Meeting_Link__c='https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTQzMGI4MDItZTM3Mi00ZmVhLWE3M2UtODgyOGM4ODhmYmIw%40thread.v2/0?context=%7b%22Tid%22%3a%22b5064cce-6977-4e05-85e1-bb493b6f2cc9%22%2c%22Oid%22%3a%2297e83610-de93-48a9-81b9-41615993beb3%22%7d',
+        EMS_Interview_Location__c = 'Delhi',
+        EMS_Interviewer_Name__c=interviewer.Id,
+      //  EMS_Interviewer_Email__c=interviewer.EMS_Employee_Email__c,
+        // Use candidate's email as the applicant email
+       // EMS_Applicant_Email__c= applicant.EMS_Email__c,
+        EMS_Interview_Status__c='Accepted'
+    );
+    insert interview;
+    
+    Test.startTest();
+    
+    // Call the method under test with the interview Id
+    List<Id> interviewIds = new List<Id>{interview.Id};
+    InterviewEmailController.sendBulkEmails(interviewIds);
+    Test.stopTest();
+    String subject;
+    String body;
+    if(interview.EMS_Interview_Type__c=='In Person Interview')
+    {
+        subject = 'Interview Schedule Details';
+        body =' Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)';
+        
+    }
+ 
+   system.assertEquals('Interview Schedule Details', subject);
+    system.assertEquals('Your interview is scheduled for In person Interview',body);
+   
+    
+}
+      @isTest
+static void testSendBulkEmails1() {
+    
+    
+    EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Employee_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+    
+    EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+        EMS_Job_Application_ID__c=jobApp.Id,
+        EMS_Interview_Date__c=Date.today().addDays(2),
+        EMS_Interview_Start_Time__c=Time.newInstance(10, 0, 0, 0),
+        EMS_Interview_End_Time__c=Time.newInstance(11, 0, 0, 0),
+        EMS_Interview_Type__c='Virtual Interview', 
+        EMS_Meeting_Link__c='https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTQzMGI4MDItZTM3Mi00ZmVhLWE3M2UtODgyOGM4ODhmYmIw%40thread.v2/0?context=%7b%22Tid%22%3a%22b5064cce-6977-4e05-85e1-bb493b6f2cc9%22%2c%22Oid%22%3a%2297e83610-de93-48a9-81b9-41615993beb3%22%7d',
+        //EMS_Interview_Location__c = 'Delhi',
+        EMS_Interviewer_Name__c=interviewer.Id,
+      //  EMS_Interviewer_Email__c=interviewer.EMS_Employee_Email__c,
+        // Use candidate's email as the applicant email
+       // EMS_Applicant_Email__c= applicant.EMS_Email__c,
+        EMS_Interview_Status__c='Accepted'
+    );
+    insert interview;
+    
+    Test.startTest();
+    
+    // Call the method under test with the interview Id
+    List<Id> interviewIds = new List<Id>{interview.Id};
+    InterviewEmailController.sendBulkEmails(interviewIds);
+    Test.stopTest();
+    String subject;
+    String body;
+    if(interview.EMS_Interview_Type__c == 'Virtual Interview')
+    {
+        subject = 'Interview Schedule Details';
+        body ='Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)';
+        
+    }
+ 
+   system.assertEquals('Interview Schedule Details', subject);
+    system.assertEquals( 'Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)',body);
+   
+    
+}*/
+    /*
+    @isTest
+   static void testSendMeeting() {
+        // Create a test interview
+        EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c();
+        interview.EMS_Interview_Status__c = 'Accepted';
+        insert interview;
+        
+        // Call the sendMeeting method and verify that an email was sent
+        Test.startTest();
+        SendMeetingLinkEmailHandler.sendMeeting(new List<EMS_Interview_Scheduling__c>{interview});
+        Test.stopTest();
+        
+        // Verify that an email was sent
+        List<EmailMessage> emails = [SELECT Id FROM EmailMessage];
+        System.assertEquals(1, emails.size(), 'Expected to send 1 email');
+    }
+    */
+
+
+
+
+
+
+
+
+
+
+// server side code for sending bulk emails to selected records
+public with sharing class InterviewEmailController {
+
+    //fetching the interview scheduler records from salesforce database
+@AuraEnabled
+public static List<EMS_Interview_Scheduling__c> getInterviewRecords() {
+    List<EMS_Interview_Scheduling__c> interviewList = [SELECT Id, EMS_Interview_Date__c, EMS_Interview_End_Time__c, 
+                                                      EMS_Interview_Round__c, EMS_Interview_Start_Time__c, 
+                                                      EMS_Interview_Status__c, EMS_Interview_Type__c, 
+                                                      EMS_Meeting_Link__c, EMS_Interviewer_Name__c, 
+                                                      EMS_Job_Application_ID__c, EMS_Candidate_Name__c, 
+                                                      EMS_Interview_Location__c, EMS_Interviewer_Email__c, 
+                                                      EMS_Applicant_Email__c, EMS_Interviewer_2_Email__c, EMS_Interview_Stage__c, 
+                                                      EMS_Decline_Reason__c, EMS_Interview_Start_Time_c__c, EMS_Interview_End_Time__c
+                                                      FROM EMS_Interview_Scheduling__c];
+    return interviewList;
+}
+  
+//sending bulk emails to applicants and interviewers by passing ids 
+@AuraEnabled
+public static void sendBulkEmails(List<Id> interviewIds) {
+    List<EMS_Interview_Scheduling__c> interviewList = [SELECT Id, EMS_Interview_Date__c, EMS_Interview_End_Time__c, EMS_Interview_Round__c, EMS_Interview_Start_Time__c, EMS_Interview_Status__c, EMS_Interview_Type__c, EMS_Meeting_Link__c, EMS_Interviewer_Name__c, EMS_Job_Application_ID__c, EMS_Candidate_Name__c, EMS_Interview_Location__c, EMS_Interviewer_Email__c, EMS_Applicant_Email__c, EMS_Interviewer_2_Email__c, EMS_Interview_Stage__c, EMS_Decline_Reason__c FROM EMS_Interview_Scheduling__c WHERE EMS_Interview_Status__c = 'Accepted' AND Id IN :interviewIds];
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    
+    for(EMS_Interview_Scheduling__c interview : interviewList) {
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        String[] toAddresses = new String[] { };
+        
+
+        //condition checking for interview type virtual and in person and setting toaddress
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c, interview.EMS_Interviewer_2_Email__c };
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c, interview.EMS_Interviewer_2_Email__c };
+        }
+        
+        email.setToAddresses(toAddresses);
+        email.setSubject('Interview Schedule Details');
+        String body = '';
+        
+        // Add both in-person and virtual interview details to the email body
+        DateTime startDateTime = DateTime.newInstance(interview.EMS_Interview_Date__c, interview.EMS_Interview_Start_Time__c);
+        DateTime endDateTime = DateTime.newInstance(interview.EMS_Interview_Date__c, interview.EMS_Interview_End_Time__c);
+        body += 'Your interview is scheduled for ' + startDateTime.format('MM/dd/yyyy hh:mm a') + ' - ' + endDateTime.format('hh:mm a') + ' (UTC).\n';
+        
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            body += 'The interview will be held virtually. Please use the following link to join the virtual interview: ' + interview.EMS_Meeting_Link__c + '\n';
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            body += 'The interview will be held in-person at the following location: ' + interview.EMS_Interview_Location__c + '\n';
+        }
+        
+        email.setPlainTextBody(body);
+        emails.add(email);
+    }
+
+    // check if emails list is not empty before calling Messaging.sendEmail()
+    System.debug('Number of emails in the list: ' + emails.size());
+    if(!emails.isEmpty()) {
+        System.debug('Sending emails...');
+        Messaging.sendEmail(emails);
+    }
+    System.debug('Email sending completed');
+}
+
+ 
+}             
+                    
+     
+
+
+
+  /*
+//sending bulk emails to applicants and interviewers by passing ids 
+@AuraEnabled
+public static void sendBulkEmails(List<Id> interviewIds) {
+    List<EMS_Interview_Scheduling__c> interviewList = [SELECT Id, EMS_Interview_Start_Time_c__c, EMS_Interview_Round__c, EMS_InterviewEndTime__c, EMS_Interview_Status__c, EMS_Interview_Type__c, EMS_Meeting_Link__c, EMS_Interviewer_Name__c, EMS_Job_Application_ID__c, EMS_Candidate_Name__c, EMS_Interview_Location__c, EMS_Interviewer_Email__c, EMS_Applicant_Email__c, EMS_Interviewer_2_Email__c, EMS_Interview_Stage__c, EMS_Decline_Reason__c FROM EMS_Interview_Scheduling__c WHERE EMS_Interview_Status__c = 'Accepted' AND Id IN :interviewIds];
+    List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+    
+    for(EMS_Interview_Scheduling__c interview : interviewList) {
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        String[] toAddresses = new String[] { };
+        
+
+        //condition checking for interview type virtual and in person and setting toaddress
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c, interview.EMS_Interviewer_2_Email__c };
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interviewer_Email__c, interview.EMS_Interviewer_2_Email__c };
+        }
+        
+        email.setToAddresses(toAddresses);
+        email.setSubject('Interview Schedule Details');
+        String body = '';
+        
+        // Add both in-person and virtual interview details to the email body
+        DateTime startDateTime = DateTime.newInstance( interview.EMS_Interview_Start_Time_c__c);
+        DateTime endDateTime = DateTime.newInstance(interview.EMS_InterviewEndTime__c);
+        body += 'Your interview is scheduled for ' + startDateTime.format('MM/dd/yyyy hh:mm a') + ' - ' + endDateTime.format('hh:mm a') + ' (UTC).\n';
+        
+        if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+            body += 'The interview will be held virtually. Please use the following link to join the virtual interview: ' + interview.EMS_Meeting_Link__c + '\n';
+        } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+            body += 'The interview will be held in-person at the following location: ' + interview.EMS_Interview_Location__c + '\n';
+        }
+        
+        email.setPlainTextBody(body);
+        emails.add(email);
+    }
+
+    // check if emails list is not empty before calling Messaging.sendEmail()
+    System.debug('Number of emails in the list: ' + emails.size());
+    if(!emails.isEmpty()) {
+        System.debug('Sending emails...');
+        Messaging.sendEmail(emails);
+    }
+    System.debug('Email sending completed');
+}
+*/
+
+
+<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <lightning-input 
+        label="Search" 
+        value={searchTerm} 
+        onchange={handleSearchTermChange}
+        class="slds-input slds-input--small slds-m-right_small slds-grow search-input"
+        variant="label-hidden"
+        placeholder="Search...">
+        <lightning-icon 
+          icon-name="utility:search" 
+          slot="icon" 
+          size="x-small" 
+          class="slds-icon slds-icon_x-small slds-icon-text-default slds-m-left_x-small search-icon">
+        </lightning-icon>
+      </lightning-input>
+
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Confirm Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <p class="slds-text-heading_small"><strong>Interview Date:</strong> {record.EMS_Interview_Date__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer1 Email:</strong> {record.EMS_Interviewer_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer2 Email:</strong> {record.EMS_Interviewer_2_Email__c }</p>
+                                        
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @api title
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        { label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        //{ label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' },
+        { label: 'Interviewer1 Email', fieldName: 'EMS_Interviewer_Email__c', type: 'email' },
+        { label: 'Interviewer2 Email', fieldName: 'EMS_Interviewer_2_Email__c', type: 'email' }
+        
+    ];
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        
+    }
+          // Handles the search term change event
+          handleSearchTermChange(event) {
+            this.searchTerm = event.target.value;
+            this.getInterviewRecords();
+        }
+
+   // Fetches the interview records from the server
+getInterviewRecords() {
+    getInterviewRecords()
+        .then(result => {
+            // Filter the records based on the search term
+            if (this.searchTerm) {
+                const regex = new RegExp(this.searchTerm, "i");
+                this.records = result.filter(record =>
+                    regex.test(record.EMS_Candidate_Name__c) ||
+                    regex.test(record.EMS_Interview_Type__c) ||
+                    regex.test(record.EMS_Interview_Status__c) ||
+                    regex.test(record.EMS_Applicant_Email__c) ||
+                    regex.test(record.EMS_Interviewer_2_Email__c) ||
+                    regex.test(record.EMS_Interviewer_Email__c)
+                );
+            } else {
+                this.records = result;
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+    //Sending bulk emails
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const interviewIds = this.selectedRecords.map(record => record.Id);
+        console.log(JSON.stringify('Interview Ids List :' + interviewIds));
+        if (interviewIds.length > 0) {
+            sendBulkEmails({ interviewIds })
+            
+    .then(result => {
+        console.log('result: '+ JSON.stringify(result));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'Emails sent successfully',
+                variant: 'success'
+            })
+        );
+    })
+    .catch(error => {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: error.body.message,
+                variant: 'error'
+            })
+        );
+    });
+
+               
+    
+}
+    }
+}               
+                    
+                    
+
+@isTest
+public class InterviewEmailControllerTest {
+    @isTest
+    static void testGetInterviewRecords() {
+         EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Work_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+        // Create test data
+        EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+            EMS_Interview_Date__c = Date.today().addDays(8),
+            EMS_Interview_Start_Time__c = Time.newInstance(10, 0, 0, 0),
+            EMS_Interview_End_Time__c = Time.newInstance(11, 0, 0, 0),
+            EMS_Interview_Type__c = 'In Person Interview',
+            //EMS_Interviewer_Email__c = 'test-interviewer@test.com',
+            //EMS_Applicant_Email__c = 'test-applicant@test.com',
+            EMS_Interview_Location__c = 'Hyd',
+            EMS_Interview_Round__c = 'Technical Round',
+            EMS_Interview_Status__c = 'Accepted'
+        );
+        insert interview;
+
+        // Call the method
+        List<EMS_Interview_Scheduling__c> interviewList = InterviewEmailController.getInterviewRecords();
+
+        // Verify the result
+        System.assertEquals(1, interviewList.size());
+        System.assertEquals(interview.Id, interviewList[0].Id);
+        System.assertEquals(interview.EMS_Interview_Date__c, interviewList[0].EMS_Interview_Date__c);
+        System.assertEquals(interview.EMS_Interview_Start_Time__c, interviewList[0].EMS_Interview_Start_Time__c);
+        System.assertEquals(interview.EMS_Interview_End_Time__c, interviewList[0].EMS_Interview_End_Time__c);
+        System.assertEquals(interview.EMS_Interview_Type__c, interviewList[0].EMS_Interview_Type__c);
+        //System.assertEquals(interview.EMS_Interviewer_Email__c, interviewList[0].EMS_Interviewer_Email__c);
+        //System.assertEquals(interview.EMS_Applicant_Email__c, interviewList[0].EMS_Applicant_Email__c);
+        System.assertEquals(interview.EMS_Interview_Location__c, interviewList[0].EMS_Interview_Location__c);
+        System.assertEquals(interview.EMS_Interview_Round__c, interviewList[0].EMS_Interview_Round__c);
+        System.assertEquals(interview.EMS_Interview_Status__c, interviewList[0].EMS_Interview_Status__c);
+    }
+}
+    /*
+    @isTest
+static void testSendBulkEmails() {
+    
+    
+    EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Employee_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+    
+    EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+        EMS_Job_Application_ID__c=jobApp.Id,
+        EMS_Interview_Date__c=Date.today().addDays(2),
+        EMS_Interview_Start_Time__c=Time.newInstance(10, 0, 0, 0),
+        EMS_Interview_End_Time__c=Time.newInstance(11, 0, 0, 0),
+        EMS_Interview_Type__c='In Person Interview', 
+        EMS_Meeting_Link__c='https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTQzMGI4MDItZTM3Mi00ZmVhLWE3M2UtODgyOGM4ODhmYmIw%40thread.v2/0?context=%7b%22Tid%22%3a%22b5064cce-6977-4e05-85e1-bb493b6f2cc9%22%2c%22Oid%22%3a%2297e83610-de93-48a9-81b9-41615993beb3%22%7d',
+        EMS_Interview_Location__c = 'Delhi',
+        EMS_Interviewer_Name__c=interviewer.Id,
+      //  EMS_Interviewer_Email__c=interviewer.EMS_Employee_Email__c,
+        // Use candidate's email as the applicant email
+       // EMS_Applicant_Email__c= applicant.EMS_Email__c,
+        EMS_Interview_Status__c='Accepted'
+    );
+    insert interview;
+    
+    Test.startTest();
+    
+    // Call the method under test with the interview Id
+    List<Id> interviewIds = new List<Id>{interview.Id};
+    InterviewEmailController.sendBulkEmails(interviewIds);
+    Test.stopTest();
+    String subject;
+    String body;
+    if(interview.EMS_Interview_Type__c=='In Person Interview')
+    {
+        subject = 'Interview Schedule Details';
+        body =' Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)';
+        
+    }
+ 
+   system.assertEquals('Interview Schedule Details', subject);
+    system.assertEquals('Your interview is scheduled for In person Interview',body);
+   
+    
+}
+      @isTest
+static void testSendBulkEmails1() {
+    
+    
+    EMS_Applicant__c applicant = new EMS_Applicant__c(EMS_Email__c='testcandidate@example.com',EMS_Last_Name__c = 'Karim',EMS_Years_of_Experience__c = 2);
+    insert applicant;
+    
+    EMS_Employee__c interviewer = new EMS_Employee__c(EMS_Employee_Email__c='testinterviewer@example.com');
+    insert interviewer;
+    
+    EMS_Position__c position = new EMS_Position__c(Name='Test Position',EMS_Required_Skills__c = 'System Administrator');
+    insert position; 
+    
+    EMS_Job_Opening__c jobopening = new EMS_Job_Opening__c();
+    jobopening.EMS_Department__c = 'IT';
+    jobopening.EMS_Experience__c = '1 - 2 Yrs';
+     jobopening.EMS_Educational_Requirements__c = 'B.Tech/B.E';
+     jobopening.EMS_Minimum_Salary__c = 9000;
+    jobopening.EMS_Location__c = 'Hyderabad - Telangana';
+    jobopening.EMS_Open_Date__c = Date.today();
+     jobopening.Hire_by_Date__c = Date.today();
+     jobopening.EMS_Maximum_Salary__c = 70000;
+    jobopening.EMS_Job_Title__c = position.Id;
+      insert jobopening;
+    
+    EMS_Job_Applications__c jobApp = new EMS_Job_Applications__c(EMS_Applicant__c=applicant.Id, EMS_Stage__c='Prescreen', EMS_Status__c='Passed', EMS_Job_Opening__c=jobopening.Id);
+    insert jobApp;
+    
+    EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c(
+        EMS_Job_Application_ID__c=jobApp.Id,
+        EMS_Interview_Date__c=Date.today().addDays(2),
+        EMS_Interview_Start_Time__c=Time.newInstance(10, 0, 0, 0),
+        EMS_Interview_End_Time__c=Time.newInstance(11, 0, 0, 0),
+        EMS_Interview_Type__c='Virtual Interview', 
+        EMS_Meeting_Link__c='https://teams.microsoft.com/l/meetup-join/19%3ameeting_YTQzMGI4MDItZTM3Mi00ZmVhLWE3M2UtODgyOGM4ODhmYmIw%40thread.v2/0?context=%7b%22Tid%22%3a%22b5064cce-6977-4e05-85e1-bb493b6f2cc9%22%2c%22Oid%22%3a%2297e83610-de93-48a9-81b9-41615993beb3%22%7d',
+        //EMS_Interview_Location__c = 'Delhi',
+        EMS_Interviewer_Name__c=interviewer.Id,
+      //  EMS_Interviewer_Email__c=interviewer.EMS_Employee_Email__c,
+        // Use candidate's email as the applicant email
+       // EMS_Applicant_Email__c= applicant.EMS_Email__c,
+        EMS_Interview_Status__c='Accepted'
+    );
+    insert interview;
+    
+    Test.startTest();
+    
+    // Call the method under test with the interview Id
+    List<Id> interviewIds = new List<Id>{interview.Id};
+    InterviewEmailController.sendBulkEmails(interviewIds);
+    Test.stopTest();
+    String subject;
+    String body;
+    if(interview.EMS_Interview_Type__c == 'Virtual Interview')
+    {
+        subject = 'Interview Schedule Details';
+        body ='Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)';
+        
+    }
+ 
+   system.assertEquals('Interview Schedule Details', subject);
+    system.assertEquals( 'Your interview is scheduled for 4/13/2023 10:00 AM - 11:00 AM (UTC)',body);
+   
+    
+}*/
+    /*
+    @isTest
+   static void testSendMeeting() {
+        // Create a test interview
+        EMS_Interview_Scheduling__c interview = new EMS_Interview_Scheduling__c();
+        interview.EMS_Interview_Status__c = 'Accepted';
+        insert interview;
+        
+        // Call the sendMeeting method and verify that an email was sent
+        Test.startTest();
+        SendMeetingLinkEmailHandler.sendMeeting(new List<EMS_Interview_Scheduling__c>{interview});
+        Test.stopTest();
+        
+        // Verify that an email was sent
+        List<EmailMessage> emails = [SELECT Id FROM EmailMessage];
+        System.assertEquals(1, emails.size(), 'Expected to send 1 email');
+    }
+    */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

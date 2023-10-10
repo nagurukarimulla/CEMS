@@ -1,0 +1,21 @@
+<template>
+    <lightning-card title="LWC LMS Component A">
+        <div class="slds-m-around_medium">
+            <lightning-input type="text" label="Enter message to publish" 
+            onkeyup={inputHandler}></lightning-input>
+        </div>
+        <div class="slds-m-around_medium">
+            <lightning-button variant="brand" label="Publish" onclick={publishMessage}></lightning-button>
+        </div>
+
+        <div class="slds-m-around_medium">
+            <lightning-button variant="success" label="subscribe" onclick={subscribeMessage}></lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+           <lightning-button variant="destructive" label="unsubscribe" onclick={unsubscribeMessage}></lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+            Message Recieved: <strong>{recievedMessage}</strong>
+        </div>
+    </lightning-card>
+</template>

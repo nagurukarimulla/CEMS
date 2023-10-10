@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="DataBinder">
+    <aura:attribute name="fieldAPIName" type="String"/>
+    <aura:attribute name="fieldValue" type="String"/>
+    <aura:attribute name="rowIndex" type="Integer"/>
+</aura:event>

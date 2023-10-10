@@ -1,0 +1,54 @@
+/* Center the card and its contents */
+.lightning-card {
+    margin: 0 auto;
+    width: 80%;
+    max-width: 800px;
+  }
+  
+  /* Add some margin around the elements */
+  .slds-var-m-around_large {
+    margin: 2rem;
+  }
+  
+  /* Style the heading */
+  .slds-text-heading_large {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0366d6;
+  }
+  
+  /* Style the subheadings */
+  .slds-text-heading_small {
+    font-size: 1rem;
+    color: #586069;
+  }
+  
+  /* Style the links */
+  a {
+    color: #0366d6;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Style the input and button */
+  lightning-input {
+    width: 100%;
+  }
+  
+  lightning-button {
+    margin-top: 0.5rem;
+  }
+  
+  /* Style the user details */
+  img {
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .slds-var-p-vertical_xxx-small {
+    margin: 0.5rem 0;
+  }
+  

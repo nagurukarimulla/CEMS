@@ -1,0 +1,5 @@
+<design:component >
+    <design:attribute name="searchTitle" label="Search Input Label" required="true"/>
+    <design:attribute name="objectAPIName" label="Object Name" required="true"/>
+    <design:attribute name="searchFieldApiName" label="Field Name" required="true"/>
+</design:component>

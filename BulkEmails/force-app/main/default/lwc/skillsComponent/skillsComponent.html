@@ -1,0 +1,30 @@
+<template>
+    <lightning-card title="Skill Rating">
+        <template for:each={skills} for:item="skill">
+            <div key={skill.id} class="slds-p-around_small">
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-2">
+                        <p>{skill.name}</p>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="range" min="1" max="5" step="1" value={skill.rating} data-id={skill.id} onchange={handleRatingChange}></lightning-input>
+                    </div>
+                </div>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-2">
+                        <p>Comment:</p>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input type="text" value={skill.comment} data-id={skill.id} onchange={handleCommentChange}></lightning-input>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div class="slds-p-around_small">
+            <p>Overall Rating: {overallRating}</p>
+        </div>
+        <div class="slds-p-around_small">
+            <lightning-button label="Save Feedback" onclick={handleSaveFeedback}></lightning-button>
+        </div>
+    </lightning-card>
+</template>

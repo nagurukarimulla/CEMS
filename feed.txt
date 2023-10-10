@@ -1,0 +1,1238 @@
+https://cittacoretechnologiesinc3--ems.sandbox.my.site.com
+
+
+cittacoretechnologiesinc3--ems.sandbox.my.site.com
+
+
+
+
+
+
+<!--
+<template>
+	<lightning-card>
+
+		<c-create-interview-scheduler onscheduleinterview={handleScheduleInterview}
+			onopenscheduleinterview={handleOpenScheduleInterview}>
+		</c-create-interview-scheduler>
+		<template if:true={showFormInParent} >
+			 <div class="slds-m-around_medium" style="margin-top:-25px;">
+					<lightning-input type="datetime-local" label="" value={selectedDateTime} onchange={handleDateTimeChange}></lightning-input>
+				</div>
+	      
+				<div class="slds-m-around_medium" style="width:180px;margin-top:80px;float:right;">
+					<lightning-combobox
+						label="Select Round"
+						options={picklistValues}
+						onchange={handleRoundChange}
+					></lightning-combobox>
+				</div> 
+			<div class="slds-grid slds-gutters" style="margin-top:-40px;">
+				<div class="slds-col">
+					<lightning-input type="date" label="Select Date" value={selectedDateTime}
+						onchange={handleDateTimeChange} data-id="resetPicklist"></lightning-input>
+				</div>
+				<div class="slds-col">
+					<lightning-combobox label="Select Round" options={picklistValues}
+						onchange={handleRoundChange} data-id="resetPicklist"></lightning-combobox>
+				</div>
+                <div class="slds-col" style="margin-top:24px;">
+                <lightning-button variant="brand-outline" label="ResetFilter" title="titleName" onclick={handleResetFilter}></lightning-button>
+            </div>
+			</div>
+			<br/>
+			<template if:true={interviewData}>
+			<template if:true={interviewData.length}>
+				<div style="display: flex;min-height: 300px; flex: 1;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;">
+						<lightning-datatable key-field="Id" data={interviewData} columns={columns}
+							hide-checkbox-column="true" onrowaction={handleRowAction}>
+						</lightning-datatable>
+			</div>
+		
+		</template>
+		<template if:false={interviewData.length}>
+			
+			<div class="slds-text-align_center slds-text-color_default slds-m-around_medium">
+			  No interviews scheduled.
+			</div>
+		  </template>
+		</template>
+	</template>
+	<template if:false={interviewData}>
+		
+		<div class="slds-text-align_center slds-text-color_default slds-m-around_medium">
+		  <div class="slds-spinner slds-spinner_medium"></div>
+		  <p>Loading...</p>
+		</div>
+	  </template>
+		<lightning-datatable data={interviewData} columns={columns} key-field="id" hide-checkbox-column="true"
+			onrowaction={handleRowAction}></lightning-datatable> 
+		<template if:true={modalContainer}>
+			
+			<section class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container" style="min-width:90%;">
+					<header class="slds-modal__header">
+						<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+							title="Close" onclick={closeModalAction}>
+							<lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+								size="small"></lightning-icon>
+						</button>
+						<h2 class="slds-text-heading_medium slds-hyphenate">Interview Schedule Detail</h2>
+					</header>
+
+					<div class="slds-modal__content slds-p-around_medium">
+						<table class="slds-table slds-table_bordered slds-table_col-bordered slds-table_cell-buffer"
+							style="width:100%;">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Applicant</th>
+									<th>Status</th>
+									<th>Panel</th>
+									<th>Round</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>{displayModelRow.CEMS_Interview_Start_Time__c}</td>
+									<td>{displayModelRow.Name}</td>
+									<td>{displayModelRow.CEMS_Interview_Status__c}</td>
+									<td>{displayModelRow.CEMS_Interview_Panel__r.Name}</td>
+									<td>{displayModelRow.CEMS_Interview_Round__c}</td>
+								</tr>
+							</tbody>
+						</table>
+						
+						<div if:true={shouldDisplayFeedback}>
+						<c-interview-feedback record-id={recordid} ></c-interview-feedback>
+					   
+						</div>
+						  
+						
+					</div>
+					
+					<footer class="slds-modal__footer">
+						<lightning-button variant="brand" label="Close" title="Close" onclick={closeModalAction}>
+						</lightning-button>
+					</footer>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open"></div>
+		</template>
+	</lightning-card>
+</template>-->
+
+<template>
+	<lightning-card>
+	  <template if:true={showFormInParent}>
+		<div class="slds-grid slds-gutters"  style="padding-left:14%;margin-top:-20px;">
+		  <div class="slds-col">
+			<lightning-input
+			type="date"
+			label="Date"
+			value={selectedDateTime}
+			onchange={handleDateTimeChange}
+			data-id="resetPicklist"
+		  ></lightning-input>
+		</div>
+		<div class="slds-col">
+		  <lightning-combobox
+			label="Round"
+			options={picklistValues}
+			onchange={handleRoundChange}
+			data-id="resetPicklist"
+		  ></lightning-combobox>
+		  </div>
+		  <div class="slds-col" style="margin-top: 24px;">
+			<lightning-button
+			  variant="brand-outline"
+			  label="Reset Filter"
+			  title="titleName"
+			  onclick={handleResetFilter}
+			></lightning-button>
+		  </div>
+		</div>
+		<br/>  
+		<template if:true={interviewData1}>
+		  <template if:true={interviewData1.length}>
+			<div class="datatable-container">
+			  <lightning-datatable
+				key-field="Id"
+				data={interviewData1}
+				columns={columns}
+				hide-checkbox-column="true"
+				onrowaction={handleRowAction}
+				class="slds-table slds-table_bordered slds-table_col-bordered slds-table_cell-buffer slds-table_compact"
+			  >
+			  </lightning-datatable>
+			</div>
+		  </template>
+		  <template if:false={interviewData1.length}>
+			<!-- Render the "No interviews scheduled" message -->
+			<div class="slds-text-align_center slds-text-color_default slds-m-around_medium">
+			  No interviews scheduled.
+			</div>
+		  </template>
+		</template>
+	  </template>
+  
+	  <template if:false={interviewData1}>
+		<!-- Render a loading indicator or placeholder if interviewData is undefined -->
+		<div class="slds-text-align_center slds-text-color_default slds-m-around_medium">
+		  <div class="slds-spinner slds-spinner_medium"></div>
+		  <p>Loading...</p>
+		</div>
+	  </template>
+  
+	  <template if:true={modalContainer}>
+		<section class="slds-modal slds-fade-in-open">
+		  <div class="slds-modal__container" style="min-width: 90%;margin-top:60px;">
+			<header class="slds-modal__header">
+			  <!-- <button
+				class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+				title="Close"
+				onclick={closeModalAction}
+			  >
+				<lightning-icon
+				  icon-name="utility:close"
+				  alternative-text="close"
+				  variant="inverse"
+				  size="small"
+				  ></lightning-icon>
+				  </button> -->
+				  <h2 class="slds-text-heading_medium slds-hyphenate">Interview Schedule Detail</h2>
+				  </header>
+				  <div class="slds-modal__content slds-p-around_medium">
+					<table class="slds-table slds-table_bordered slds-table_col-bordered slds-table_cell-buffer slds-table_compact" style="width: 100%;border: 1px solid #d8dde6 !important;">
+					  <thead>
+						<tr>
+						  <th>Date</th>
+						  <th>Applicant</th>
+						  <th>Status</th>
+						  <th>Panel</th>
+						  <th>Round</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<tr>
+						  <td>{displayModelRow.formattedDate}</td>
+						  <td>{displayModelRow.Name}</td>
+						  <td>{displayModelRow.CEMS_Interview_Status__c}</td>
+						  <td>{displayModelRow.CEMS_Interview_Panel__r.Name}</td>
+						  <td>{displayModelRow.CEMS_Interview_Round__c}</td>
+						  <td>{displayModelRow.CEMS_IsFeedbackSubmitted__c}</td>
+						</tr>
+					  </tbody>
+					</table>
+					<div if:true={shouldDisplayFeedback}>
+						<c-interview-feedback record-id={recordid} ></c-interview-feedback>
+						</div>
+						
+					<!--<div if:true={shouldDisplayFeedback}>
+					  <c-interview-feedback record-id={recordid}></c-interview-feedback>
+					</div>-->
+				  </div>
+			
+				  <footer class="slds-modal__footer">
+					<lightning-button variant="brand" label="Close" title="Close" onclick={closeModalAction}></lightning-button>
+				  </footer>
+				</div>
+			  </section>
+			  <div class="slds-backdrop slds-backdrop_open"></div>
+			</template>
+		</lightning-card>
+	</template>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
+import { LightningElement, track, wire, api } from 'lwc';
+import getDataFromContact from '@salesforce/apex/CEMSSchedulerController.getInterviewData';
+import { getPicklistValues } from 'lightning/uiObjectInfoApi';
+
+
+import Round_Field from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+const columns = [
+    {
+        label: 'View',
+        type: 'button-icon',
+        initialWidth: 75,
+        typeAttributes: {
+            iconName: 'action:preview',
+            title: 'Preview',
+            variant: 'border-filled',
+            alternativeText: 'View',
+            recordId: { fieldName: 'Id' }
+        }
+    },
+    { label: 'Date', fieldName: 'formattedDate' },
+    { label: 'Applicant', fieldName: 'Name' },
+    { label: 'Status', fieldName: 'CEMS_Interview_Status__c' },
+    { label: 'Panel', fieldName: 'CEMS_Interview_Panel__r.Name' },
+    { label: 'Round', fieldName: 'CEMS_Interview_Round__c' },
+
+];
+
+export default class CEMSSchedulerTable extends LightningElement {
+    @track columns = columns;
+    @track contactRow;
+    @track rowOffset = 0;
+    @track recordList;
+    @track modalContainer = false;
+    @track displayModelRow;
+    @track recordid;
+    //@wire(getDataFromContact) wireContact;
+    selectedRound = '';
+    picklistValues; // Add roundOptions property
+    showFormInParent = true;
+    selectedDateTime;
+    interviewData;
+    
+
+    originalColumns = [...this.columns]; // Store original columns for reference
+    @wire(getPicklistValues, { recordTypeId: '012DO0000008XetYAE', fieldApiName: Round_Field })
+    loadPicklistValues({ data, error }) {
+        if (data) {
+            this.picklistValues = data.values;
+            console.log(this.picklistValues);
+        } else if (error) {
+            // Handle error if necessary
+            console.error('Error loading picklist values:', error);
+        }
+    }
+    originalData = [];
+    @wire(getDataFromContact)
+    wiredInterviewData({ error, data }) {
+        if (data) {
+            this.originalData = [...data]; // Assign the original data
+            this.interviewData = this.formatData(data);
+            this.interviewData = data.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+            console.log(JSON.stringify(this.interviewData));
+        } else if (error) {
+            // Handle error if needed
+        }
+    }
+
+    @wire(getDataFromContact)
+    wiredInterviewData({ error, data }) {
+      if (data) {
+        const formattedData = this.formatData(data);
+        this.originalData = [...formattedData]; // Assign the original data
+        this.interviewData = formattedData.map(record => {
+          if (record.CEMS_Interview_Panel__r) {
+            return Object.assign(
+              { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+              record
+            );
+          }
+          return record;
+        });
+        console.log(JSON.stringify(this.interviewData));
+      } else if (error) {
+        // Handle error if needed
+      }
+    }
+    
+    formatData(data) {
+        return data.map(record => {
+          let formattedDate = '';
+          if (record.CEMS_Interview_Start_Time__c) {
+            const date = new Date(record.CEMS_Interview_Start_Time__c);
+            if (!isNaN(date)) {
+              const day = date.getDate().toString().padStart(2, '0');
+              const month = (date.getMonth() + 1).toString().padStart(2, '0');
+              const year = date.getFullYear();
+              formattedDate = `${day}/${month}/${year}`;
+            }
+          }
+          return {
+            ...record,
+            formattedDate
+          };
+        });
+      }
+      
+
+    handleRowAction(event) {
+        // const dataRow = event.detail.row;
+        // console.log('dataRow@@ ' + JSON.stringify(dataRow));
+        // this.displayModelRow = dataRow;
+        // console.log('contactRow## ' + JSON.stringify(dataRow));
+        // this.modalContainer = true;
+        const dataRow = event.detail.row;
+        this.recordid = event.detail.row.Id; // Retrieve the record ID
+        console.log('dataRow@@ :' + JSON.stringify(dataRow));
+        console.log('recordId@@ :' + this.recordid);
+        this.displayModelRow = dataRow;
+        console.log('contactRow## ' + JSON.stringify(dataRow));
+        this.modalContainer = true;
+    }
+
+    closeModalAction() {
+        this.modalContainer = false;
+        // console.log("hello:" + this.contactRow);
+        // setTimeout(() => {
+        //     eval("$A.get('e.force:refreshView').fire();");
+        // }, 1000);
+
+    }
+    
+
+   
+
+    handleScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = false;
+
+    }
+
+    handleOpenScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = true;
+
+    }
+    handleRoundChange(event) {
+        this.selectedRound = event.detail.value;
+        this.filterDataByRound();
+    }
+    
+    handleDateTimeChange(event) {
+        this.selectedDateTime = event.target.value;
+        this.filterDataByDateTime();
+    }
+
+    filterDataByRound() {
+        if (this.selectedRound) {
+            const filteredData = this.originalData.filter(record =>
+                record.CEMS_Interview_Round__c === this.selectedRound
+            );
+            this.interviewData = filteredData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        } else {
+            // No round selected, display all records
+            this.interviewData = this.originalData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        }
+        this.columns = this.originalColumns; // Reset columns to original state
+    }
+
+    handleResetFilter() {
+        this.interviewData = this.originalData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+                return Object.assign(
+                    { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                    record
+                );
+            }
+            return record;
+        });
+        this.columns = this.originalColumns;
+
+        let interviewRound = this.template.querySelector('lightning-combobox[data-id="resetPicklist"]');
+        interviewRound.value = '';
+
+        let interviewDate = this.template.querySelector('lightning-input[data-id="resetPicklist"]');
+        interviewDate.value = '';
+    }
+    
+    filterDataByDateTime() {
+        if (this.selectedDateTime) {
+            const selectedDate = new Date(this.selectedDateTime).toDateString();
+            const filteredData = this.originalData.filter(record =>
+                new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+            );
+            this.interviewData = filteredData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        } else {
+            // No date/time selected, display all records
+            this.interviewData = this.originalData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        }
+
+
+    }
+    @api displayModelRow;
+    @api recordid;
+    get shouldDisplayFeedback() {
+        return this.displayModelRow.CEMS_Interview_Status__c === 'Completed';
+      }
+      handleDateTimeChange(event) {
+        this.selectedDateTime = event.target.value;
+        this.filterData();
+      }
+      
+      handleRoundChange(event) {
+        this.selectedRound = event.target.value;
+        this.filterData();
+      }
+
+      filterData() {
+        if (this.selectedRound && this.selectedDateTime) {
+          // Filter by both round and date/time
+          const selectedDate = new Date(this.selectedDateTime).toDateString();
+          const filteredData = this.originalData.filter(record =>
+            record.CEMS_Interview_Round__c === this.selectedRound &&
+            new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+          );
+          this.interviewData = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else if (this.selectedRound) {
+          // Filter by round only
+          const filteredData = this.originalData.filter(record =>
+            record.CEMS_Interview_Round__c === this.selectedRound
+          );
+          this.interviewData = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else if (this.selectedDateTime) {
+          // Filter by date/time only
+          const selectedDate = new Date(this.selectedDateTime).toDateString();
+          const filteredData = this.originalData.filter(record =>
+            new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+          );
+          this.interviewData = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else {
+          // No round or date/time selected, display all records
+          this.interviewData = this.originalData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        }
+      
+        this.columns = this.originalColumns; // Reset columns to original state
+      }
+}
+*/
+import { LightningElement, track, wire, api } from 'lwc';
+import getDataFromContact from '@salesforce/apex/CEMSSchedulerController.getInterviewData';
+import getDataFromContact2 from '@salesforce/apex/CEMSSchedulerController.getInterviewData2';
+
+import { getPicklistValues } from 'lightning/uiObjectInfoApi';
+
+
+import Round_Field from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Interview_Round__c';
+const columns = [
+    {
+        label: 'View',
+        type: 'button-icon',
+        initialWidth: 75,
+        typeAttributes: {
+            iconName: 'action:preview',
+            title: 'Preview',
+            variant: 'border-filled',
+            alternativeText: 'View',
+            recordId: { fieldName: 'Id' }
+        }
+    },
+    { label: 'Date', fieldName: 'formattedDate' },
+    { label: 'Applicant', fieldName: 'Name' },
+    { label: 'Status', fieldName: 'CEMS_Interview_Status__c' },
+    { label: 'Panel', fieldName: 'CEMS_Interview_Panel__r.Name' },
+    { label: 'Round', fieldName: 'CEMS_Interview_Round__c' },
+    { label: 'Feedback Submitted', fieldName: 'CEMS_IsFeedbackSubmitted__c' }
+
+];
+
+export default class CEMSSchedulerTable extends LightningElement {
+    @track columns = columns;
+    @track contactRow;
+    @track rowOffset = 0;
+    @track recordList;
+    @track modalContainer = false;
+    @track displayModelRow;
+    @track recordid;
+    //@wire(getDataFromContact) wireContact;
+    selectedRound = '';
+    picklistValues; // Add roundOptions property
+    showFormInParent = true;
+    selectedDateTime;
+    interviewData;
+    interviewData1;
+    
+    
+   @api email;
+    
+
+    originalColumns = [...this.columns]; // Store original columns for reference
+    @wire(getPicklistValues, { recordTypeId: '012DO0000008XetYAE', fieldApiName: Round_Field })
+    loadPicklistValues({ data, error }) {
+        if (data) {
+            console.log('interview email inside ' + this.email);
+            this.picklistValues = data.values;
+            console.log(this.picklistValues);
+        } else if (error) {
+            // Handle error if necessary
+            console.error('Error loading picklist values:', error);
+        }
+    }
+   
+    originalData = [];
+    @wire(getDataFromContact2, { loginEmail: '$email' })
+    wiredResult({ error, data }) {
+        if (data) {
+          console.log('inside wire ' + this.loggedinemail);
+          this.originalData = [...data];
+        this.interviewData1 = this.formatData(data);;
+        this.interviewData1 = data.map(record => {
+          if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                  { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                  record
+              );
+          }
+          return record;
+      });
+          console.log('data',JSON.stringify(data));
+            // Handle the response data
+        } else if (error) {
+            // Handle the error
+            console.log('error',JSON.stringify(error));
+
+        }
+    }
+
+   
+    @wire(getDataFromContact2, { loginEmail: '$email' })
+    wiredResult({ error, data }) {
+        if (data) {
+        const formattedData = this.formatData(data);
+        this.originalData = [...formattedData]; // Assign the original data
+        this.interviewData1 = formattedData.map(record => {
+          if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                  { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                  record
+              );
+          }
+          return record;
+      });
+          console.log('data',JSON.stringify(data));
+            // Handle the response data
+        } else if (error) {
+            // Handle the error
+            console.log('error',JSON.stringify(error));
+
+        }
+    }
+
+    
+    formatData(data) {
+        return data.map(record => {
+          let formattedDate = '';
+          if (record.CEMS_Interview_Start_Time__c) {
+            const date = new Date(record.CEMS_Interview_Start_Time__c);
+            if (!isNaN(date)) {
+              const day = date.getDate().toString().padStart(2, '0');
+              const month = (date.getMonth() + 1).toString().padStart(2, '0');
+              const year = date.getFullYear();
+              formattedDate = `${day}/${month}/${year}`;
+            }
+          }
+          return {
+            ...record,
+            formattedDate
+          };
+        });
+      }
+      
+    handleRowAction(event) {
+        // const dataRow = event.detail.row;
+        // console.log('dataRow@@ ' + JSON.stringify(dataRow));
+        // this.displayModelRow = dataRow;
+        // console.log('contactRow## ' + JSON.stringify(dataRow));
+        // this.modalContainer = true;
+        const dataRow = event.detail.row;
+        this.recordid = event.detail.row.Id; // Retrieve the record ID
+        console.log('dataRow@@ :' + JSON.stringify(dataRow));
+        console.log('recordId@@ :' + this.recordid);
+        this.displayModelRow = dataRow;
+        console.log('contactRow## ' + JSON.stringify(dataRow));
+        this.modalContainer = true;
+    }
+
+    closeModalAction() {
+        this.modalContainer = false;
+        // console.log("hello:" + this.contactRow);
+        // setTimeout(() => {
+        //     eval("$A.get('e.force:refreshView').fire();");
+        // }, 1000);
+
+    }
+    
+
+   
+
+    handleScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = false;
+
+    }
+
+    handleOpenScheduleInterview() {
+        // Logic to handle the "Schedule Interview" event
+        this.showFormInParent = true;
+
+    }
+    handleRoundChange(event) {
+        this.selectedRound = event.detail.value;
+        this.filterDataByRound();
+    }
+    
+    handleDateTimeChange(event) {
+        this.selectedDateTime = event.target.value;
+        this.filterDataByDateTime();
+    }
+
+
+    filterDataByRound() {
+        if (this.selectedRound) {
+            const filteredData = this.originalData.filter(record =>
+                record.CEMS_Interview_Round__c === this.selectedRound
+            );
+            this.interviewData1 = filteredData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        } else {
+            // No round selected, display all records
+            this.interviewData1 = this.originalData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        }
+        this.columns = this.originalColumns; // Reset columns to original state
+    }
+
+    handleResetFilter() {
+        this.interviewData1 = this.originalData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+                return Object.assign(
+                    { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                    record
+                );
+            }
+            return record;
+        });
+        this.columns = this.originalColumns;
+
+        let interviewRound = this.template.querySelector('lightning-combobox[data-id="resetPicklist"]');
+        interviewRound.value = '';
+
+        let interviewDate = this.template.querySelector('lightning-input[data-id="resetPicklist"]');
+        interviewDate.value = '';
+    }
+    
+    filterDataByDateTime() {
+        if (this.selectedDateTime) {
+            const selectedDate = new Date(this.selectedDateTime).toDateString();
+            const filteredData = this.originalData.filter(record =>
+                new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+            );
+            this.interviewData1 = filteredData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        } else {
+            // No date/time selected, display all records
+            this.interviewData1 = this.originalData.map(record => {
+                if (record.CEMS_Interview_Panel__r) {
+                    return Object.assign(
+                        { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                        record
+                    );
+                }
+                return record;
+            });
+        }
+
+
+    }
+    @api isFeedbackSubmitted = false;
+    @api displayModelRow;
+    @api recordid;
+    get shouldDisplayFeedback() {
+        return this.displayModelRow.CEMS_Interview_Status__c === 'Completed';
+      }
+      handleDateTimeChange(event) {
+        this.selectedDateTime = event.target.value;
+        this.filterData();
+      }
+      
+      handleRoundChange(event) {
+        this.selectedRound = event.target.value;
+        this.filterData();
+      }
+
+      filterData() {
+        if (this.selectedRound && this.selectedDateTime) {
+          // Filter by both round and date/time
+          const selectedDate = new Date(this.selectedDateTime).toDateString();
+          const filteredData = this.originalData.filter(record =>
+            record.CEMS_Interview_Round__c === this.selectedRound &&
+            new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+          );
+          this.interviewData1 = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else if (this.selectedRound) {
+          // Filter by round only
+          const filteredData = this.originalData.filter(record =>
+            record.CEMS_Interview_Round__c === this.selectedRound
+          );
+          this.interviewData1 = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else if (this.selectedDateTime) {
+          // Filter by date/time only
+          const selectedDate = new Date(this.selectedDateTime).toDateString();
+          const filteredData = this.originalData.filter(record =>
+            new Date(record.CEMS_Interview_Start_Time__c).toDateString() === selectedDate
+          );
+          this.interviewData1 = filteredData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        } else {
+          // No round or date/time selected, display all records
+          this.interviewData1 = this.originalData.map(record => {
+            if (record.CEMS_Interview_Panel__r) {
+              return Object.assign(
+                { "CEMS_Interview_Panel__r.Name": record.CEMS_Interview_Panel__r.Name },
+                record
+              );
+            }
+            return record;
+          });
+        }
+      
+        this.columns = this.originalColumns; // Reset columns to original state
+      }
+}
+
+
+
+
+<template>
+ 
+    <template if:true={showButton}>
+        <div class="slds-text-align_center slds-m-top_medium slds-theme_shade slds-theme_alert-texture">
+            <lightning-button label="Open Skills Feedback" onclick={handleOpen} variant="brand"
+                class="slds-button slds-button_brand"></lightning-button>
+        </div>
+    </template>
+
+    <template if:true={showComponent}>
+
+        <template if:true={skills}>
+            <div class="slds-box slds-theme_shade slds-theme_alert-texture">
+                <h2 class="slds-text-heading_medium slds-text-color_success">
+                    <lightning-icon icon-name="standard:feedback" size="medium"
+                        class="slds-m-right_small"></lightning-icon>
+                    Technical Skills Feedback
+                </h2>
+            </div>
+
+            <div class="container">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout" style="border: 1px solid #d8dde6 !important;">
+                    <thead>
+                        <tr>
+                            <th scope="col">Skills</th>
+                            <th scope="col">Rating</th>
+                            <th scope="col">Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={skills} for:item="skill">
+                            <tr key={skill}>
+                                <td>{skill}</td>
+                                <td>
+                                    <div class="rating-container">
+                                        <lightning-input type="number" min="0" max="5" step="1" data-skill={skill}
+                                            onchange={handleRatingChange} class="rating-input"></lightning-input>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="comment-container">
+                                        <lightning-input type="text" max-length="100" data-skill={skill}
+                                            onchange={handleCommentChange} class="comment-textarea">
+                                        </lightning-input>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <div class="feedback-comment-container">
+                <div class="slds-box slds-theme_shade slds-theme_alert-texture">
+                    <h2 class="slds-text-heading_small slds-text-color_success">
+                        <lightning-icon icon-name="standard:feedback" size="small"
+                            class="slds-m-right_small"></lightning-icon>
+                        Feedback Comment
+                    </h2>
+                </div>
+                <div class="comment-container">
+                    <lightning-textarea class="feedback-comment-textarea" value={feedbackComment}
+                        placeholder="Enter your feedback comment"
+                        onchange={handleFeedbackCommentChange}></lightning-textarea>
+                </div>
+            </div>
+            <!-- <div class="button-container">
+                <div class="slds-text-align_left">
+                    <lightning-button label="Reset Feedback" onclick={handleReset} variant="destructive-text"></lightning-button>
+                </div>
+                <div class="slds-text-align_center">
+                    <lightning-button label="Close Feedback" onclick={handleClose}></lightning-button>
+                </div>
+                <div class="slds-text-align_right">
+                    <lightning-button label="Save Feedback" onclick={handleSave} variant="Brand Outline"></lightning-button>
+                </div>
+            </div> -->
+            <br/>
+            <div class="slds-grid">
+                <div class="slds-col">
+                    <lightning-button label="Reset Feedback" onclick={handleReset}
+                        variant="destructive-text"></lightning-button>
+                </div>
+                <div class="slds-col slds-text-align_center">
+                    <lightning-button label="Save Feedback" onclick={handleSave}
+                        variant="Brand Outline"></lightning-button>
+                </div>
+                <div class="slds-col slds-text-align_right">
+                    <lightning-button label="Close Feedback" onclick={handleClose}></lightning-button>
+                </div>
+               
+            </div>
+            <!--<div class="scroll-container" style="margin-top: 20px;">
+                <div class="scroll-text">Please complete all ratings and comments for each skill in the form. Your cooperation is appreciated.</div>
+            </div>-->
+
+        </template>
+    </template>
+    <template if:true={noSkillsFound}>
+        <div class="slds-card slds-p-around_medium">
+            <div class="slds-card__body">
+                <p>No skills found.</p>
+            </div>
+        </div>
+    </template>
+
+</template>
+
+
+
+
+import { LightningElement, wire, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import skillsFetched from '@salesforce/apex/FetchSkillsFromJobOpening.skillsFetched';
+import saveRatingsAndComments from '@salesforce/apex/FetchSkillsFromJobOpening.saveRatingsAndComments';
+
+export default class InterviewFeedback extends LightningElement {
+    @api recordId; // Record ID passed as an attribute
+    @track skills;
+    @track feedbackRecords = [];
+    @track showComponent = false; // Property to control component visibility
+    @track showButton = true; // Property to control button visibility
+   // @track feedbackSubmitted = false; // Property to track whether feedback is submitted or not
+    commentChangeTimeout
+    @track feedbackComment = '';
+
+
+    handleOpen() {
+        this.showButton = false; // Hide the button
+        this.showComponent = true; // Show the component
+    }
+
+    handleClose() {
+        this.showComponent = false; // Hide the component
+        this.showButton = true; // Show the button
+    }
+
+
+    @wire(skillsFetched, { recordId: '$recordId' })
+    wiredSkills({ data, error }) {
+        if (data) {
+          
+            this.skills = data;
+            console.log('skills'+this.skills);
+            this.initializeFeedbackRecords();
+            
+    
+        } else if (error) {
+            console.error(error);
+        }
+    }
+
+    initializeFeedbackRecords() {
+        // Initialize feedbackRecords with existing values for each skill
+        this.feedbackRecords = this.skills.map(skill => {
+            const existingRecord = this.feedbackRecords.find(record => record.SkillName === skill);
+    
+            if (existingRecord) {
+                return {
+                    ...existingRecord,
+                    Id: this.recordId,
+                    SkillName: skill
+                };
+            }
+    
+            const record = {};
+            record.Id = this.recordId;
+            record.SkillName = skill;
+            record.SkillRating = null;
+            record.SkillComment = '';
+            record.feedComment = '';
+            return record;
+        });
+    
+        console.log('Skills:', this.skills);
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+    handleRatingChange(event) {
+        
+        const skillName = event.target.dataset.skill;
+        const value = parseInt(event.target.value);
+        
+        console.log('Skill Name:', skillName);
+        console.log('Rating Value:', value);
+
+        // Update the corresponding skill rating field in feedbackRecords
+        this.feedbackRecords = this.feedbackRecords.map(record => {
+            if (record.SkillName === skillName) {
+                return { ...record, SkillRating: value };
+            }
+           
+            return record;
+        });
+        
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    }
+
+
+    handleCommentChange(event) {
+        const skillName = event.target.dataset.skill;
+        const value = event.target.value;
+        
+        console.log('Skill Name:', skillName);
+        console.log('Comment Value:', value);
+
+        // Cancel the previous timeout if it exists
+        if (this.commentChangeTimeout) {
+            clearTimeout(this.commentChangeTimeout);
+        }
+
+        // Set a new timeout to update the feedback records after 1 second
+        this.commentChangeTimeout = setTimeout(() => {
+            // Update the corresponding skill comment field in feedbackRecords
+            this.feedbackRecords = this.feedbackRecords.map(record => {
+                if (record.SkillName === skillName) {
+                    return { ...record, SkillComment: value };
+                }
+              
+                return record;
+            });
+
+            console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+        }, 1000);
+    }
+    
+    handleFeedbackCommentChange(event) {
+        this.feedbackComment = event.target.value;
+        
+    }
+    
+    handleSave() {
+        // Check if any feedback record has empty rating or comment
+        const isFeedbackEmpty = this.feedbackRecords.some(
+            record => record.SkillRating === null || record.SkillComment === ''
+        );
+          
+        
+        if (isFeedbackEmpty ) {
+            // Show a toast notification for the validation error
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error',
+                    message: 'Please enter ratings and comments for all skills',
+                    variant: 'error',
+                })
+            );
+            return;
+        }
+    
+        // Generate unique IDs for each feedback record if needed
+        console.log('Feedback Records:', JSON.stringify(this.feedbackRecords));
+    
+        // Make a copy of feedbackRecords
+        const feedbackrec = [...this.feedbackRecords];
+    
+        console.log('Feedback Records with IDs:', JSON.stringify(feedbackrec));
+       
+    
+        const saveFeedback = async () => {
+            try {
+                // Call the Apex method to save the ratings and comments
+                await saveRatingsAndComments({ records: feedbackrec, recordId: this.recordId, feedbackComment: this.feedbackComment });
+    
+                // Show a toast notification for successful save
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Ratings and comments saved successfully',
+                        variant: 'success',
+                    })
+                );
+    
+                // Reset the feedbackRecords to clear the form
+                this.initializeFeedbackRecords();
+                   // Hide the component and show the button after saving
+                this.showComponent = false;
+                this.showButton = true;
+                
+            } catch (error) {
+                // Handle the error in saving
+                console.error('Error saving ratings and comments:', error);
+    
+                // Show a toast notification for the error
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error',
+                        message: 'Error saving ratings and comments',
+                        variant: 'error',
+                    })
+                );
+            }
+        };
+    
+        saveFeedback();
+    }
+
+    handleReset() {
+        this.feedbackRecords = this.feedbackRecords.map(record => ({
+            ...record,
+            SkillRating: null,
+            SkillComment: '',
+        }));
+    
+        const inputFields = this.template.querySelectorAll('lightning-input');
+        const textAreas = this.template.querySelectorAll('lightning-textarea');
+    
+        inputFields.forEach(field => {
+            field.value = null;
+        });
+    
+        textAreas.forEach(area => {
+            area.value = null;
+        });
+    }
+    
+    
+      
+     
+      
+                }

@@ -1,0 +1,44 @@
+Documentation for Clipboard LWC Component
+Summary
+This LWC component is designed to display and allow the user to copy a Contact's record details to the clipboard or to a notepad text file. The Contact record details displayed in this component include Title, Account Name, Phone and Email.
+
+Import Statements
+LightningElement : A base class for Lightning Web Components, containing core functionality and APIs for building web components.
+api : A decorator to mark public properties or methods of a component.
+wire : A decorator that connects a component to a wire adapter. The wire adapter retrieves data from one or more sources, such as a Salesforce org, and provides it to the component.
+getRecord : A wire adapter from lightning/uiRecordApi module that retrieves the specified record.
+ShowToastEvent : An event from lightning/platformShowToastEvent module that shows a toast notification message.
+Properties
+recordId : A property marked with @api decorator that accepts the ID of the Contact record to display and copy.
+Email : A property marked with @api decorator that stores the Contact's Email.
+Title : A property marked with @api decorator that stores the Contact's Title.
+Phone : A property marked with @api decorator that stores the Contact's Phone.
+AccountName : A property marked with @api decorator that stores the Contact's Account Name.
+contact : An object that stores the retrieved Contact record data.
+Methods
+wiredContact : A wired method that retrieves Contact record data from getRecord wire adapter. It takes two parameters:
+
+error: An error object that is returned when the retrieval of Contact record fails.
+data: A data object that contains the fields specified in FIELDS array.
+handleCopyAll : A method that copies all Contact record details to the clipboard and to a notepad text file. It uses navigator.clipboard.writeText to copy to the clipboard and Blob and URL APIs to copy to a text file. It also shows a success or error toast notification message based on the copy result.
+
+handleCopyPhone : A method that copies the Contact's Phone to the clipboard and shows a success or error toast notification message based on the copy result.
+
+handleCopyEmail : A method that copies the Contact's Email to the clipboard and shows a success or error toast notification message based on the copy result.
+
+handleCopyTitle : A method that copies the Contact's Title to the clipboard and shows a success or error toast notification message based on the copy result.
+
+handleCopyAccountName : A method that copies the Contact's Account Name to the clipboard and shows a success or error toast notification message based on the copy result.
+
+Template
+The template block contains the following:
+A condition to display the Contact record details only if contact object is not null.
+A div block to display the Contact's Title.
+A div block to display the Contact's Account Name.
+A div block to display the Contact's Phone.
+A div block to display the Contact's Email.
+A lightning-button component that calls handleCopyAll method to copy all Contact record details.
+Exports
+default : The component class that can be imported and used in other LWC components or applications.
+Usage
+The Clipboard component can be added to a Lightning Page to display and copy a Contact's record details.

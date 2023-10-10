@@ -1,0 +1,14 @@
+consumer key:
+
+3MVG9wt4IL4O5wvLOFgdzmmmlgxAixCRHzqEnEnpSJpdCDkyOrdywDpRUQB53rLgXG60YaFbjKXKJxGY1W1Dt
+
+
+consumer secret:
+
+0A8B77EBFCB408D8C438751D6A56E8C77EDC04AD3F9A7CCB4716036599DACE0B
+
+
+
+Security Token
+
+TdojlaLHAy7xpOxkoolExP4gS

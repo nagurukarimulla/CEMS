@@ -1,0 +1,9 @@
+<template>
+    <lightning-record-edit-form object-api-name="EMS_Interview_Scheduling__c" onsubmit={handleSubmit}>
+        <lightning-input-field field-name="EMS_Interview_Panel__c" variant="lookup" onchange={handlePanelChange} value={panelId} options={panelOptions}></lightning-input-field>
+        <lightning-input-field field-name="EMS_Interviewer_1_Work_Email__c" value={interviewer1Email}></lightning-input-field>
+        <lightning-input-field field-name="EMS_Interviewer_2_Work_Email__c" value={interviewer2Email}></lightning-input-field>
+        <lightning-input-field field-name="EMS_Interviewer_3_Work_Email__c" value={interviewer3Email}></lightning-input-field>
+        <lightning-button type="submit" label="Save"></lightning-button>
+    </lightning-record-edit-form>
+</template>

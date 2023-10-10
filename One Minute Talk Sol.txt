@@ -1,0 +1,192 @@
+There are various reasons why Batch Apex is better than normal Apex.
+
+SOQL queries: Normal Apex uses 100 records per cycle to execute SOQL queries. Whereas, Batch Apex does the same in 200 records per cycle.
+
+Retrieval of SOQL queries: Normal Apex can retrieve 50,000 SOQL queries but, in Batch Apex, 50,000,000 SOQL queries can be retrieved.
+
+Heap size: Normal Apex has a heap size of 6 MB; whereas, Batch Apex has a heap size of 12 MB.
+
+Errors: When executing bulk records, Normal Apex classes are more vulnerable to encountering errors as compared to Batch Apex.
+
+
+Q. What is Apex Interface?
+
+
+Interface is a collection of unimplemented methods. This will specify the signature of the method, types of inputs that we pass the method specifies what type is given as an output.
+NOTE: Generally the interface methods we give it as global.
+
+
+Q. What is Batch Apex in Salesforce?
+
+
+>>Batch Apex: Batch Apex allows you to define a single job that can be broken up into manageable chunks, whereas every chunk can be processed separately.
+>>In the Batch Apex it will fetch all the records on which you want to perform the field update and divide them into list of 200 records and on every 200 records operation is performed separately.
+>>This would help us to execute on more than 10,000 records as, it won’t perform an operation on all the records in a single transaction instead it dividing them into Number of subtasks where each subtask many contain the records upto 4000.
+Example:
+If you need to make a field update of every record of account object in your organization, then we have governing limits that would restrict us from achieving the above task.
+Reason: In a single transaction we can process only 10,000 records. Now in the above case if we have more than 10,000 records in the organization then we can not perform this field update.
+
+
+What is the major difference Trigger and Workflow?
+
+
+Workflow:
+1. Workflow is based on certain criteria, by using workflow we can automate the business process like email alert, assign tasks, field update and outbound message sending.
+2. Coding is not required in workflow.
+3. DML operation are not performed in workflow.
+4. We can access the workflow across the object.
+5. We can not query from the database.
+6. Workflows work only after some actions.
+
+Trigger:
+1. Trigger is a pieace of code that is execute before and after record is inserted or updated.
+2. Codding is required in Trigger.
+3. We can use 20 DML operation in one trigger.
+4. We can access the trigger across the object and to the related object.
+5. We can use 20 SOQL from database in a trigger.
+6.  The trigger works before and after some actions.
+
+What are the Salesforce best practices for apex?
+
+
+1. Use Asynchronous Apex methods like @future methods, batch processing, scheduler that does not need to be executed synchronously.
+2. Asynchronous Apex should be “bulkified”. It means able to handle collections of records.
+3. Apex code must have appropriate exception handling.
+4. When querying large data sets use SOQL “for” loop.
+5. Use SOSL over SOQL where possible because it is much faster than SQL.
+6. Avoid hitting governor exceptions in apex methods.
+7. No SOQL or SOSL queries inside loops. If you need to query, query once, retrieve all the necessary data in a single query, then iterate over the results.
+8. No DML statements inside loops.
+9. No Asynchronous methods inside loops.
+10. Do not use hardcoded IDs.
+
+
+
+Test class best practices.
+
+
+1. Test class must start with @isTest annotation if class class version is more than 25
+
+2. Test environment support @testVisible , @testSetUp as well
+
+3. Unit test is to test particular piece of code working properly or not .
+
+4. Unit test method takes no argument ,commit no data to database ,send no email ,flagged with testMethod keyword .
+
+5. To deploy to production at-least 75% code coverage is required
+
+6. System.debug statement are not counted as a part of apex code limit.
+
+7. Test method and test classes are not counted as a part of code limit
+
+8. We should not focus on the percentage of code coverage ,we should make sure that every use case should covered including positive, negative,bulk and single record.
+
+Single Action -To verify that the the single record produces the correct an expected result .
+Bulk action -Any apex record trigger ,class or extension must be invoked for 1-200 records .
+Positive behavior : Test every expected behavior occurs through every expected permutation , i,e user filled out every correctly data and not go past the limit .
+Negative Testcase :-Not to add future date , Not to specify negative amount.
+Restricted User :-Test whether a user with restricted access used in your code .
+
+10. Test class should be annotated with @isTest .
+
+11 . @isTest annotation with test method  is equivalent to testMethod keyword .
+
+12. Test method should static and no void return type .
+
+13. Test class and method default access is private ,no matter to add access specifier .
+
+14. classes with @isTest annotation can't be a interface or enum .
+
+15. Test method code can't be invoked by non test request .
+
+16. Stating with salesforce API 28.0 test method can not reside inside non test classes .
+
+17. @Testvisible annotation to make visible private methods inside test classes.
+
+18. Test method can not be used to test web-service call out . Please use call out mock .
+
+19. You can't  send email from test method.
+
+20.User, profile, organization, AsyncApexjob, Corntrigger, RecordType, ApexClass, ApexComponent ,ApexPage we can access without (seeAllData=true) .
+
+21. SeeAllData=true will not work for API 23 version eailer .
+
+22. Accessing static resource test records in test class e,g List<Account> accList=Test.loadData(Account,SobjectType,'ResourceName').
+
+23. Create TestFactory class with @isTest annotation to exclude from organization code size limit .
+
+24. @testSetup to create test records once in a method  and use in every test method in the test class .
+
+25. We can run unit test by using Salesforce Standard UI,Force.com IDE ,Console ,API.
+
+26. Maximum number of test classes run per 24 hour of period is  not grater of 500 or 10 multiplication of test classes of your organization.
+
+27. As apex runs in system mode so the permission and record sharing are not taken into account . So we need to use system.runAs to enforce record sharing .
+
+28. System.runAs will not enforce user permission or field level permission .
+
+29. Every test to runAs count against the total number of DML issued in the process .
+
+
+
+
+Best Practice Of Governor Limit
+================================
+
+1) One Trigger Per Object
+A single Apex Trigger is all you need for one particular object. If you develop multiple Triggers for a single object, you have no way of controlling the order of execution if those Triggers can run in the same contexts
+
+2) Logic-less Triggers
+If you write methods in your Triggers, those can’t be exposed for test purposes. You also can’t expose logic to be re-used anywhere else in your org.
+
+3) Context-Specific Handler Methods
+Create context-specific handler methods in Trigger handlers
+
+
+4) Bulkify your Code
+Bulkifying Apex code refers to the concept of making sure the code properly handles more than one record at a time.
+
+5) Avoid SOQL Queries or DML statements inside FOR Loops
+An individual Apex request gets a maximum of 100 SOQL queries before exceeding that governor limit. So if this trigger is invoked by a batch of more than 100 Account records, the governor limit will throw a runtime exception
+
+6) Using Collections, Streamlining Queries, and Efficient For Loops
+It is important to use Apex Collections to efficiently query data and store the data in memory. A combination of using collections and streamlining SOQL queries can substantially help writing efficient Apex code and avoid governor limits
+
+7) Querying Large Data Sets
+The total number of records that can be returned by SOQL queries in a request is 50,000. If returning a large set of queries causes you to exceed your heap limit, then a SOQL query for loop must be used instead. It can process multiple batches of records through the use of internal calls to query and queryMore
+
+8) Use @future Appropriately
+It is critical to write your Apex code to efficiently handle bulk or many records at a time. This is also true for asynchronous Apex methods (those annotated with the @future keyword). The differences between synchronous and asynchronous Apex can be found
+
+9) Avoid Hardcoding IDs
+When deploying Apex code between sandbox and production environments, or installing Force.com AppExchange packages, it is essential to avoid hardcoding IDs in the Apex code. By doing so, if the record IDs change between environments, the logic can dynamically identify the proper data to operate against and not fail
+
+
+
+
+SeeAllData=true annotation ?
+
+Use the @isTest(SeeAllData=true) annotation to grant test classes and individual test methods access to all data in the organization. 
+
+
+
+Which Objects can we access without using seeAllData=true?
+
+We use seeAllData = true to get real-time data in test class, but without using this also you can get the data from following objects.
+User, profile, organization, AsyncApexjob, Corntrigger, RecordType, ApexClass, ApexComponent , ApexPage and custom metadata types. 
+
+
+What is the purpose of seeAllData?
+
+By default test class cannot recognize the existing data in the database.
+if you mention @isTest(seeAllData = true) then test class can recognize the existing data in the database.
+
+See the below examples -
+From a List Custom Settings we cannot fetch the existing data without seeAllData = true in test class.
+Suppose you have a custom object called 'CustomObject__c' and it contains many records, we cannot fetch the existing data without seeAllData = true in test class.
+Note: It is not recommended to use seeAllData = true for a test class. Based on the existing data in database code coverage will impact.
+
+
+
+
+

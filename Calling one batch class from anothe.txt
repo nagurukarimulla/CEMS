@@ -1,0 +1,104 @@
+Calling one batch class from another batch class
+=================================================
+
+How is it possible?
+There are two ways in salesforce which are used to call the batch class from another batch class are:
+
+Using Queueable Apex
+Using the Finish method of Batch class.
+
+Using this way, you can create the chaining between the batches.
+
+Note: If you call the batch class from start or execute methods then Salesforce throws the below error:
+System.AsyncException: Database.executeBatch cannot be called from a batch start, batch execute, or future method.
+
+
+BatchAccountUpdate
+BatchUpdateAccountRelatedContacts
+ExecuteBatchQueueableJob
+BatchCalledThroughQueueable
+
+BatchAccountUpdate
+==================
+
+global class BatchAccountUpdate implements Database.Batchable<sObject>, Database.Stateful, Database.AllowsCallouts {
+String query = 'Select Id, Name from Account WHERE Name != null AND (Name = \'TestingAccount\' OR Name = \'Testing\') ';
+global Database.QueryLocator start(Database.BatchableContext bc) {
+// collect the batches of records or objects to be passed to execute
+return Database.getQueryLocator(query);
+}
+
+global void execute(Database.BatchableContext bc, List<Account> records){
+// process each batch of records
+for(Account acc : records){
+acc.Name = acc.Name + ' - Updated';
+}
+update records;
+}
+
+global void finish(Database.BatchableContext bc){
+// execute any post-processing operations
+//Note: We are calling Batch from Finish Method of Second batch.
+BatchUpdateAccountRelatedContacts b = new BatchUpdateAccountRelatedContacts();
+Database.executeBatch(b, 9);
+}
+}
+
+BatchUpdateAccountRelatedContacts
+====================================
+
+global class BatchUpdateAccountRelatedContacts implements Database.Batchable<sObject>, Database.Stateful, Database.AllowsCallouts {
+
+global Database.QueryLocator start(Database.BatchableContext bc) {
+    String query = 'Select FirstName, LastName, Email, Status__c from Contact WHERE FirstName != null AND LastName != null AND AccountId != null';
+// collect the batches of records or objects to be passed to execute
+//Note: Calling Queueable job for calling the next batchfor chaining.
+System.enqueueJob(new ExecuteBatchQueueableJob());
+return Database.getQueryLocator(query);
+}
+global void execute(Database.BatchableContext bc, List<Contact> records){
+// process each batch of records
+for(Contact con : records){
+con.Department = 'Salesforce';
+}
+update records;
+}
+global void finish(Database.BatchableContext bc){
+// execute any post-processing operations
+}
+}
+
+ExecuteBatchQueueableJob
+=========================
+global class ExecuteBatchQueueableJob implements Queueable {
+public void execute(QueueableContext context) {
+try{
+BatchCalledThroughQueueable b = new BatchCalledThroughQueueable();
+Database.executeBatch(b, 200);
+}catch(Exception e){
+System.debug('@@@ Error Message : '+e.getMessage());
+}
+}
+}
+
+BatchCalledThroughQueueable
+=============================
+
+global class BatchCalledThroughQueueable implements Database.Batchable<sObject>, Database.Stateful, Database.AllowsCallouts {
+String query = 'Select FirstName, LastName, Email, Status, Title from Lead WHERE FirstName != null AND LastName != null';
+global Database.QueryLocator start(Database.BatchableContext bc) {
+// collect the batches of records or objects to be passed to execute
+return Database.getQueryLocator(query);
+}
+global void execute(Database.BatchableContext bc, List<Lead> records){
+// process each batch of records
+for(Lead ld : records){
+ld.Title = ld.FirstName + ' - ' + ld.LastName;
+}
+update records;
+}
+global void finish(Database.BatchableContext bc){
+// execute any post-processing operations
+}
+}
+

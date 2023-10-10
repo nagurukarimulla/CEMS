@@ -1,0 +1,52 @@
+<template>
+    <div class="dropdown-container">
+        <lightning-combobox
+          name="sizeDropdown"
+          label="Size"
+          value={size}
+          options={sizeOptions}
+          onchange={handleSizeChange}
+        ></lightning-combobox>
+      </div>
+    <div class="image-grid" data-size={size}>
+             <template for:each={imageUrls} for:item="imageUrl">
+      <div key={imageUrl}>
+        <img src={imageUrl} alt="Image" class = {getSizeClass} />
+      </div>
+    </template>
+    </div>
+  </template>
+
+
+  
+  
+
+
+
+
+
+
+
+<!--<template>
+    <lightning-card variant=narrow title="Cat Images" icon-name="standard:account">
+        <lightning-button 
+        variant="success" 
+        label="generatecat" 
+        title="titlename" 
+        onclick={handleclick}>
+    </lightning-button>
+        <br>
+
+        <template if:true={imagecat}>
+            <img src={catimageurl} height="350" width="350" alt="cat image"/>
+            </template>
+
+            <template if:true={loadingspinner}>
+                <lightning-spinner
+                  size="large"
+                  alternative-text="loading....">
+                </lightning-spinner>
+            </template>
+
+    </lightning-card>
+</template>-->

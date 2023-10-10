@@ -1,0 +1,11 @@
+/* Correctly scoped CSS in your LWC component */
+.userDetailsAndStatsWrapper{
+    background: #242c37;
+    padding: 16px;
+}
+
+@media (max-width: 720px) {
+    :host .userDetailsAndStatsWrapper {
+        text-align: center;
+    }
+}

@@ -1,0 +1,165 @@
+future method code:
+
+mixed dml class:
+
+public class MixedDML {
+    public static void insertNonSetup(){
+        Account acc = new Account();
+        acc.Name = 'Non setup Account Record Test';
+        insert acc;
+        System.debug('Account insertion completed');
+        insertSetup();
+        System.debug('user insertion completed');
+        calloutMethod();
+        System.debug('Callout is called');
+    }
+         
+    @future()
+    public static void insertSetup(){
+        Profile prof = [select id from profile where  name = 'Cross Org Data Proxy User'];
+        UserRole userRole = [select id from UserRole where Name = 'VP, Marketing' ];
+        System.debug('User creation starts');
+        User u = new User();
+        u.firstname = 'New';
+        u.lastname = 'SetupUser';
+        u.Alias = 'nsuser';
+        u.email = 'user.usersetup@sfdc.com';
+        u.ProfileId = prof.id;
+        u.UserRoleId = userRole.id;
+        u.emailencodingkey = 'UTF-8';
+        u.LanguageLocaleKey = 'en_US';
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.Username = 'apexfuturemethod@test.com';
+        insert u;
+        System.debug('User Object id ---------->' + u.Id); 
+    }
+    
+    @future(callout=true)
+    public static void calloutMethod(){
+        Http http = new Http();
+        HttpRequest request = new HttpRequest();
+        request.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals');
+        request.setMethod('GET');
+        HttpResponse response = http.send(request);
+  // If the request is successful, parse the JSON response.
+       if(response.getStatusCode() == 200) {
+    // Deserialize the JSON string into collections of primitive data types.
+    Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
+    // Cast the values in the 'animals' key as a list
+    List<Object> animals = (List<Object>) results.get('animals');
+    System.debug('Received the following animals:');
+    for(Object animal: animals) {
+        System.debug(animal);
+    }
+}
+    }
+}
+
+common helper class:
+
+public class CommonHelper {
+    Public static void doDmlOperations(){
+        User userToDeactivate = [Select id, username, isActive from user where username = '	nkarim0311@gmail.com' 
+                                limit 1];
+        if(userToDeactivate.id !=null){
+            userToDeactivate.IsActive = false;
+            update userToDeactivate;
+            schoolRecord();
+        }
+    }
+   @future()
+    public static void schoolRecord(){
+        School__c sc = new School__c();
+        sc.Name = 'JNTUH';
+        sc.School_Address__c = 'Hyd';
+        sc.School_Phone__c = '9080909800';
+        sc.School_Email__c = 'jntuh@jntu.com';
+        insert sc;
+    }
+}
+
+
+
+
+
+
+queueable class code :
+usecase:
+Configure the Queueable Jobs, to create the "Hiring Manager Record", and an Associated "Position Record" by using 2 Queueable interface classes.
+	
+
+class1 :
+
+Global class HiringManagerQueueable implements System.Queueable
+{
+	Global void Execute(System.QueueableContext qContext)
+    {
+        // Write the Business Logic to Insert the Hiring Manager Record..
+        	Hiring_Manager__C hrRecord = new Hiring_Manager__C();
+        		hrRecord.Name = 'Alexa';
+        		hrRecord.Location__c = 'Canada';
+        		hrRecord.Contact_Number__c = '8899554433';
+        		hrRecord.Email_ID__c = 'alexa@gmail.com';
+        
+        	insert hrRecord;
+        	if(hrRecord.Id != null)
+            {
+                system.debug('Hiring Manager Record ID is...: '+ hrRecord.id);
+                
+                // Invoke the PositionQueueable class to Create the Related Position Record.
+                ID posJobId = System.enqueueJob(new PositionsQueueable(hrRecord));
+                
+            }        		
+    }
+}
+
+class 2 : 
+
+Global class PositionsQueueable implements System.Queueable
+{
+    /*
+     * 	1. Constructor Name should be always same as the Class Name.
+     *  2. Constructors are used to assign the default values for the class members.
+     *  3. Constructor should be always defined with "Public" access specifier.
+     *  4. Constructor doesn't have any return type even void.
+     *  5. Constructor can have one or more parameters.
+     */
+     
+    Hiring_Manager__C hrRecord;
+    
+    Public PositionsQueueable(Hiring_Manager__C hr)
+    {
+        hrRecord = hr;
+    }
+    
+	Global void Execute(System.QueueableContext qContext)
+    {
+     	// Write the Code to Create a Related Position Record..
+     		Position__C pos = new Position__C();
+        		
+        		pos.Name = 'Salesforce Marketing Cloud Consultant';
+        		pos.Location__c = hrRecord.Location__c;
+        		pos.Position_Status__c = 'New Position';
+        		pos.Number_of_Positions__c = 2;
+        		pos.Open_Date__c = system.today();
+        		pos.Milestone_Date__c = system.today().AddDays(30);
+        		pos.HR_Contact_Number__c = hrRecord.Contact_Number__c;
+        		pos.HR_Email_ID__c = hrRecord.Email_ID__c;
+        		pos.Minimum_Budget__c = 1400000;
+        		pos.Maximum_Budget__c = 1800000;
+        		pos.Passport_Required__c = true;
+        		pos.Travel_Required__c = true;
+        		pos.Position_Description__c = 'Required 2+ years of experience in Salesforce Marketing Cloud.';
+        		pos.Skills_Required__c = 'Required 2+ years experience in Email Studio, Journey Builder, Content Builder, Mobile Studio.';
+        		
+				// Make the Position To be Related to HR.
+				pos.Hiring_Manager__c = hrRecord.Id;
+        
+        	insert pos;
+        	if(pos.Id != null)
+            {
+                system.debug('Position Record Inserted with id...: '+ pos.Id);
+            }
+    }
+}
+

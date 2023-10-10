@@ -1,0 +1,9 @@
+<template>
+    <lightning-card title="Generate XML File">
+        <lightning-button label="Generate XML" onclick={generateXML}></lightning-button>
+
+        <template if:true={xmlFile}>
+            <pre>{xmlFile}</pre>
+        </template>
+    </lightning-card>
+</template>

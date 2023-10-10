@@ -1,0 +1,26 @@
+<template>
+    <div class="slds-m-around_medium">
+        <lightning-card title="Salesforce Login">
+            <lightning-layout>
+                <lightning-layout-item size="6">
+                    <lightning-input type="text" label="Username" value={username} onchange={handleUsernameChange}></lightning-input>
+                </lightning-layout-item>
+                <lightning-layout-item size="6">
+                    <lightning-input type="password" label="Password" value={password} onchange={handlePasswordChange}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout>
+                <lightning-layout-item size="12">
+                    <lightning-input type="text" label="Security Token" value={securityToken} onchange={handleSecurityTokenChange}></lightning-input>
+                </lightning-layout-item>
+            </lightning-layout>
+
+            <lightning-layout>
+                <lightning-layout-item size="12" style="text-align: right;">
+                    <lightning-button variant="brand" label="Login" onclick={handleLogin}></lightning-button>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+    </div>
+</template>

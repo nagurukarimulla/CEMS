@@ -1,0 +1,38 @@
+<template>
+    <div class="container">
+        <div class="screen">
+            <p>{displayValue}</p>
+        </div>
+        <div class="buttons">
+            <div class="row">
+                <lightning-button variant="neutral" label="C" onclick={handleClear}></lightning-button>
+                <lightning-button variant="neutral" label="±" onclick={handleSign}></lightning-button>
+                <lightning-button variant="neutral" label="%" onclick={handlePercentage}></lightning-button>
+                <lightning-button variant="brand" label="÷" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="7" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="8" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="9" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="×" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="4" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="5" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="6" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="-" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="1" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="2" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="3" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="+" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="0" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label=". " onclick={handleDecimal}></lightning-button>
+                <lightning-button variant="brand" label="=" onclick={handleEqual}></lightning-button>
+            </div>
+        </div>
+    </div>
+</template>

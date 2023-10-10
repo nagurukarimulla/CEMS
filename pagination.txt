@@ -1,0 +1,587 @@
+
+  /* Add a gradient background to the entire component */
+/* Add a gradient background to the entire component */
+
+.slds-card {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  box-shadow: none;
+  }
+  /* Style the search input */
+.slds-input.search-input {
+  border-radius: 10px;
+  padding: 0 12px;
+  box-shadow: none;
+  background-color: #f4f6f9;
+  width: 200px;
+}
+
+/* Style the search icon */
+.slds-icon.search-icon {
+  color: #a3acb8;
+}
+  
+  .slds-card__header {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d8dde6;
+  padding: 0.75rem 1rem;
+  }
+  
+  .slds-card__body {
+  padding: 1rem;
+  }
+  
+  .datatable-container {
+  height: 300px;
+  overflow: auto;
+  }
+  
+  .slds-checkbox {
+  margin-right: 0.5rem;
+  }
+  
+  .slds-card_boundary {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  }
+  
+  .slds-card__header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  }
+  
+  .slds-text-heading_small {
+  font-size: 0.875rem;
+  }
+  
+  .slds-text-color_error {
+  color: #dc3545;
+  }
+  
+  .lightning-input-container {
+  margin-bottom: 0.5rem;
+  }
+  
+
+
+-------------------------------
+
+/* Add a gradient background to the entire component */
+.slds-card {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  box-shadow: none;
+}
+
+/* Style the search input */
+.slds-input.search-input {
+  border-radius: 10px;
+  padding: 0 12px;
+  box-shadow: none;
+  background-color: #f4f6f9;
+  width: 200px;
+}
+
+/* Style the search icon */
+.slds-icon.search-icon {
+  color: #a3acb8;
+}
+
+.slds-card__header {
+  background-color: #f3f3f3;
+  border-bottom: 1px solid #d8dde6;
+  padding: 0.75rem 1rem;
+}
+
+.slds-card__body {
+  padding: 1rem;
+}
+
+.datatable-container {
+  height: 300px;
+  overflow: auto;
+  margin-bottom: 0;
+}
+
+.slds-checkbox {
+  margin-right: 0.5rem;
+}
+
+.slds-card_boundary {
+  border: 1px solid #d8dde6;
+  border-radius: 0.25rem;
+  margin-top: 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------
+import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @track pageSize = 4; // Number of records to display per page
+    @track currentPage = 1; // Current page number
+    @track totalRecords = 0; // Total number of records returned from the server
+    @track totalPages = 1; // Total number of pages
+    @api title
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        //{ label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        //{ label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' },
+        { label: 'Interviewer1 Email', fieldName: 'EMS_Interviewer_Email__c', type: 'email' },
+        { label: 'Interviewer2 Email', fieldName: 'EMS_Interviewer_2_Email__c', type: 'email' }
+        
+    ];
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        this.selectedRecordIds = this.selectedRecords.map(record => record.Id);
+    }
+    
+          // Handles the search term change event
+          handleSearchTermChange(event) {
+            this.searchTerm = event.target.value;
+            this.getInterviewRecords();
+        }
+
+   // Fetches the interview records from the server
+   getInterviewRecords() {
+    getInterviewRecords()
+        .then(result => {
+            // Filter the records based on the search term
+            if (this.searchTerm) {
+                const regex = new RegExp(this.searchTerm, "i");
+                result = result.filter(record =>
+                    regex.test(record.EMS_Candidate_Name__c) ||
+                    regex.test(record.EMS_Interview_Type__c) ||
+                    regex.test(record.EMS_Interview_Status__c) ||
+                    regex.test(record.EMS_Applicant_Email__c) ||
+                    regex.test(record.EMS_Interviewer_2_Email__c) ||
+                    regex.test(record.EMS_Interviewer_Email__c)
+                );
+            }
+
+            // Set the total number of records and pages
+            this.totalRecords = result.length;
+            this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
+
+            // Slice the records based on the current page number and page size
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = start + this.pageSize;
+            this.records = result.slice(start, end).map(record => {
+                if (this.selectedRecordIds.includes(record.Id)) {
+                    record.isSelected = true;
+                } else {
+                    record.isSelected = false;
+                }
+                return record;
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+handlePrevious() {
+    if (this.currentPage > 1) {
+        this.currentPage -= 1;
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.selectedRecordIds = this.records
+            .slice(start, end)
+            .filter(record => record.isSelected)
+            .map(record => record.Id);
+    }
+}
+
+handleNext() {
+    if (this.currentPage < this.totalPages) {
+        this.currentPage += 1;
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.selectedRecordIds = this.records
+            .slice(start, end)
+            .filter(record => record.isSelected)
+            .map(record => record.Id);
+    }
+}
+
+
+
+  get isFirstPage() {
+    return this.currentPage === 1;
+  }
+
+  get isLastPage() {
+    return this.currentPage === this.totalPages;
+  }
+
+    //Sending bulk emails
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const interviewIds = this.selectedRecords.map(record => record.Id);
+        console.log(JSON.stringify('Interview Ids List :' + interviewIds));
+        if (interviewIds.length > 0) {
+            sendBulkEmails({ interviewIds })
+            
+    .then(result => {
+        console.log('result: '+ JSON.stringify(result));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'Emails sent successfully',
+                variant: 'success'
+            })
+        );
+    })
+    .catch(error => {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: error.body.message,
+                variant: 'error'
+            })
+        );
+    });
+
+               
+    
+}
+    }
+}
+
+
+<template>
+    <div class="slds-card">
+        <div class="slds-card__header slds-grid slds-grid_align-spread">
+            <h2 class="slds-text-heading_medium slds-text-color_error">{title}</h2>
+        </div>
+        <lightning-input 
+        label="Search" 
+        value={searchTerm} 
+        onchange={handleSearchTermChange}
+        class="slds-input slds-input--small slds-m-right_small slds-grow search-input"
+        variant="label-hidden"
+        placeholder="Search...">
+        <lightning-icon 
+          icon-name="utility:search" 
+          slot="icon" 
+          size="x-small" 
+          class="slds-icon slds-icon_x-small slds-icon-text-default slds-m-left_x-small search-icon">
+        </lightning-icon>
+      </lightning-input>
+      <div>
+        <lightning-button-group>
+          <lightning-button label="Previous" onclick={handlePrevious} disabled={isFirstPage}></lightning-button>
+          <lightning-button label="Next" onclick={handleNext} disabled={isLastPage}></lightning-button>
+        </lightning-button-group>
+        <span>Page {currentPage} of {totalPages}</span>
+      </div>
+        <div class="slds-card__body">
+            <template if:true={records}>
+                <div class="datatable-container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={records}
+                        columns={columns}
+                        onrowselection={handleRowSelection}>
+                        <template for:each={records} for:item="record">
+                            <lightning-input key={record.Id} type="checkbox" data-id={record.Id} class="slds-checkbox"></lightning-input>
+                        </template>
+                    </lightning-datatable>
+                </div>
+               
+                <div class="slds-m-around_medium">
+                    <template for:each={selectedRecords} for:item="record">
+                        <div key={record.Id} class="slds-card slds-card_boundary">
+                            <div class="slds-card__header slds-grid">
+                                <h3 class="slds-card__header-title">{record.EMS_Candidate_Name__c}</h3>
+                            </div>
+                            <div class="slds-card__body">
+                                <template if:true={record.EMS_Interview_Type__c}>
+                                    <div class="slds-grid slds-grid_align-spread slds-p-bottom_medium">
+                                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                            <p class="slds-text-heading_small slds-p-bottom_x-small"><strong>Confirm Interview Details:</strong></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="slds-grid slds-grid_vertical-align-center slds-wrap">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                       
+                                        <p class="slds-text-heading_small"><strong>Interview Type:</strong> {record.EMS_Interview_Type__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interview Status:</strong> {record.EMS_Interview_Status__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Candidate Email:</strong> {record.EMS_Applicant_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer1 Email:</strong> {record.EMS_Interviewer_Email__c}</p>
+                                        <p class="slds-text-heading_small"><strong>Interviewer2 Email:</strong> {record.EMS_Interviewer_2_Email__c }</p>
+                                        
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-card__footer">
+                    <div class="slds-button-group">
+                        <lightning-button
+                            variant="brand"
+                            label="Send Bulk Emails"
+                            onclick={sendBulkEmails}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+nkarim0311@gmail.com
+for the below lwc if i select two records from page1 and when i click next button these two selected records are not carry forward to next page and then i need to click sendbulk emails button import { LightningElement, track, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import sendBulkEmails from '@salesforce/apex/InterviewEmailController.sendBulkEmails';
+import getInterviewRecords from '@salesforce/apex/InterviewEmailController.getInterviewRecords';
+
+export default class InterviewSchedulingComponent extends LightningElement {
+    @track pageSize = 4; // Number of records to display per page
+    @track currentPage = 1; // Current page number
+    @track totalRecords = 0; // Total number of records returned from the server
+    @track totalPages = 1; // Total number of pages
+    @api title
+    @api selectedRecords = [];
+    @track records = [];
+    @track columns = [
+        { label: 'Candidate Name', fieldName: 'EMS_Candidate_Name__c', type: 'text' },
+        //{ label: 'Interview Date', fieldName: 'EMS_Interview_Date__c', type: 'date' },
+        { label: 'Interview Type', fieldName: 'EMS_Interview_Type__c', type: 'text' },
+        //{ label: 'Interview Stage', fieldName: 'EMS_Interview_Stage__c', type: 'picklist' },
+        { label: 'Interview Status', fieldName: 'EMS_Interview_Status__c', type: 'picklist' },
+        { label: 'Candidate Email', fieldName: 'EMS_Applicant_Email__c', type: 'email' },
+        { label: 'Interviewer1 Email', fieldName: 'EMS_Interviewer_Email__c', type: 'email' },
+        { label: 'Interviewer2 Email', fieldName: 'EMS_Interviewer_2_Email__c', type: 'email' }
+        
+    ];
+
+    // Fetches the interview records from the server
+    connectedCallback() {
+        this.getInterviewRecords();
+        this.title = 'Send Bulk Interview Emails';
+    }
+
+    // Handles the selection of interview records
+    handleRowSelection(event) {
+        this.selectedRecords = event.detail.selectedRows;
+        
+    }
+          // Handles the search term change event
+          handleSearchTermChange(event) {
+            this.searchTerm = event.target.value;
+            this.getInterviewRecords();
+        }
+
+   // Fetches the interview records from the server
+   getInterviewRecords() {
+    getInterviewRecords()
+      .then(result => {
+        // Filter the records based on the search term
+        if (this.searchTerm) {
+          const regex = new RegExp(this.searchTerm, "i");
+          this.records = result.filter(record =>
+            regex.test(record.EMS_Candidate_Name__c) ||
+            regex.test(record.EMS_Interview_Type__c) ||
+            regex.test(record.EMS_Interview_Status__c) ||
+            regex.test(record.EMS_Applicant_Email__c) ||
+            regex.test(record.EMS_Interviewer_2_Email__c) ||
+            regex.test(record.EMS_Interviewer_Email__c)
+          );
+        } else {
+          this.records = result;
+        }
+  
+        // Set the total number of records and pages
+        this.totalRecords = this.records.length;
+        this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
+  
+        // Slice the records based on the current page number and page size
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.records = this.records.slice(start, end);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+  handlePrevious() {
+    if (this.currentPage > 1) {
+      this.currentPage -= 1;
+      this.getInterviewRecords();
+    }
+  }
+
+  handleNext() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage += 1;
+      this.getInterviewRecords();
+    }
+  }
+
+  get isFirstPage() {
+    return this.currentPage === 1;
+  }
+
+  get isLastPage() {
+    return this.currentPage === this.totalPages;
+  }
+
+    //Sending bulk emails
+    sendBulkEmails() {
+        console.log('records ' + JSON.stringify(this.selectedRecords));
+        const interviewIds = this.selectedRecords.map(record => record.Id);
+        console.log(JSON.stringify('Interview Ids List :' + interviewIds));
+        if (interviewIds.length > 0) {
+            sendBulkEmails({ interviewIds })
+            
+    .then(result => {
+        console.log('result: '+ JSON.stringify(result));
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Success',
+                message: 'Emails sent successfully',
+                variant: 'success'
+            })
+        );
+    })
+    .catch(error => {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: 'Error',
+                message: error.body.message,
+                variant: 'error'
+            })
+        );
+    });
+
+               
+    
+}
+    }
+}
+
+
+When you navigate to the next page, the selected records are lost because they are not being persisted anywhere in the component. One way to preserve the selected records across pages is to store them in a separate array, and then add or remove records from that array based on whether they are selected or deselected. Here's an example of how you could modify your component to do this:
+
+Add a new property called selectedRecordIds to your component:
+less
+Copy code
+@track selectedRecordIds = [];
+In your handleRowSelection method, update the selectedRecords array and selectedRecordIds array:
+csharp
+Copy code
+handleRowSelection(event) {
+    this.selectedRecords = event.detail.selectedRows;
+    this.selectedRecordIds = this.selectedRecords.map(record => record.Id);
+}
+In your getInterviewRecords method, update the records array to include only the selected records:
+kotlin
+Copy code
+getInterviewRecords() {
+    getInterviewRecords()
+        .then(result => {
+            // Filter the records based on the search term
+            if (this.searchTerm) {
+                const regex = new RegExp(this.searchTerm, "i");
+                result = result.filter(record =>
+                    regex.test(record.EMS_Candidate_Name__c) ||
+                    regex.test(record.EMS_Interview_Type__c) ||
+                    regex.test(record.EMS_Interview_Status__c) ||
+                    regex.test(record.EMS_Applicant_Email__c) ||
+                    regex.test(record.EMS_Interviewer_2_Email__c) ||
+                    regex.test(record.EMS_Interviewer_Email__c)
+                );
+            }
+
+            // Set the total number of records and pages
+            this.totalRecords = result.length;
+            this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
+
+            // Slice the records based on the current page number and page size
+            const start = (this.currentPage - 1) * this.pageSize;
+            const end = start + this.pageSize;
+            this.records = result.slice(start, end).map(record => {
+                if (this.selectedRecordIds.includes(record.Id)) {
+                    record.isSelected = true;
+                } else {
+                    record.isSelected = false;
+                }
+                return record;
+            });
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+In your handleNext and handlePrevious methods, update the selectedRecordIds array to include only the selected records on the current page:
+kotlin
+Copy code
+handlePrevious() {
+    if (this.currentPage > 1) {
+        this.currentPage -= 1;
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.selectedRecordIds = this.records
+            .slice(start, end)
+            .filter(record => record.isSelected)
+            .map(record => record.Id);
+        this.getInterviewRecords();
+    }
+}
+
+handleNext() {
+    if (this.currentPage < this.totalPages) {
+        this.currentPage += 1;
+        const start = (this.currentPage - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        this.selectedRecordIds = this.records
+            .slice(start, end)
+            .filter(record => record.isSelected)
+            .map(record => record.Id);
+        this.getInterviewRecords();
+    }
+}
+With these changes, your component should preserve the selected records across pages.

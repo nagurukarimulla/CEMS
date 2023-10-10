@@ -1,0 +1,8 @@
+1.Create a flow which will send an email to the Case owner, whenever the case status is updated to Closed.
+
+
+2.Create a new flow to capture User's Name, Phone and Email. Store user input in contact object.
+
+3.In every business, a junior-level person will have limits in taking a decision. And, as per the industry standards, he must take approval from the senior. This approach is called as “Approval Process”.
+
+Business Scenario: In a placement company, the candidates who enrol for job placement in the UK have to reach some basic levels of test. This will be done by the Manager, so HR requires the Manager’s approval to process the candidates who applied for UK job placement (only for UK Job Placement Candidates).

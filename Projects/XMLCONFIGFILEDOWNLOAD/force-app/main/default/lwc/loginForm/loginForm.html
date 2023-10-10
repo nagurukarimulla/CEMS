@@ -1,0 +1,31 @@
+<template>
+    <template if:true={isLoggedIn}>
+      <p>Authentication successful</p>
+      <lightning-card title="Salesforce Objects">
+        <div class="slds-p-around_medium">
+            <lightning-combobox label="Select an object" value={selectedObject} options={objectOptions} onchange={handleObjectChange}></lightning-combobox>
+        </div>
+        <template if:true={fieldOptions}>
+            <div class="slds-p-around_medium">
+                <lightning-dual-listbox label="Select fields" value={selectedFields} options={fieldOptions} onchange={handleFieldChange}></lightning-dual-listbox>
+            </div>
+        </template>
+    </lightning-card>
+      <div class="slds-grid slds-gutters slds-wrap">
+        <lightning-button label="Insert" onclick={handleInsert}></lightning-button>
+        <lightning-button label="Update" onclick={handleUpdate}></lightning-button>
+        <lightning-button label="Delete" onclick={handleDelete}></lightning-button>
+        <lightning-button label="Query" onclick={handleQuery}></lightning-button>
+      </div>
+    </template>
+    <template if:false={isLoggedIn}>
+      <form class="slds-form-element slds-form-element_stacked my-form">
+        <lightning-input label="Username" name="username" value={username} oninput={handleUsernameInput} required></lightning-input>
+        <lightning-input type="password" label="Password" name="password" value={password} oninput={handlePasswordInput} required></lightning-input>
+        <lightning-input label="Security Token" name="securityToken" value={securityToken} oninput={handleSecurityTokenInput} required></lightning-input>
+        <lightning-input label="Endpoint URL" name="endpointUrl" value={endpointUrl} oninput={handleEndpointUrlInput} required></lightning-input> <br>
+        <lightning-button variant="brand" type="submit" label="Login" onclick={handleSubmit}></lightning-button>
+      </form>
+    </template>
+  </template>
+  

@@ -1,0 +1,8 @@
+<template>
+    <lightning-card title="Generate XML for Salesforce Object">
+        <div class="slds-m-around_medium">
+            <lightning-input type="text" label="Object Name" value={objectName} onchange={handleObjectNameChange}></lightning-input>
+            <lightning-button label="Generate XML" onclick={handleGenerateXmlClick}></lightning-button>
+        </div>
+    </lightning-card>
+</template>

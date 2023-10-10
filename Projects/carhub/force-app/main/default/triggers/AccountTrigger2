@@ -1,0 +1,18 @@
+trigger accRecountTrigger2 on accRecount (before insert) {
+    if(trigger.isBefore && trigger.isInsert){
+        for(accRecount accRecRec : trigger.new){
+            if(accRecrec.ShippingCity == null){
+                accRecRecRec.ShippingCity = accRec.BillingCity;
+            }
+            if(accRecrec.ShippingState == null){
+                accRec.ShippingState = accRec.BillingState;
+            }
+            if(accRecrec.ShippingCountry == null){
+                accRec.ShippingCountry = accRec.BillingCountry;
+            }
+            if(accRecrec.ShippingStreet == null){
+                accRec.ShippingStreet = accRec.BillingStreet;
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+One minute talks:
+=================
+
+1. List collection
+2. Set collection
+3. Map collection
+4. Sobject
+5. There are various reasons why Batch Apex is better than normal Apex.
+6. What is Apex Interface?
+7. What is Batch Apex in Salesforce?
+8. What is the major difference Trigger and Workflow?
+9. What are the Salesforce best practices for apex?
+10. Test class best practices.
+11. Best Practice Of Governor Limit
+12. SeeAllData=true annotation?
+13. Difference between dynamic SOQL query and static SOQL query?
+14. Lwc Call Apex Methods Imperatively.
+15. Create and Dispatch Events.
+16. lwc public property
+17. lwc LMS?
+18. What is remote site settings?
+19. Apex rest annotations?
+20. What is a Connected App?
+

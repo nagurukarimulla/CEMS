@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Create Record">
+        <div class="slds-var-p-around_medium">
+    <lightning-input label="Enter Account Name"
+    name="name"
+    value={name}
+    onchange={handleChange}
+  ></lightning-input>
+  <lightning-input label="Enter Rating"
+    name="rating"
+    value={rating}
+    onchange={handleChange}
+  ></lightning-input>
+  <lightning-input label="Enter Industry"
+    name="industry"
+    value={industry}
+    onchange={handleChange}
+  ></lightning-input>
+  <lightning-button label="Create" variant="brand" onclick={handleClick}></lightning-button>
+</div>
+</lightning-card>
+</template>

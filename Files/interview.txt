@@ -1,0 +1,163 @@
+1.How to use Junction Object in project?
+
+Junction Object is used to create many-to-many relationships between
+objects. If you take the Recruiting application example, you can see that
+a Position can be linked to many Candidates, and a Candidate can apply
+for different Positions. To create this data model you need a third object
+"Job Application" that links the two objects.
+
+2.What is profile and Role in salesforce?
+
+Ans: Profile: Profile is object level and field level access and it is
+mandatory for all users.
+Role: Role is Record level access and it is not mandatory for all users.
+
+3.What is OWD?
+
+Ans: Organization-Wide Sharing Defaults (OWD) defines the base line
+setting for the organization. It defines the level of access to the user can
+see the other user's records. OWD can be Private, Public Read Only,
+Public Read and Write.
+
+
+4.How can you sort a select SOQl query?
+Ans: use order by clause in select query for sorting a list of records
+
+5. How much code coverage is needed for deployment?
+Ans: Each trigger should have minimum of 1%. Class can have 0%. But,
+the total code coverage of 75%.
+
+6.How to get current logged in users id in apex ?
+Ans: Use Userinfo.getuserid() to get the current logged in user's id in
+apex.
+
+
+7.What are dynamic dashboards?
+Ans: Dashboards which run for logged in user are dynamic dashboards
+
+8.What is action poller in visualforce?
+Ans: Action poller sends AJAX request with a specified time interval.
+
+
+9.What is the difference between permission sets and sharing rules?
+Answer: A Permission Set is a collection of settings and permissions that give users access to 
+various tools and functions. Permission sets extend users’ functional access without changing
+ their profiles.
+
+Sharing rules are used to extend sharing access to users in public groups, roles, or 
+territories. Sharing rules give particular users greater access by making automatic 
+exceptions to your org-wide sharing settings.
+
+
+10.What are the component bundles of the lightning components?
+ Following are the component bundles of the lightning components:
+
+Controller: Controller tackles the client-side events.
+
+Style: It includes component style.
+
+Documentation: We use this component bundle for recording the component’s use.
+
+Renderer: The renderer component bundle contains a component default rendering behavior.
+
+Helper: we can write the general logic in the helper that is used by various controller 
+methods to avoid repetition.
+
+
+11.What is use of @AuraEnabled annotation
+How to call apex class from lightning component
+The AuraEnabled annotation enables Lightning components to access Apex methods and properties.
+The AuraEnabled annotation is overloaded, and is used for two separate and distinct purposes.
+
+Use @AuraEnabled on Apex class static methods to make them accessible as remote 
+controller actions in your Lightning components.
+Use @AuraEnabled on Apex instance methods and properties to make them serializable 
+when an instance of the class is returned as data from a server-side action.
+
+
+12.What is Locker Service in Salesforce Lightning?
+Locker Service is a powerful security architecture for Lightning components. 
+Locker Service enhances security by isolating Lightning components that belong to 
+one namespace from components in a different namespace. 
+Locker Service also promotes best practices that improve the supportability of your
+ code by only allowing access to supported APIs and eliminating access to non-published 
+framework internals.
+
+`13.What is OAuth?
+OAuth is short for open authorization. OAuth 2.0 is a framework that allows for a secure way for 
+systems to establish trust with one another. The end goal is to obtain an access token that 
+can be used by to access protected resources without ever providing your username or
+ password to the other system.
+
+
+14.What is Change Data Capture?
+Change Data Capture is a streaming product on the Lightning Platform that enables you to 
+efficiently integrate your Salesforce data with external systems. With Change Data Capture, 
+you can receive changes of Salesforce records in real-time and synchronize corresponding 
+records in an external data store. Change Data Capture publishes events for changes 
+in Salesforce records corresponding to create, update, delete, and undelete operations.
+
+
+15.when do we use database.getquerylocator()?
+database.getQueryLocator returns a Query Locator that runs your selected SOQL query returning list that can be iterated over in batch apex or used for displaying large sets in VF (allowing things such as pagination).
+
+QueryLocator Methods
+The following are methods for QueryLocator. All are instance methods.
+getQuery()
+Returns the query used to instantiate the Database.QueryLocator object. 
+This is useful when testing the start method.
+iterator()
+Returns a new instance of a query locator iterator.
+
+The query locator can return upto 50 million records and should be used in instances 
+where you want to bactha a high volume of data.
+
+
+16. What is OFFSET in soql?
+A. Offset is used to skip the rows from the start of the query.
+offeset considerations:
+
+1. the maximum limit of offeset is 2000 rows. requesting on offset greater than 2000 will 
+result in a number-out-side-valid-range error.
+2. offset can’t be used in subquery in the where clause.
+
+
+17.Explain parent to child and child to parent query?
+
+Child to Parent Query
+
+In a child-to-parent query, you query the child object and get fields from a parent object 
+by using dot notation, like this:
+
+Eg: SELECT Name, Account.Name FROM Contact
+
+Parent to Child Query
+
+In a parent-to-child query, we use a subquery to get fields from the child object. 
+A subquery is a SELECT statement enclosed in parentheses and nested within another query.
+
+Main Query (For every account, return the account name) and Subquery (the name of each related 
+contact.)
+Within a subquery, instead of the related object’s field name, 
+we use the child relationship name
+
+SELECT Name, (SELECT Name FROM Contacts) FROM Account. Subquery: SELECT Name FROM Contacts
+
+The Query Results window displays account names and a collection of child contact 
+records associated with each account. This type of collection probably looks 
+familiar because we discussed maps
+
+18.What are some of the most common reasons for using Flows in your project?
+Flows can automate processes that are triggered by a specific event, such as when a record 
+is created or updated. Flows can also be used to gather data from a user through a 
+series of screens, known as a wizard. Additionally, flows can be used to display 
+information to a user, such as a record detail page.
+
+19.If a loop becomes too large, can it cause performance issues on the server side?
+Yes, if a loop becomes too large, it can cause performance issues on the server side. 
+This is because each time the loop is executed, it will need to retrieve data from the server, 
+which can take up time and resources.
+
+
+
+

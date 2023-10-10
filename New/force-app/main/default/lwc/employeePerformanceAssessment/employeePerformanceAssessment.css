@@ -1,0 +1,147 @@
+/*.slds-m-around_medium {
+    margin: 1rem;
+  }
+  
+  .date-picker {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .date-picker label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .date-picker lightning-input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .manager-name {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .manager-name label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .manager-name lightning-input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .goal-settings {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .goal-settings label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .goal-settings lightning-textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .rating {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .rating label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .rating .slds-radio {
+    margin-bottom: 0.5rem;
+  }
+  
+  .rating .slds-radio__label {
+    font-weight: normal;
+  }
+  
+  .rating .slds-radio__label:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .rating-indicator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .rating-indicator label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+  
+  .rating-indicator .slds-icon {
+    color: #ffb900;
+  }
+  
+  .save-button {
+    margin-top: 1rem;
+  }*/
+
+  /* Colors */
+
+  :host {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  
+  .slds-card__header-title {
+    color: #0070d2;
+    font-weight: bold;
+  }
+  
+  .slds-m-around_medium {
+    margin: 20px;
+  }
+  
+  .slds-grid.slds-wrap.slds-gutters > .slds-col {
+    padding: 10px;
+  }
+  
+  .slds-grid.slds-wrap.slds-gutters > .slds-col.slds-size_1-of-2 {
+    width: calc(50% - 10px);
+  }
+  
+  .lightning-input {
+    width: 100%;
+  }
+  
+  .lightning-button {
+    margin-top: 20px;
+  }
+  
+  .slds-text-color_success {
+    color: #4caf50;
+  }
+  
+  .lightning-layout {
+    margin-top: 20px;
+  }
+  
+  .lightning-layout-item {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+  
+  .lightning-layout-item:last-child {
+    margin-right: 0;
+  }
+  
+  .lightning-layout-item > div:first-child {
+    margin-right: 10px;
+  }
+  

@@ -1,0 +1,54 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2rem;
+  }
+  
+  .generate-btn {
+    font-size: 1.5rem;
+    padding: 0.5rem 2rem;
+    border-radius: 2rem;
+    background-color: #3f51b5;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    box-shadow: 0px 0px 4px #ccc;
+  }
+  
+  .download-btn {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #d50000;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0px 0px 4px #ccc;
+  }
+  
+  .card {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0px 0px 4px #ccc;
+    width: 90%;
+    max-width: 600px;
+  }
+  
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+  }
+  
+  .xml {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }

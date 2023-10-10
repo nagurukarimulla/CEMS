@@ -1,0 +1,77 @@
+I want to display few fileds based on  record type using lWC.
+I have two record types      Certificates recordtype id '012DO0000008Xe0YAE',   Learnings recordtypeid is 012DO0000008XdvYAE .
+I want to  display the fields CEMS_Certificate_Name__c,CEMS_Description__c,Certificate_Level__c,Category__c,	CEMS_Designated_Days__c,CEMS_Resource_URl__c for the certificates and  if the record type is learnings and also display the fields 	CEMS_Learning_Name__c,CEMS_Description__c,Category__c,CEMS_Designated_Days__c,CEMS_Registration_URL__c    and the object name is CEMS_Training__c   using lwc
+
+ 
+
+ 
+ChatGPT
+To display different fields based on record type using Lightning Web Components (LWC), you can follow these steps:
+
+Retrieve the record type information for the current record. You can do this by querying the object's metadata using Apex or using the getRecord method in LWC.
+
+Based on the record type, conditionally render the fields in your LWC component.
+
+Here's an example code snippet to give you an idea of how you can achieve this:
+
+javascript
+Copy code
+import { LightningElement, api, wire } from 'lwc';
+import { getRecord } from 'lightning/uiRecordApi';
+
+const FIELDS_CERTIFICATES = [
+    'CEMS_Certificate_Name__c',
+    'CEMS_Description__c',
+    'Certificate_Level__c',
+    'Category__c',
+    'CEMS_Designated_Days__c',
+    'CEMS_Resource_URl__c'
+];
+
+const FIELDS_LEARNINGS = [
+    'CEMS_Learning_Name__c',
+    'CEMS_Description__c',
+    'Category__c',
+    'CEMS_Designated_Days__c',
+    'CEMS_Registration_URL__c'
+];
+
+export default class DisplayFieldsByRecordType extends LightningElement {
+    @api recordId;
+
+    @wire(getRecord, { recordId: '$recordId', layoutTypes: ['Full'], modes: ['View'] })
+    record;
+
+    get showCertificatesFields() {
+        return this.record.data && this.record.data.recordTypeInfo.recordTypeId === '012DO0000008Xe0YAE';
+    }
+
+    get showLearningsFields() {
+        return this.record.data && this.record.data.recordTypeInfo.recordTypeId === '012DO0000008XdvYAE';
+    }
+
+    get fieldsToDisplay() {
+        return this.showCertificatesFields ? FIELDS_CERTIFICATES : this.showLearningsFields ? FIELDS_LEARNINGS : [];
+    }
+}
+In the above code:
+
+We import the necessary modules from LWC, including getRecord for retrieving the record details.
+We define constant arrays FIELDS_CERTIFICATES and FIELDS_LEARNINGS that hold the API names of the fields you want to display for each record type.
+The LWC component DisplayFieldsByRecordType receives the recordId as an API property to identify the record to display.
+We use the @wire decorator with getRecord to fetch the record data and its record type information.
+The showCertificatesFields and showLearningsFields getters check if the current record's record type matches the respective record type IDs.
+The fieldsToDisplay getter returns the appropriate array of fields based on the record type.
+In your component's template, you can iterate over the fieldsToDisplay array and dynamically render the fields using <lightning-output-field> or custom components.
+Remember to adjust the object name (CEMS_Training__c) and the record type IDs in the code according to your specific implementation.
+
+I hope this helps you achieve your desired functionality in your LWC!
+
+
+
+
+
+User
+where is the template code for that
+ChatGPT
+​

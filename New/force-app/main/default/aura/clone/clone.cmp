@@ -1,0 +1,30 @@
+<aura:component controller = "opplist" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute name="opportunities" type="list"/>
+    <aura:handler name="init" value="doinit" action="{!v.doinit}"/>
+    <table class="slds-table slds-table--bordered slds-table--striped slds-table--cell-buffer slds-table--fixed-layout">
+        <thead>
+          <tr class="slds-text-heading--label">
+            <th scope="col"><div class="slds-truncate" title="ID">ID</div></th>
+            <th scope="col"><div class="slds-truncate" title="Name">AccountId</div></th>
+            <th scope="col"><div class="slds-truncate" title="Type">probability</div></th>
+            <th scope="col"><div class="slds-truncate" title="Number Of Employees">stageName</div></th>
+            <th scope="col"><div class="slds-truncate" title="Ticker Symbol">Close Date</div></th>
+            <th scope="col"><div class="slds-truncate" title="Phone">Opportunity Currency</div></th>
+            <th scope="col"><div class="slds-truncate" title="Delete">Amount</div></th>
+          </tr>
+        </thead>
+        <tbody>
+              <aura:iteration items="{!v.opportunities}" var ="x">
+                <tr>
+          <th scope="row"><div class="slds-truncate" title="{!account.Id}">{!x.Id}</div></th>
+          <td><div class="slds-truncate" title="">{!x.AccountId}</div></td>
+          <td><div class="slds-truncate" title="">{!x.probability}</div></td>
+          <td><div class="slds-truncate" title="">{!x.stageName}</div></td>
+          <td><div class="slds-truncate" title="">{!x.closeDate}</div></td>
+          <td><div class="slds-truncate" title="">{!x.OpportunityCurrency}</div></td>
+          <td><div class="slds-truncate" title="">{!x.Amount}</div></td>
+                </tr>
+           </aura:iteration>                            
+        </tbody>
+    </table>
+</aura:component>

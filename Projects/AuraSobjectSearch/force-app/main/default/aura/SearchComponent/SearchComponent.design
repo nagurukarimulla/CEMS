@@ -1,0 +1,7 @@
+<design:component >
+   <design:attribute name="searchTitle" label="Search Input" required="true"/>
+   <design:attribute name="objectAPIName" label="Object Input" required="true"/>
+   <design:attribute name="searchFieldAPIName" label="Field Input" required="true"/>
+   <design:attribute name="fieldSetName" label="FieldSet Input" required="true"/>
+
+</design:component>

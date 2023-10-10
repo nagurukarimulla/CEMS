@@ -1,0 +1,193 @@
+Schedule Programming / Apex:
+============================
+	Interface : System.Schedulable Interface.
+
+Public Class AccountsHelper
+{
+	Public static void DeleteOldAccounts()
+	{
+		// Written Business Logic..
+		// To Delete the Old Records, which are older than 30 days.
+	}
+}
+
+Step 1: Create a Global Class, which should be implemented by an interface
+		"System.Schedulable".
+		
+	Syntax:
+		Global Class <ClassName> implements System.Schedulable
+		{
+			// Write the Business Logic..
+		}
+		
+Step 2: Provide the Implementation for the Interface Methods.
+
+	Syntax:
+		Global Class <ClassName> implements System.Schedulable
+		{
+			Global void Execute(System.SchedulableContext sContext)
+			{
+				// Write the Business Logic..
+				// Write the Code to invoke the Class.
+			}
+		}
+		
+Step 3: Schedule the Global Class as below.
+		
+		Setup --> Build --> Develop --> Apex Classes.
+			1. Click on "Schedule Apex" button.
+			2. Enter the Schedule Job Name.
+			3. Select the "Schedulable Class" by using "Lookup Icon".
+			4. Select the Frequency of Interval.
+				(Daily / Weekly / Monthly).
+			5. Select the Start Date and End Date for Scheduling.
+			6. Select the "Preferred Start Time" from the Picklist.
+			7. Click on "OK". button.
+			
+Step 4: Track / Monitor the Scheduling Jobs.
+		
+		Setup -->Monitor --> Jobs --> Schedule Apex.
+			
+UseCase:
+========
+	Create a Schedule Job, To Purge All the Position Records, whose MileStone Date is Over. Schedule the Job to be get run on EveryDay morning @ 2.00 AM.
+	
+Step 1: Create a Formula Field in the Position Object To indicate which position records
+		to be get removed.
+			Field Name : Position Record Can Delete
+			Data Type: Formula.
+			Formula Return Type: CheckBox
+				Formula Condition: if(Today() > Milestone_Date__c, true, false)
+				
+Step 2: Create a Batch Job with the Required Implementation to Remove the Position
+		Records.
+		
+Batch Class:
+------------
+Global class PurgeClosedPositionsBatchJob implements Database.Batchable<SObject>
+{
+	Global Database.QueryLocator Start(Database.BatchableContext bContext)
+    {
+        string positionsQuery = 'Select id, name, Position_Record_Can_Delete__c from Position__C where Position_Record_Can_Delete__c = true';
+        return Database.getQueryLocator(positionsQuery);
+    }
+    
+    Global void Execute(Database.BatchableContext bContext, List<SObject> recordsToProcess)
+    {
+        if(! recordsToProcess.isEmpty())
+        {
+            List<Position__C> positionsToDelete = (List<Position__C>) recordsToProcess;
+            
+           	Database.DeleteResult[] results = Database.delete(positionsToDelete,false);
+        }
+    }
+    
+    Global void Finish(Database.BatchableContext bContext)
+    {
+        System.debug('Batch Job ID is....: '+ bContext.getJobId()); 
+        
+        AsyncApexJob jobDetails = [Select id, status, totaljobitems, jobitemsprocessed, numberoferrors,
+                                  		Createdby.email
+                                  				from AsyncApexJOb
+                                  						Where id =: bContext.getJobId()];
+        
+        System.debug('Batch Job Status....: '+ jobDetails.Status);
+        
+        MessagingUtilityHelper.SendBatchJobStatusNotifications(jobDetails, 'PurgeClosedPositionsBatchJob');
+    }
+}
+					
+MessagingUtilityHelper Class:
+-----------------------------
+public class MessagingUtilityHelper 
+{
+    Public static void SendTotalRevenueJobStatusNotification(AsyncApexJob jobInfo, string jobName, Decimal revenueAmount)
+    {
+        if(jobInfo != null)
+        {
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            	
+            	string[] toAddress = new string[]{jobInfo.CreatedBy.Email};
+            	email.setToAddresses(toAddress);
+            
+            	email.setReplyTo('customersupport@dell.com');
+            
+            	email.setSenderDisplayName('DELL Weekly Batch Job Support Team');
+            
+            	string emailSubject = 'Alert : Customers Total Annual Revenue Batch Job Status Notification: '+ jobName + ' - ( '+ jobInfo.Id+ ' )';
+            	email.setSubject(emailSubject);
+            
+            	string emailContent = 'Dear Customer Support, <br/><br/> We are pleased to inform you that we have executed the Customers Total Annual Revenue Calculation Batch Job. <br/><br/>'+
+                    					'Please find below the Batch Job Status Details....: <br/><br/>'+
+                    					'Batch Job Id .......: ' + jobInfo.Id+
+                    					'<br/> Batch Job Name ......: '+ jobName+
+                    					'<br/> Batch Job Status .......: '+ jobInfo.Status+
+                    					'<br/> Total Number of Batches ......: '+ jobInfo.TotalJobItems+
+                    					'<br/> Number of Batvhes Processed .....: '+ jobInfo.JobItemsProcessed+
+                    					'<br/> Number of Batches Failed.........: '+ jobInfo.NumberOfErrors+
+                    					'<br/> Total Annual Revenue is..........: '+ revenueAmount+
+                    					'<br/><br/> Please find the below address, if any queries. '+
+                    					'<br/><br/> <i> *** This is a System Generated Email. Please Do Not Reply.</i>'+
+                    					'<br/><br/> Thanks & Reagrds, <br/> Customer Support Team, <br/> Dell Inc. ';
+                email.setHtmlBody(emailContent);
+            
+            	Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+        }
+    }
+}
+
+Step 3: Create a Schedulable Class, to Schedule the Batch Job.
+	
+Global class PurgeClosedPositionsScheduleJob implements System.Schedulable
+{
+	Global void Execute(System.SchedulableContext sContext)
+    {
+        // Write the Code to invoke the Batch Class..
+        PurgeClosedPositionsBatchJob pBatch= new PurgeClosedPositionsBatchJob();
+        
+        Database.executeBatch(pBatch, 5);
+    }
+}
+
+Step 4: Schedule the Class to Run on Every Day morning @ 2.00 AM.
+		
+	Setup --> Build --> Develop --> Apex Classes.
+			1. Click on "Schedule Apex" button.
+			2. Enter the Schedule Job Name. (Ex: Purge Closed Positions Schedule)
+			3. Select the "Schedulable Class" by using "Lookup Icon".
+				(Ex: PurgeClosedPositionsScheduleJob)
+			4. Select the Frequency of Interval.
+				(Daily / Weekly / Monthly). (Ex: Daily --> Mon - Sun)
+			5. Select the Start Date and End Date for Scheduling.
+			6. Select the "Preferred Start Time" from the Picklist. (Ex: 2.00 AM)
+			7. Click on "OK". button.
+	
+Step 4: Track / Monitor the Scheduling Jobs.
+		
+		Setup -->Monitor --> Jobs --> Schedule Jobs.
+
+
+CRON EXPRESSION:
+
+	
+Global class LeadScheduleJob implements System.Schedulable
+{
+	Global void Execute(System.SchedulableContext sContext)
+    {
+        List<Lead> ldrecords = ( select id, leadsource from lead);
+for(lead l : ldrecords){
+         l.leadsource='web';
+    }
+     update l;
+}
+
+
+Execute Anonymous Window:
+
+LeadScheduleJob ld = new LeadScheduleJob();
+
+string cronexp = '00 30 3 ? * MON';
+
+String jobId = System.schedulable('leadScheduleJob', cronexp, LeadScheduleJob);
+
+System.debug('Job ID:--->' + jobId);

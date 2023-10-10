@@ -1,0 +1,267 @@
+UseCase:
+========
+	Create a Trigger to Prevent the Deletion of the Related Contact Records, upon removing the Account Record from the Object.
+	
+	ObjectName : Account Object.
+	Event Name : Before Delete
+	
+	trigger PreventContactsDeletionTrigger on Account (before delete) 
+	{
+		if(Trigger.isBefore && Trigger.isDelete)
+		{
+			List<Contact> lstContacts = [Select id, firstname, lastname, accountid
+													from Contact
+														Where accountid IN : Trigger.OldMap.KeySet()];
+			
+			if(! lstContacts.isEmpty())
+			{
+				for(Contact con : lstContacts)
+				{
+					con.AccountId = null;
+				}
+				
+				update lstContacts;
+			}
+		}
+	}
+
+
+UseCase:
+========
+	Create a Trigger on the Account Object, to Prevent the Deletion of an Active Account Record.
+	
+	ObjectName: Account Object
+	Event Name: Before Delete
+	
+	trigger AccountTrigger on Account (before delete) 
+	{
+		if(Trigger.isBefore && Trigger.isDelete)
+		{
+			for(Account acc : Trigger.Old)
+			{
+				if(acc.Active__c == 'Yes')
+				{
+					acc.AddError('You Are Not Authorized to Delete an Active Account Record.');
+				}
+			}
+		}
+	}	
+
+
+	
+UseCase:
+========
+	Create a Trigger to Auto-Convert the Lead Records as the Customers upon Changing the Lead Status as "Closed - Converted".
+	
+	Object Name: Lead Object
+	Event Name : After Update
+	
+	Pre-Requisite:
+		Create a CheckBox Field with the name "Do Not Create Opportunity" in the Lead Object.
+	
+	trigger AutoLeadConvertTrigger on Lead (After Update) 
+	{
+		if(Trigger.isAfter && Trigger.isUpdate)
+		{
+			LeadStatus lStatus = [Select id, MasterLabel, isConverted
+											from LeadStatus
+												Where isConverted = true];
+			
+			List<Database.LeadConvert> lstConvert = new List<Database.LeadConvert>();       
+			
+			for(Lead ldRecord : Trigger.New)
+			{
+				if(ldRecord.Status == 'Closed - Converted' && ldRecord.IsConverted == false)
+				{
+					Database.LeadConvert lConvert = new Database.LeadConvert();
+					
+						lConvert.setLeadId(ldRecord.Id);
+						
+						lConvert.setDoNotCreateOpportunity(ldRecord.Do_Not_Create_Opportunity__c);
+					
+						lConvert.setSendNotificationEmail(true);
+					
+						lConvert.setConvertedStatus(lStatus.MasterLabel);
+					
+					// Add the record to Collection..
+					lstConvert.Add(lConvert);
+				}
+			}
+			
+			if(! lstConvert.isEmpty())
+			{
+				Database.LeadConvertResult[] result =	Database.convertLead(lstConvert, false);
+			}
+		}
+	}
+
+
+UseCase:
+========
+	Write an apex program, to insert 100 Hiring Manager Records inside the object by allowing the Partial Processing.
+	Display each record processing result in the Debug Log File.
+	
+Class Code:
+-----------
+public class DMLUtility 
+{
+	Public static void InsertBulkHRRecords()
+    {
+        List<Hiring_Manager__C> lstHRRecords = new List<Hiring_Manager__C>();
+        
+        for(integer counter = 1; counter <= 100; counter++)
+        {
+            // Prepare the Record..
+            Hiring_Manager__C hrRecord = new Hiring_Manager__C();
+            
+            	hrRecord.Name = 'TEST HR - '+ counter;
+            	hrRecord.Location__c = 'Mumbai';
+            
+            	if(counter != 95)
+                {
+                	hrRecord.Email_ID__c = 'testhr'+counter+'@gmail.com';    
+                }
+            	
+            	if(counter != 90)
+                {
+                	hrRecord.Contact_Number__c = '9900887799';    
+                }            	
+            
+            // Add the record to the collection..
+            	lstHRRecords.Add(hrRecord);
+        }
+        
+        if(! lstHRRecords.isEmpty())
+        {
+        	//insert lstHRRecords;    
+        	
+        	// Allowing Partail Processing Mechanism and store the results in SaveResult class.
+        	Database.SaveResult[] results =	Database.Insert(lstHRRecords, false);
+            
+            // Get Each Record Insert operation result...
+            for(Database.SaveResult res : results )
+            {
+               if(res.isSuccess()) 
+               {
+                   // Record Inserted Successfully.
+                   system.debug('Record Inserted Successfully.');
+                   system.debug('Record ID is....: '+ res.getId());
+               }
+               else
+               {
+                   // Record Insertion has been Failed.
+               	   Database.Error[] errors = res.getErrors();
+                   for(Database.Error err : errors)
+                   {
+                        system.debug('Error Message is...: '+ err.getMessage());   
+                        system.debug('Error Status Code is...: '+ err.getStatusCode());
+                        system.debug('Effected Fields are...: '+ err.getFields());
+                   }
+               }
+                
+               system.debug('----------------------------------------------');
+            }
+        }        
+    }
+}
+
+Execution:
+----------
+	DMLUtility.InsertBulkHRRecords();
+	
+Delete Statement:
+=================
+
+Syntax:
+	Delete Only One Record:
+	-----------------------
+		Delete <objectName>;
+		
+	Delete Multiple Records:
+	------------------------
+		Delete <collectionObjectName>;
+		
+	By using Database Class Method:
+	-------------------------------
+		Database.DeleteResult[] results =Database.Delete(<collectionObjectName>, Boolean);
+	
+UseCase:
+========
+	Write an apex program, to Delete the Records from the Hiring Manager object whose name is starting with the specified Characters.
+	
+Class Code:
+-----------
+public class DMLUtility 
+{
+    Public static void DeleteHRRecords(string startingChars)
+    {
+        /*
+        if(startingChars != null && startingChars != '')
+        {
+            List<Hiring_Manager__C> lstHrs = [Select id, name from Hiring_Manager__C
+                											Where name like : startingChars+'%'];
+            if(! lstHrs.isEmpty())
+            {
+                // Delete lstHrs;
+                Database.DeleteResult[] results = Database.Delete(lstHrs, false);
+            }
+        }
+		*/
+        
+        Delete [Select id, name from Hiring_Manager__C
+            			Where name like : startingChars+'%'];
+    }
+}
+
+Execution:
+----------
+	DMLUtility.DeleteHRRecords('TEST HR');
+	
+UnDelete Statement:
+===================
+	By using this statement, we can re-store the deleted records back to the actual object. We can re-store either One / Multiple / All Records back to the object.
+	
+	Syntax:
+		Re-Store Only One Record:
+		-------------------------
+			UnDelete <objectName>;
+			
+		Re-Store Multiple Records:
+		--------------------------
+			UnDelete <collectionObjectName>;
+			
+		By using Database Class Method:
+		-------------------------------
+			Database.UnDeleteResult[] results =
+						Database.UnDelete(<collectionObjectName>, Boolean);
+
+UseCase:
+========
+	Write an apex program, to Re-Store the Hiring Manager Record back to the object based on the Specified Name.
+	
+Class Code:
+-----------
+public class DMLUtility 
+{
+    Public static void RestoreHRRecords(string startingChars)
+    {
+        if(startingChars != null && startingChars != '')    
+        {
+           List<Hiring_Manager__C> hrsToReStore = [Select id, name, isDeleted
+                                                        from Hiring_Manager__C
+                                                                Where isDeleted = true and name like : startingChars+'%'
+                                                                    ALL ROWS]; 
+            
+           if(! hrsToReStore.isEmpty()) 
+           {
+               Database.UndeleteResult[] results =  Database.UnDelete(hrsToReStore, false);
+           }
+        }
+    }
+}
+
+Execution:
+----------
+	DMLUtility.RestoreHRRecords('TEST HR');
+	
+	DMLUtility.RestoreHRRecords('TEST HR - 2');

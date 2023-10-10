@@ -1,0 +1,42 @@
+<template>
+    
+    <lightning-card title="if:true and if:false Basic demo">
+        <div class="slds-var-p-around_medium">
+            <lightning-button variant = "brand" label={getLabel} onclick={showTextHandler}></lightning-button>
+            <template if:true={showText}>
+                Naguru Karim
+            </template>
+            <template if:false={showText}>
+                Salesforce Admin/Developer
+            </template>
+        </div>
+    </lightning-card>
+    
+    <lightning-card title="if:true and if:false Getter demo">
+        <div class="slds-var-p-around_medium">
+           <lightning-input label="Company Name" value={company} onchange={changeHandler}></lightning-input>
+            <template if:true={isCompanyCittaCore}>
+                yes you are in CittaCore
+            </template>
+            <template if:false={isCompanyCittaCore}>
+               No you are not in CittaCore
+            </template>
+        </div>
+    </lightning-card>
+
+    <lightning-card title="lwc:if and lwc:else Getter demo">
+        <div class="slds-var-p-around_medium">
+           <lightning-input label="Company Name" value={newcompany}
+            onchange={changeHandler1}></lightning-input>
+            <template lwc:if={isCompanyJNET}>
+                yes you are in JNET
+            </template>
+            <template lwc:elseif={isCompanyRutranics}>
+                yes you are in Rutranics
+            </template>
+            <template lwc:else>
+               No you are not in JNET
+            </template>
+        </div>
+    </lightning-card>
+</template>

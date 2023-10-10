@@ -1,0 +1,16 @@
+<template>
+    <lightning-card title="Apex Wire To Property Demo">
+        <div class="slds-p-around_medium">
+            <template if:true={opptList.data}>
+                <template for:each={opptList.data} for:item="oppty">
+                    <div class="slds-box slds-box_xx-small" key={oppty.Id}>
+                        <p style="color:pink;"><strong>Name : </strong> {oppty.Name}</p>
+                        <p style="color:red;"><strong>ExpectedRevenue : </strong> {oppty.ExpectedRevenue}</p>
+                        <p style="color:blue;"><strong>StageName : </strong> {oppty.StageName}</p>
+                        <p style="color:green;"><strong>LeadSource : </strong> {oppty.LeadSource}</p>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

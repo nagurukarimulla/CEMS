@@ -1,0 +1,66 @@
+<template>
+    <lightning-card title="Send Bulk Email">
+        <div class="slds-m-around_medium">
+            <lightning-input type="search" label="Search" onchange={handleSearch}></lightning-input>
+        </div>
+        <lightning-datatable
+            key-field="Id"
+            data={interviews}
+            columns={columns}
+            selected-rows={selectedRows}
+            onrowselection={handleRowSelection}
+            onsave={handleSave}
+            oncancel={handleCancel}
+            hide-checkbox-column
+            onsort={handleSort}
+            sorted-direction={sortDirection}
+            sorted-by={sortBy}
+            if:true={showTable}>
+        </lightning-datatable>
+        <template if:true={showModal}>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <div role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">{selectedRows.length} Interviews Selected</h2>
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <template for:each={selectedRows} for:item="interview">
+                            <lightning-card key={interview.Id} title={interview.EMS_Candidate_Name__c} icon-name="standard:contact">
+                                <p>
+                                    Interview Date: {interview.EMS_Interview_Date__c}<br/>
+                                    Interview Time: {interview.EMS_Interview_Start_Time__c} - {interview.EMS_Interview_End_Time__c}<br/>
+                                    Interview Type: {interview.EMS_Interview_Type__c}<br/>
+                                    Interviewer Name: {interview.EMS_Interviewer_Name__c}<br/>
+                                    Interview Status: {interview.EMS_Interview_Status__c}<br/>
+                                    Applicant Email: {interview.EMS_Applicant_Email__c}<br/>
+                                </p>
+                                <lightning-input label="Interview Link" value={interview.EMS_Meeting_Link__c} onchange={handleLinkChange} if:true={showLinkInput}></lightning-input>
+                                <lightning-input label="Interview Location" value={interview.EMS_Interview_Location__c} onchange={handleLocationChange} if:true={showLocationInput}></lightning-input>
+                                <lightning-input label="Decline Reason" value={interview.EMS_Decline_Reason__c} onchange={handleDeclineReasonChange} if:true={showDeclineReasonInput}></lightning-input>
+                                <template if:true={showTypeDropdown}>
+                                <lightning-combobox label="Interview Type" value={interview.EMS_Interview_Type__c} options={typeOptions} onchange={handleTypeChange}></lightning-combobox>
+                                </template>
+                                </lightning-card>
+                                </template>
+                                </div>
+                                <footer class="slds-modal__footer">
+                                <div class="slds-float_left">
+                                <lightning-button label="Send Email" onclick={handleSendEmail} variant="brand"></lightning-button>
+                                <template if:true={showTypeDropdown}>
+                                <lightning-button label="Update Type" onclick={handleUpdateType} class="slds-m-left_x-small" variant="brand"></lightning-button>
+                                </template>
+                                </div>
+                                <div class="slds-float_right">
+                                <lightning-button label="Cancel" onclick={closeModal}></lightning-button>
+                                </div>
+                                </footer>
+                                </div>
+                                </div>
+                                </template>
+                                </lightning-card>
+                                </template>

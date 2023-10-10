@@ -1,0 +1,134 @@
+trigger AccountTrigger on Account (before insert, before update) 
+	{
+		if(Trigger.isBefore && (Trigger.IsInsert || Trigger.isUpdate) )
+		{
+			for(Account acc : Trigger.New)
+			{
+				if(acc.Industry == '' || acc.Industry == null)
+				{
+					acc.Industry.AddError('Please Select the Industry Value.');
+				}
+				else if(acc.Fax == '' || acc.Fax == null)
+				{
+					acc.Fax.AddError('Please Enter the Fax Number.');
+				}
+				else if(acc.Website == null || acc.Website == '')
+				{
+					acc.Website.AddError('Please Enter the Customer Website Name.');
+				}
+			}
+		}   
+	}	
+
+
+
+
+
+public class DatabaseHelper 
+{
+    Public static void GetCaseRecords()
+    {
+        List<Case> lstCases = [Select id, casenumber, status, priority, type, reason, subject from Case  Limit 5];
+        
+        for(Case cs : lstCases)
+        {
+            system.debug('Case Record is...: '+ cs);
+        }
+    }
+}
+
+
+
+public class DMLUtility 
+{
+	Public static void InsertBulkHRRecords()
+    {
+        List<Hiring_Manager__C> lstHRRecords = new List<Hiring_Manager__C>();
+        
+        for(integer counter = 1; counter <= 200; counter++)
+        {
+            // Prepare the Record..
+            Hiring_Manager__C hrRecord = new Hiring_Manager__C();
+            
+            	hrRecord.Name = 'DML HR Record - '+ counter;
+            	hrRecord.Location__c = 'Chennai';
+            	hrRecord.Email_ID__c = 'dmlhr'+counter+'@gmail.com';
+            	hrRecord.Contact_Number__c = '9900887766';
+            
+            // Add the record to the collection..
+            	lstHRRecords.Add(hrRecord);
+        }
+        
+        if(! lstHRRecords.isEmpty())
+        {
+        	insert lstHRRecords;    
+        }        
+    }
+}
+
+
+The Sales team wants to ensure that all high-value Opportunities have a contact associated with them. How can you enforce this as an admin?
+Create a validation rule on the Opportunity object that checks if the Opportunity Amount is greater than a certain threshold and if the Contact field is blank. Display an error message when the criteria is met.
+
+
+
+What are the main components of a Flow?
+The main components of a Flow in Salesforce are:
+
+Elements: Elements are the building blocks of a Flow. They represent the actions or logic that are executed in the Flow. There are different types of elements such as Assignment, Decision, Loop, Record Create, Record Update, and Screen.
+Connectors: Connectors are used to link the different elements of a Flow. They represent the direction of the data flow between elements.
+Resources: Resources are the objects, fields, and variables that are used in a Flow. They define the data that is used or manipulated by the elements of the Flow.
+Screens: Screens are used to collect input from users during a Flow. They are typically used to create or update records.
+Flow Versions: Flow Versions are used to manage different versions of a Flow. They allow users to make changes to a Flow without affecting the existing version.
+Debugging Tools: Debugging Tools are used to troubleshoot and test a Flow. They allow users to view the data and logic flow of a Flow to identify issues or errors.
+Together, these components make up the building blocks of a Flow in Salesforce, which allows for the creation of complex, automated business processes without the need for code.
+
+
+
+How do we create a formula field to calculate a 10% discount on the Opportunity Amount in Salesforce?
+To create a formula field to calculate a 10% discount on the Opportunity Amount in Salesforce, follow these steps:
+
+Select the Opportunity Object: In the Object Manager, select the Opportunity object that you want to create the formula field for.
+Create a New Formula Field: Under the Fields & Relationships section, click on the New button and select Formula.
+Define the Formula: In the Formula Editor, enter the following formula:
+Opportunity.Amount * 0.1
+Name the Field: Give the formula field a name, such as “Discount Amount.”
+Set the Field Properties: Set the data type to Currency, and specify the decimal places and other properties as per your requirement.
+Save the Field: Click on the Save button to create the formula field.
+After creating the formula field, you can add it to the Opportunity page layout to make it visible to users. The formula field will calculate the 10% discount on the Opportunity Amount and display the discounted amount in the field.
+
+
+
+A sales representative needs to access a custom object in Salesforce, but they are unable to see it in the app. How would you give them access as a Salesforce Admin?
+First, verify that the user’s Profile has the necessary CRUD permissions for the custom object. If needed, update their Profile.
+
+Then, ensure that the custom object is included in the app that the sales representative is using, by going to Setup > App Manager > Edit the relevant app > Select the custom object in the ‘Available Items’ section > Add it to the ‘Selected Items’ section > Save the changes.
+
+
+
+
+As an admin, you can facilitate exporting all the Contacts associated with a specific Account in several ways. Here are a few options:
+
+Reports: Salesforce provides a powerful reporting feature that allows you to create custom reports based on various criteria, including related objects. You can create a report to fetch all Contacts related to a specific Account. Once the report is created, you can export it in different formats like Excel, CSV, or PDF.
+
+To create a report, go to the Reports tab in Salesforce and click on "New Report."
+Choose the appropriate report type, such as "Contacts and Accounts" or "Custom Object with Contacts."
+Set filters to specify the specific Account and any other criteria you need.
+Add the necessary fields for the Contact information you want to include in the report.
+Run the report and click on the "Export" button to export it in your desired format.
+Data Export: Salesforce provides a data export feature that allows you to export data from specific objects. You can use this feature to export Contacts associated with a specific Account.
+
+Go to the Setup menu by clicking on your username and selecting "Setup."
+In the Quick Find box, type "Data Export" and select "Data Export."
+Click on "Export Now" and choose the desired export options.
+In the "Select Data" section, choose the Contact object and define the criteria to include only the Contacts associated with the specific Account.
+Start the export, and Salesforce will notify you when the export is ready. You can then download the exported data.
+Data Loader: Salesforce Data Loader is a client application that allows you to perform bulk data operations, including exporting data. You can use Data Loader to export Contacts associated with a specific Account.
+
+Download and install the Salesforce Data Loader application on your computer.
+Launch Data Loader and log in to your Salesforce org.
+Choose the "Export" operation and select the Contact object.
+Specify the query criteria to retrieve Contacts associated with the specific Account using SOQL (Salesforce Object Query Language).
+Configure the mapping of fields you want to export.
+Start the export process, and Data Loader will generate a CSV file containing the exported Contacts.
+These are some of the methods an admin can use to facilitate exporting Contacts associated with a specific Account in Salesforce. Choose the method that best suits your requirements and technical proficiency.

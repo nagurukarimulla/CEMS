@@ -1,0 +1,53 @@
+<aura:component controller="SearchController">
+    <aura:attribute name="dataSet" type="object" />
+    <aura:attribute name="objectAPIName" type="String" />
+    <aura:attribute name="isActionProcess" type="Boolean" default="false"/>
+    <aura:attribute name="fieldNames" type="String[]" />
+    <aura:attribute name="rowIndex" type="Integer" />
+    <aura:attribute name="isEditMode" type="Boolean" default="false" />
+    <aura:handler event="c:DataBinder" name="dataBindevent" action="{!c.handleDataChange}"/>
+    <aura:attribute name="searchFieldAPIName" type="String" />
+    <aura:handler name="change" value="{!v.isEditModeIndex}" action="{!c.rowEditChange}"/>
+    <aura:attribute name="isEditModeIndex" type="Integer" />
+
+<aura:renderIf isTrue="{!v.isActionProcess}">
+    <lightning:spinner alternativeText="Loading" size="medium" />
+</aura:renderIf>
+    <tr class="slds-hint-parent">
+        <td>
+            <span>
+                <lightning:button label="Edit" variant="brand" onclick="{!c.editRow}" aura:id="edit"/>
+                {!v.body}
+            </span>
+        </td>
+        <aura:iteration items="{!v.fieldNames}" var="fieldName" indexVar="indx">
+            <aura:renderIf isTrue="{!indx == 0}">
+                <th data-label="Opportunity Name" scope="row">
+                    <div class="slds-truncate" title="{!fieldName}">
+                        <aura:renderIf isTrue="{!v.isEditMode}">
+                            <c:rowValue dataRecord="{!v.dataSet}" isEditMode="{!v.isEditMode}" rowIndex="{!v.rowIndex}"
+                                fieldName="{!fieldName}" />
+                            <aura:set attribute="else">
+                                <a href="#" tabindex="-1">
+                                    <c:rowValue dataRecord="{!v.dataSet}" isEditMode="{!v.isEditMode}"
+                                        fieldName="{!fieldName}" rowIndex="{!v.rowIndex}"/>
+                                </a>
+                            </aura:set>
+                        </aura:renderIf>
+
+                    </div>
+                </th>
+                <aura:set attribute="else">
+                    <td data-label="Account Name">
+                        <div class="slds-truncate" title="{!fieldName}">
+                            <c:rowValue dataRecord="{!v.dataSet}" fieldName="{!fieldName}"
+                                isEditMode="{!v.isEditMode}" rowIndex="{!v.rowIndex}"/>
+                        </div>
+                    </td>
+                </aura:set>
+            </aura:renderIf>
+        </aura:iteration>
+
+
+    </tr>
+</aura:component>

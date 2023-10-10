@@ -1,0 +1,262 @@
+AND(
+  NOT(ISBLANK(Communication_Overall_Rating__c)),
+  OR(
+    Communication_Overall_Rating__c < 1,
+    Communication_Overall_Rating__c > 10
+  )
+)
+
+
+AND(
+    NOT(ISBLANK(Ability_to_Articulate_Ideas__c)), 
+    OR(
+        Ability_to_Articulate_Ideas__c < 1, 
+        Ability_to_Articulate_Ideas__c > 10
+    )
+)
+
+
+
+
+
+
+
+
+
+The following are the suggested fields and data types for the user story:
+
+Communication:
+Clarity of speech (Picklist)
+Use of appropriate language (Picklist)
+Articulation of ideas (Picklist)
+Active listening and response (Picklist)
+Technical skills:
+Knowledge of specific tools, software, or programming languages (Text)
+Ability to solve technical problems (Picklist)
+Ability to explain technical concepts (Picklist)
+Interpersonal skills:
+Building rapport (Picklist)
+Communication effectiveness with others (Picklist)
+Teamwork skills (Picklist)
+Conflict management skills (Picklist)
+Functional skills:
+Experience (Text)
+Qualifications (Text)
+Knowledge in the specific field (Text)
+Ability to meet job-specific requirements (Picklist)
+Alignment with organizational goals and objectives (Picklist)
+Interview Status:
+Interview Scheduled (Boolean)
+Interview Completed (Boolean)
+Interview Stage:
+Accepted (Boolean)
+In Progress (Boolean)
+Rejected (Boolean)
+Selected (Boolean)
+Feedback from Interviewers:
+Interviewer Name (Text)
+Interviewer Feedback (Long Text)
+
+
+
+
+Dear [Prospect Name],
+
+We are pleased to inform you that we have scheduled your interview for the position of [Position] at [Company Name]. The interview will be conducted on [Date] at [Time]. The venue for the interview is [Venue], which is located at [Address].
+
+Please find the interview link attached, which you can use to access the online interview at the scheduled time. If you have opted for an offline interview, kindly be present at the venue before the scheduled time.
+
+We request you to confirm your availability by replying to this email as soon as possible. If you are unable to attend the interview at the scheduled time, please let us know, and we will try our best to reschedule the interview.
+
+Please note that we have also copied [Recruiter Name] on this email, who will be assisting you throughout the interview process.
+
+We look forward to meeting you and discussing your candidature in detail.
+
+Best regards,
+
+[Your Name]
+
+
+
+
+
+
+
+
+Dear [Candidate Name],
+
+We are pleased to invite you to participate in our Walk-ins/Online Interview Process for the position of [Job Title]. We believe that your skills and experience would be a great asset to our team, and we would be delighted to have you as a part of our organization.
+
+Please find the link to the Walk-ins/Online Interview process: [Insert Link/Location Here]. You can schedule your interview at a convenient time by selecting a slot from the available time slots.
+
+We have a unique timeline for recruiters, and we assure you that we will be giving timely updates on the recruitment process. We have a streamlined hiring process that ensures a smooth and hassle-free experience for all our candidates.
+
+To manage the recruitment process efficiently, we have assigned roles to our recruiters. They will be responsible for coordinating with you throughout the recruitment process. The recruiter assigned to your application is [Recruiter Name] and you can contact them at [Recruiter's Email].
+
+Once you have completed the interview process, you will receive an update on the status of your application. If you are selected for the position, the status of your application will change to "Accepted," and we will provide you with the next steps in the hiring process.
+
+We appreciate your interest in our organization and look forward to seeing you at the Walk-ins/Online Interview process.
+
+Best regards,
+[Your Name]
+[Company Name]
+
+Dear [Prospect Name],
+
+We are pleased to inform you that we have scheduled your interview for the position of [Position] at [Company Name]. The interview will be conducted on [Date] at [Time]. The venue for the interview is [Venue], which is located at [Address].
+
+Please find the interview link attached, which you can use to access the online interview at the scheduled time. If you have opted for an offline interview, kindly be present at the venue before the scheduled time.
+
+We request you to confirm your availability by replying to this email as soon as possible. If you are unable to attend the interview at the scheduled time, please let us know, and we will try our best to reschedule the interview.
+
+Please note that we have also copied [Recruiter Name] on this email, who will be assisting you throughout the interview process.
+
+We look forward to meeting you and discussing your candidature in detail.
+
+Best regards,
+
+[Your Name]
+
+
+Subject: Interview Schedule for [Prospect Name(s)]
+
+Dear [Prospect Name(s)],
+
+I am writing to inform you that we have scheduled an interview for the [Position] role with our company. The interview will be held on [Date] at [Time] through our online video conferencing platform.
+
+Please ensure that you have a stable internet connection and a working camera and microphone for the interview. We recommend logging in 5 minutes before the scheduled interview time to avoid any technical difficulties.
+
+Please find the meeting link attached to this email for your convenience. If you have any questions or concerns, please feel free to reply to this email or contact me at [Recruiter's Contact Information].
+
+We look forward to meeting with you and discussing your qualifications for the role.
+
+Best regards,
+[Recruiter's Name]
+
+CC: [Recruiter 1's Name, Recruiter 2's Name, etc.]
+
+Note: This email is intended only for the recipient(s) listed above. Please do not forward or share this information with anyone else without prior consent.
+
+
+
+
+nkarim0311@gmail.com
+prepare above email template online mode with microsoft teams along with link 
+Subject: Interview Schedule for [Prospect Name(s)]
+
+Dear [Prospect Name(s)],
+
+I am pleased to inform you that we have scheduled an online interview for the [Position] role with our company. The interview will be held on [Date] at [Time] through Microsoft Teams.
+
+Please ensure that you have a stable internet connection and a working camera and microphone for the interview. We recommend logging in 5 minutes before the scheduled interview time to avoid any technical difficulties.
+
+Please find the meeting link attached to this email for your convenience: [Insert Microsoft Teams Meeting Link Here]. If you have any questions or concerns, please feel free to reply to this email or contact me at [Recruiter's Contact Information].
+
+We look forward to meeting with you and discussing your qualifications for the role.
+
+Best regards,
+[Recruiter's Name]
+
+CC: [Recruiter 1's Name, Recruiter 2's Name, etc.]
+
+Note: This email is intended only for the recipient(s) listed above. Please do not forward or share this information with anyone else without prior consent.
+
+
+
+
+nkarim0311@gmail.com
+what letterhead label i have to provide for the above
+It depends on your company's branding and letterhead design. You can use your company's official letterhead for the email or create an email signature that includes your company's logo and contact information.
+
+If you don't have a company letterhead or email signature, you can include the company name, address, phone number, and website at the bottom of the email. For example:
+
+[Company Name]
+[Address]
+[City, State Zip Code]
+[Phone Number]
+[Website]
+
+This information can be included in a footer or signature section of the email.
+
+5 = FE (Far Exceeds) or (Outstanding)
+4 = EX (Exceeds Expectations) or (Very Good)
+3 = ME (Meets Expectations) or (Good)
+2 = DR (Development Required) or (Below Average)
+1 = IR (Improvement Required) or (Poor)
+
+
+
+
+Dear [Prospect Name],
+
+We are pleased to inform you that we have scheduled an interview for the position of [Position] at [Company Name]. The interview is scheduled on [Date] at [Time] at our office located at [Venue Address].
+
+Please ensure that you arrive at the venue at least 15 minutes prior to the scheduled time. Please carry a printout of this email for security purposes.
+
+During the interview, we will be assessing your suitability for the role based on your experience, qualifications, and alignment with our organizational goals and objectives. We encourage you to come prepared to discuss these aspects in detail.
+
+Please be aware that the interview process for this position may involve multiple rounds, and we will keep you informed about the status of your application throughout the process. We will keep you informed about the status of your application throughout the process.
+
+If you have any questions or concerns regarding the interview, please feel free to reach out to us at [Recruiter Email/Phone].
+
+We look forward to meeting you and discussing your candidature in detail.
+
+Best regards,
+
+[Your Name]
+
+[Company Name]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+continue the below code trigger EMS_Interview_Scheduling on EMS_Interview_Scheduling__c (after insert, after update) {
+    // Collect all the EMS Interview Scheduling records for which the EMS Meeting Link is filled
+    List<EMS_Interview_Scheduling__c> recordsToUpdate = new List<EMS_Interview_Scheduling__c>();
+    for (EMS_Interview_Scheduling__c record : Trigger.new) {
+        if (record.EMS_Meeting_Link__c != null && record.EMS_Meeting_Link__c != '') {
+            recordsToUpdate.add(record);
+        }
+    }
+    
+    // If there are records to update, send Online Email Template
+    if (!recordsToUpdate.isEmpty()) {
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setTemplateId('<Enter the ID of Online Email Template>');
+        email.setTargetObjectId(recordsToUpdate[0
+
+// Get the candidate related to the first record in recordsToUpdate
+Id candidateId = recordsToUpdate[0].Candidate__c;
+Candidate__c candidate = [SELECT Email__c FROM Candidate__c WHERE Id = :candidateId];
+
+go
+
+    // Set the recipient and other email parameters
+    email.setToAddresses(new List<String>{candidate.Email__c});
+    email.setSaveAsActivity(false);
+
+    // Send the email
+    Messaging.SendEmailResult[] results = Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{email});
+    if (results[0].success) {
+        System.debug('Email sent successfully');
+    } else {
+        System.debug('Email sending failed with the following errors:');
+        for (Messaging.SendEmailError error : results[0].getErrors()) {
+            System.debug('- ' + error.getMessage());
+        }
+    }
+}
+
+}
+
+// Note: You will need to replace '<Enter the ID of Online Email Template>' with the actual ID of your Online Email Template.

@@ -1,0 +1,13 @@
+<template>
+    <div class="container">
+      <lightning-button label="Generate XML File" onclick={handleClick} class="generate-btn" variant="brand"></lightning-button>
+      <template if:true={isboolean}>
+        <lightning-card class="card">
+          <div class="buttons">
+            <lightning-button label="Download XML" onclick={downloadFile} class="download-btn" variant="destructive"></lightning-button>
+          </div>
+          <pre class="xml">{xmlString}</pre>
+        </lightning-card>
+      </template>
+    </div>
+  </template>

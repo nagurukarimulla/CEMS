@@ -1,0 +1,178 @@
+import { LightningElement, wire, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { createRecord, getRecord } from 'lightning/uiRecordApi';
+import { getFieldValue } from 'lightning/uiRecordApi';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
+import INTERVIEW_SCHEDULER_OBJECT from '@salesforce/schema/CEMS_Internal_Scheduler__c';
+import INTERVIEW_POSITION_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Position_Name__c';
+import INTERVIEW_JOB_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Job_Application_ID__c';
+import INTERVIEW_SKILL1_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_1__c';
+import INTERVIEW_NAME_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.Name';
+import INTERVIEW_SKILL1COMMENT_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_1_comment__c';
+import INTERVIEW_SKILL1RATING_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_1_Rating__c';
+import INTERVIEW_SKILL2RATING_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_2_Rating__c';
+import INTERVIEW_SKILL2_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_2__c';
+import INTERVIEW_SKILL3_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_3__c';
+import INTERVIEW_SKILL2COMMENT_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_2_Comment__c';
+import INTERVIEW_SKILL3COMMENT_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_3_Comment__c';
+import INTERVIEW_SKILL3RATING_FIELD from '@salesforce/schema/CEMS_Internal_Scheduler__c.CEMS_Skill_3_Rating__c';
+//import JOB_OPENING_OBJECT from '@salesforce/schema/CEMS_Job_Opening__c';
+//import JOB_SKILLS_FIELD from '@salesforce/schema/CEMS_Job_Opening__c.CEMS_Skills__c';
+
+const FIELDS = [
+    INTERVIEW_POSITION_FIELD,
+    INTERVIEW_JOB_FIELD,
+    INTERVIEW_SKILL1_FIELD,
+    INTERVIEW_NAME_FIELD,
+    INTERVIEW_SKILL1COMMENT_FIELD,
+    INTERVIEW_SKILL1RATING_FIELD,
+    INTERVIEW_SKILL2RATING_FIELD,
+    INTERVIEW_SKILL2_FIELD,
+    INTERVIEW_SKILL3_FIELD,
+    INTERVIEW_SKILL2COMMENT_FIELD,
+    INTERVIEW_SKILL3COMMENT_FIELD,
+    INTERVIEW_SKILL3RATING_FIELD
+];
+
+export default class GiveInterviewFeedback extends LightningElement {
+    @api recordId; // Interview Scheduler record Id
+
+    interviewSchedulerObject = INTERVIEW_SCHEDULER_OBJECT;
+    fields = FIELDS;
+    jobSkillsField = JOB_SKILLS_FIELD;
+    selectedSkills = [];
+
+    @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
+    interviewScheduler;
+
+    @wire(getObjectInfo, { objectApiName: JOB_OPENING_OBJECT })
+    jobOpeningObjectInfo;
+
+    @wire(getRecord, { recordId: '$interviewScheduler.data.fields.CEMS_Position_Name__c.value', fields: [JOB_SKILLS_FIELD] })
+    jobOpeningRecord;
+    
+    
+    jobOpeningRecord({ data, error }) {
+        if (data) {
+            console.log('data from give interview feedback'+JSON.stringify(data));
+            const skillsFieldValue = getFieldValue(data, JOB_SKILLS_FIELD);
+            if (skillsFieldValue) {
+                const skillValues = skillsFieldValue.split(';');
+                console.log('Skill Values:', skillValues);
+                this.selectedSkills = skillValues.map(skill => ({ label: skill, value: skill }));
+            }
+        } else if (error) {
+            console.error(error);
+        }
+    }
+    
+
+    get skillsOptions() {
+        return this.selectedSkills;
+    }
+
+    handleSuccess(event) {
+        // Handle the success event after saving the record
+        // You can show a success message or perform any other actions
+        const toastEvent = new ShowToastEvent({
+            title: 'Success',
+            message: 'Interview feedback saved successfully',
+            variant: 'success'
+        });
+        this.dispatchEvent(toastEvent);
+    }
+}
+<template>
+    <lightning-card title="Give Interview Feedback">
+        <div class="slds-p-around_medium">
+            <!-- Display Skill 1 Field -->
+            <template if:true={interviewScheduler.data}>
+                <lightning-combobox
+                    label="Skill 1"
+                    value={interviewScheduler.data.fields.CEMS_Skill_1__c.value}
+                    options={skillsOptions}
+                    onchange={handleSkill1Change}>
+                </lightning-combobox>
+            </template>
+
+            <!-- Display Skill 2 Field -->
+            <template if:true={interviewScheduler.data}>
+                <lightning-combobox
+                    label="Skill 2"
+                    value={interviewScheduler.data.fields.CEMS_Skill_2__c.value}
+                    options={skillsOptions}
+                    onchange={handleSkill2Change}>
+                </lightning-combobox>
+            </template>
+
+            <!-- Display Skill 3 Field -->
+            <template if:true={interviewScheduler.data}>
+                <lightning-combobox
+                    label="Skill 3"
+                    value={interviewScheduler.data.fields.CEMS_Skill_3__c.value}
+                    options={skillsOptions}
+                    onchange={handleSkill3Change}>
+                </lightning-combobox>
+            </template>
+
+            <!-- Additional Fields -->
+            <!-- ... -->
+
+            <!-- Save Button -->
+            <lightning-button
+                label="Save"
+                variant="brand"
+                onclick={handleSave}>
+            </lightning-button>
+        </div>
+    </lightning-card>
+</template>
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+     <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__RecordAction</target>
+    </targets>
+</LightningComponentBundle>
+
+
+
+
+
+
+<div class="slds-modal__content slds-p-around_medium">
+				<lightning-record-edit-form record-id={displayModelRow.Id} object-api-name="CEMS_Internal_Scheduler__c">
+					  <div class="slds-grid slds-wrap">
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Interview_Panel__c"></lightning-input-field>
+					  <lightning-input-field field-name="CEMS_Job_Application_ID__c"></lightning-input-field>
+					</div>
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Interview_Start_Time__c"></lightning-input-field>
+					  <lightning-input-field field-name="CEMS_Interview_End_Time__c"></lightning-input-field>
+					</div>
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Screening_Exam_Score__c"></lightning-input-field>
+					  <lightning-input-field field-name="CEMS_Results__c"></lightning-input-field>
+					</div>
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Interview_Round__c"></lightning-input-field>
+					  <lightning-input-field field-name="CEMS_Interview_Type__c"></lightning-input-field>
+					</div>
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Meeting_Link__c"></lightning-input-field>
+					  <lightning-input-field field-name="CEMS_Interview_Location__c"></lightning-input-field>
+					</div>
+					<div class="slds-col slds-size_1-of-2">
+					  <lightning-input-field field-name="CEMS_Interview_Status__c"></lightning-input-field>
+					  <lightning-input-field field-name="Name"></lightning-input-field>
+					</div>
+		
+				  </div>
+				 
+								</lightning-record-edit-form>
+							</div>

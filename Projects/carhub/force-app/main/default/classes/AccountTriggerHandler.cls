@@ -1,0 +1,53 @@
+public with sharing class AccountTriggerHandler {
+    public static void beforeInsert(List<Account> newList){
+        // We should know the curent / newly creating account names
+     Set<String> accNames = new Set<String>();
+     for(Account acc : newList){
+        String accName = acc.Name;
+        accNames.add(accName);
+     }
+        System.debug(accNames);
+    // Find the exting accounts have same account name as like new account names
+     if(accNames.size() > 0 ){
+        List<Account> exitingAccounts = [SELECT ID , Name FROM Account WHERE Name IN: accNames ];
+        if(exitingAccounts.size() > 0 ){
+            for(Account acc : newList){
+                for(Account extAcc : exitingAccounts){
+                    if(acc.Name.equals(extAcc.Name)){
+                        acc.Name.addError('Account alreay exiting, please use different name');
+                    }
+                }
+            }
+        }
+     }
+     // If any matches found then show an error message to user
+    }
+
+
+    public static void beforeUpdate(Map<Id,Account> newMap , Map<Id,Account> oldMap){
+        // I should know what are the Account Names got changed
+        Set<String> names = new Set<String>();
+        Map<String,Account> newAccounts = new map<String,Account>();
+        for(Id acccountId : newMap.keyset()){
+            Account newAcc = newMap.get(acccountId);
+            Account oldAcc = oldMap.get(acccountId);
+            Boolean isNameChanged = newAcc.Name.equals(oldAcc.Name) ? true : false;
+            if(!isNameChanged){
+                names.add(newAcc.Name);
+            }
+            newAccounts.put(newAcc.Name,newAcc);
+        }
+        // Find the new account a names already exits in the system
+        if(names.size() > 0 ){
+            Map<Id,Account> extingAccMap = new Map<Id,Account>([Select Id , Name 
+            FROM Account WHERE Name IN: names]);
+            for(Account extAccounts : extingAccMap.values()){
+                        if(newAccounts.get(extAccounts.Name) != null){
+                            newAccounts.get(extAccounts.Name).Name.addError('Name already exits , use different');
+                        }
+                }
+        }
+        // If we get results more than 1 match show an erorr message
+        // 
+    }
+}

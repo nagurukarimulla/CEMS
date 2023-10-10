@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salesforce API Integration Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <button id="getDataBtn">Get Salesforce Data</button>
+    <div id="dataContainer"></div>
+
+    <script>
+        // Function to fetch data from Salesforce
+        function fetchDataFromSalesforce() {
+            $.ajax({
+                url: 'https://cittacoretechnologies-5d-dev-ed.develop.my.salesforce.com/services/data/v53.0/query/?q=SELECT+Id,Name,Industry,Rating+FROM+Account',
+                headers: {
+                    'Authorization': 'Bearer 00D2w00000Fc7tA!AR0AQGPM1ZWfKMutHCC4FIHjYSfqRjYem5YmENnTFNavvkNiSKWOYW0X_S_TwjcgumLb1bP5Bfa.5N726JDpojetuzcYo8E8'
+                },
+                method: 'GET',
+                success: function (response) {
+                    displayData(response);
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        }
+
+        // Function to display data on the webpage
+        function displayData(data) {
+            var dataContainer = document.getElementById("dataContainer");
+            dataContainer.innerHTML = ""; // Clear previous data
+
+            if (data.records.length === 0) {
+                dataContainer.innerHTML = "No data found.";
+                return;
+            }
+
+            var table = document.createElement("table");
+            var tableHeader = document.createElement("thead");
+            var tableBody = document.createElement("tbody");
+
+            // Create table headers
+            var headersRow = document.createElement("tr");
+            var headers = Object.keys(data.records[0]);
+            headers.forEach(function (header) {
+                var th = document.createElement("th");
+                th.textContent = header;
+                headersRow.appendChild(th);
+            });
+            tableHeader.appendChild(headersRow);
+
+            // Create table rows with data
+            data.records.forEach(function (record) {
+                var row = document.createElement("tr");
+                Object.values(record).forEach(function (value) {
+                    var cell = document.createElement("td");
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+
+            table.appendChild(tableHeader);
+            table.appendChild(tableBody);
+            dataContainer.appendChild(table);
+        }
+
+        // Event listener for button click
+        document.getElementById("getDataBtn").addEventListener("click", fetchDataFromSalesforce);
+    </script>
+</body>
+</html>

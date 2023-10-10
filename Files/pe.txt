@@ -1,0 +1,34 @@
+ <lightning:empApi aura:id="empApi"/>
+    <aura:handler name= "init" value="{!this}" action="{!c.subscribe}"/>
+    <aura:attribute name="notifications" type="List"/>
+    <aura:attribute name="evntRecieved" type="boolean"/>
+    <aura:if isTrue = "{!v.evntRecieved}">
+        <p class="slds_p_horizontal_small">
+            <ui:message severity ="info" closable="true">
+               <aura:iteration items="{!v.notifications}" var="val">
+                <p>{!val}</p>
+               </aura:iteration>
+            </ui:message>
+        </p>
+    </aura:if>
+
+
+
+
+subscribe:function(component,event,helper){
+        component.set('v.notification', []);
+        const empApi=component.find('empApi');
+        const channel='/event/AccountProcess__e';
+        const replayId = -1;
+        empApi.subscribe(channel, replayId, $A.getCallback(eventReceived =>{
+            console.log("Received event ", JSON.stringify(eventReceived));
+            console.log("Received event ", eventReceived.data.payload.FieldValue__c);
+            const notifications = component.get('v.notifications');
+            notifications.push(eventReceived.data.payload.FieldValue__c);
+            component.set('v.notifications', notifications);
+            component.set('v.evntReceived', true);
+        })).then(subscription =>{
+            console.log('Subscribed to channel ', subscription.channel);
+        })
+
+    }

@@ -1,0 +1,228 @@
+Global class updateAccountrecordsBatchJob implements database.Batchable<SObject> {
+    Global Database.QueryLocator Start(Database.BatchableContext bcontext){
+        String accountQuery = 'select id, name, rating, industry, annualrevenue, active__c from Account';
+        return Database.getQueryLocator(accountQuery);
+    }
+    Global void Execute(Database.BatchableContext bcontext, List<SObject> recordsToprocess){
+         if(!recordsToprocess.isEmpty()){
+            List<Account> accountsToUpdate = new List<Account>();
+            for(SObject sobj : recordsToprocess){
+                Account accRecord = (Account) sobj;
+                accRecord.Rating='Warm';
+                accRecord.Industry='Technology';
+                accRecord.AnnualRevenue=1500000;
+                accRecord.Active__c='Yes';
+                accountsToUpdate.add(accRecord);
+
+            }
+            if(!accountsToUpdate.isEmpty()){
+                update accountsToUpdate;
+            }
+         }
+    }
+    Global void finish(Database.BatchableContext bcontext){
+      AsyncApexJob jobDetails = [Select id,status,totalJobItems,jobItemsProcessed,
+                                 NumberofErrors, CreatedBy.Email from AsyncApexJob 
+                                 Where id =: bContext.getJobId()];
+        //code to send emial notification
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        String[] toAddress = new string[]{jobDetails.CreatedBy.Email, 'nkarim0311@gmail.com'};
+        email.setToAddresses(toAddress);
+        email.setReplyTo('support@cittacore.com');
+        email.setSenderDisplayName('CittaCore Weekly batch Support Team');
+        String emailSubject = 'Alert : CittaCore Weekly Batch Job updateAccountrecordsBatchJob: ('+ bcontext.getJobId()+ ') Status Notification.';
+        email.setSubject(emailSubject);
+
+        String emailContent = 'Dear technical team, <br/><br/> '+
+                               'We are pleased to inform you, that todays weekly customer update batch job has been processed. <br/><br/>'+
+                               'Here are the Batch Job Details---:<br/><br/>'+
+                               'batch job id is....: '+jobDetails.Id+
+                               '<br/>Batch job name is...: updateAccountrecordsBatchJob '+
+                               '<br/>Total number of batches available...:'+ jobDetails.totalJobItems+
+                               '<br/>Number of batches processed...:'+ jobDetails.jobItemsProcessed+
+                               '<br/>Number of failed batches...:'+ jobDetails.NumberofErrors+
+                               '<br/><br/> Please contact CittaCore Support Team, if any queries'+
+                               '<br/><br/> <i>***This is a system generated email. Please do not reply***</i>'+
+                               '<br/><br/> Thank you';
+                               email.setHtmlBody(emailContent);
+                               Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+
+    }
+    
+    
+    Global class CalculateTotalAnnualRevenueBatch implements Database.Batchable<SObject>, Database.Stateful
+{
+    Global Decimal totalAnnualRevenue = 0.0;
+    
+	Global Database.QueryLocator Start(Database.BatchableContext bContext)
+    {
+        string accountsQuery = 'Select id, name, annualrevenue from Account where annualrevenue != null';
+        return Database.getQueryLocator(accountsQuery);
+    }
+    
+    Global void Execute(Database.BatchableContext bContext, List<Sobject> accountsToProcess)
+    {
+        if(! accountsToProcess.isEmpty())
+        {
+            for(SObject obj : accountsToProcess)
+            {
+                Account acc = (Account) obj;
+                
+                totalAnnualRevenue += acc.AnnualRevenue;
+            }
+        }
+    }
+    
+    Global void Finish(Database.BatchableContext bContext)
+    {
+        system.debug('Batch Job Id is.....: '+ bContext.getJobId());
+        
+		AsyncApexJob jobDetails = [Select id, status, totaljobItems, jobItemsProcessed, 
+                                  			NumberOfErrors, CreatedBy.Email
+                                  				from AsyncApexJob
+                                  						Where id =: bContext.getJobId() ];        
+        
+        MessagingUtilityHelper.SendTotalRevenueJobStatusNotification(jobDetails, 'CalculateTotalAnnualRevenueBatch', totalAnnualRevenue);
+    }
+}
+
+
+
+
+
+//Execution
+//CalculateTotalAnnualRevenueBatch revenueBatch = new CalculateTotalAnnualRevenueBatch();
+//Database.executeBatch(revenueBatch, 4);
+    
+  
+  
+  
+  public class MessagingUtilityHelper 
+{
+	Public static void SendBatchJobStatusNotifications(AsyncApexJob jobInfo, string jobName)
+    {
+        if(jobInfo != null)
+        {
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            	
+            	string[] toAddress = new string[]{jobInfo.CreatedBy.Email, 'naguruk@cittacore.com','shilpas@gmail.com'};
+            	email.setToAddresses(toAddress);
+            
+            	email.setReplyTo('customersupport@dell.com');
+            
+            	email.setSenderDisplayName('DELL Weekly Batch Job Support Team');
+            
+            	string emailSubject = 'Alert : Hiring Manager Weekly Batch Job Status Notification: '+ jobName + ' - ( '+ jobInfo.Id+ ' )';
+            	email.setSubject(emailSubject);
+            
+            	string emailContent = 'Dear Customer Support, <br/><br/> We are pleased to inform you that we have executed the Weekly Hiring Manager Update Batch Job. <br/><br/>'+
+                    					'Please find below the Batch Job Status Details....: <br/><br/>'+
+                    					'Batch Job Id .......: ' + jobInfo.Id+
+                    					'<br/> Batch Job Name ......: '+ jobName+
+                    					'<br/> Batch Job Status .......: '+ jobInfo.Status+
+                    					'<br/> Total Number of Batches ......: '+ jobInfo.TotalJobItems+
+                    					'<br/> Number of Batches Processed .....: '+ jobInfo.JobItemsProcessed+
+                    					'<br/> Number of Batches Failed.........: '+ jobInfo.NumberOfErrors+
+                    					'<br/><br/> Please find the below address, if any queries. '+
+                    					'<br/><br/> <i> *** This is a System Generated Email. Please Do Not Reply.</i>'+
+                    					'<br/><br/> Thanks & Reagrds, <br/> Customer Support Team, <br/> Dell Inc. ';
+                email.setHtmlBody(emailContent);
+            
+            	Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+        }
+    }
+    
+    
+     Public static void SendTotalRevenueJobStatusNotification(AsyncApexJob jobInfo, string jobName, Decimal revenueAmount)
+    {
+        if(jobInfo != null)
+        {
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            	
+            	string[] toAddress = new string[]{jobInfo.CreatedBy.Email, 'yamini.segu@gmail.com','msoni.janghel@gmail.com'};
+            	email.setToAddresses(toAddress);
+            
+            	email.setReplyTo('customersupport@dell.com');
+            
+            	email.setSenderDisplayName('DELL Weekly Batch Job Support Team');
+            
+            	string emailSubject = 'Alert : Customers Total Annual Revenue Batch Job Status Notification: '+ jobName + ' - ( '+ jobInfo.Id+ ' )';
+            	email.setSubject(emailSubject);
+            
+            	string emailContent = 'Dear Customer Support, <br/><br/> We are pleased to inform you that we have executed the Customers Total Annual Revenue Calculation Batch Job. <br/><br/>'+
+                    					'Please find below the Batch Job Status Details....: <br/><br/>'+
+                    					'Batch Job Id .......: ' + jobInfo.Id+
+                    					'<br/> Batch Job Name ......: '+ jobName+
+                    					'<br/> Batch Job Status .......: '+ jobInfo.Status+
+                    					'<br/> Total Number of Batches ......: '+ jobInfo.TotalJobItems+
+                    					'<br/> Number of Batvhes Processed .....: '+ jobInfo.JobItemsProcessed+
+                    					'<br/> Number of Batches Failed.........: '+ jobInfo.NumberOfErrors+
+                    					'<br/> Total Annual Revenue is..........: '+ revenueAmount+
+                    					'<br/><br/> Please find the below address, if any queries. '+
+                    					'<br/><br/> <i> *** This is a System Generated Email. Please Do Not Reply.</i>'+
+                    					'<br/><br/> Thanks & Reagrds, <br/> Customer Support Team, <br/> Dell Inc. ';
+                email.setHtmlBody(emailContent);
+            
+            	Messaging.SendEmailResult[] results = Messaging.sendEmail(new Messaging.SingleEmailMessage[]{email});
+        }
+    }
+}
+   
+   
+   
+   Global class HiringManagerUpdateBatch implements Database.Batchable<SObject>
+{
+	Global Database.QueryLocator Start(Database.BatchableContext bContext)
+    {
+        string hrRecordsQuery = 'Select id, name, location__C, contact_number__C, email_id__C from Hiring_Manager__C';
+        return Database.getQueryLocator(hrRecordsQuery);
+    }
+    
+    Global void Execute(Database.BatchableContext bContext, List<SObject> recordsToProcess)
+    {
+        if(! recordsToProcess.isEmpty())
+        {
+            List<Hiring_Manager__C> hrRecordsToUpdate = new List<Hiring_Manager__C>();
+            
+            for(SObject obj : recordsToProcess)
+            {
+                Hiring_Manager__C hrRecord = (Hiring_Manager__C) obj;
+                
+                	hrRecord.Location__c = 'Chennai';
+                	hrRecord.Contact_Number__c = '9090909090';
+                
+                hrRecordsToUpdate.Add(hrRecord);
+            }
+            
+            if(! hrRecordsToUpdate.isEmpty())
+            {
+                Update hrRecordsToUpdate;
+            }
+        }
+    }
+    
+    Global void Finish(Database.BatchableContext bContext)
+    {
+        System.debug('Batch Job Id is....: '+ bContext.getJobId());
+        
+        AsyncApexJob jobDetails = [Select id, status, totaljobItems, jobitemsprocessed, 
+                                  			numberoferrors, createdby.email
+                                  					from AsyncApexJob
+                                  							Where id =: bContext.getJobId()];
+        
+		MessagingUtilityHelper.SendBatchJobStatusNotifications(jobDetails,'HiringManagerUpdateBatch');        
+    }
+}
+
+
+//Execution
+// Invoking the Batch Class..
+//	HiringManagerUpdateBatch hrBatch = new HiringManagerUpdateBatch();
+
+// Invoke by using Database.ExecuteBatch().
+//	Database.executeBatch(hrBatch, 10);
+    
+    
+    
+    
+}

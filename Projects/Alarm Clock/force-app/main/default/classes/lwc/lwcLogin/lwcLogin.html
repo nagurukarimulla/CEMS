@@ -1,0 +1,16 @@
+<template>
+    <div class="form">
+      <div class="form-element">
+        <label for="username">Username:</label>
+        <input id="username" type="text" onchange={handleUsernameChange} />
+      </div>
+      <div class="form-element">
+        <label for="password">Password:</label>
+        <input id="password" type="password" onchange={handlePasswordChange} />
+      </div>
+      <div class="form-element">
+        <button onclick={connectToSalesforce}>Connect to Salesforce</button>
+      </div>
+    </div>
+  </template>
+  

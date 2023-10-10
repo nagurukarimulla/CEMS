@@ -1,0 +1,26 @@
+1. Write an apex program, to Manage a collection of Employee Names by using Arrays.
+	
+	2. Write an apex program, to Manage a collection of Department Names by using Arrays.
+	
+	3. Write an apex program, to manage a collection of AccountNumbers by using Arrays. (Numerical Elements)
+	
+	4. Write an apex program, to manage a collection of Record ID's by using Arrays.
+
+
+
+5.Write an apex program, to print the Odd Numbers between 1 - 100.
+	
+	6. Write an apex Program, to print the numbers between 1 - 50 in reverse order.
+	
+	7. Write an apex program, to print the Even Numbers between 1 - 100 in reverse order.
+
+	8. Write an apex program, to Check whether the given number is an Even Number or not.
+
+
+
+
+
+
+
+
+9. Insert 100 contacts, leads into salesforce using apex loops

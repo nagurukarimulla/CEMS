@@ -1,0 +1,241 @@
+
+// Write an SOQL Query to fetch 2 Email Templates from the object.
+	
+	List<EmailTemplate> lstTemplates = [Select id, name, description, templatetype, subject, body
+            											from EmailTemplate
+            													Limit 2];
+
+// Write an SOQL Query, to fetch only one User Record from the object.
+
+	User userRecord = [Select id, firstname, lastname, email, username, isactive
+            				from User
+            						Limit 1];
+
+
+
+How to run trigger asynchronuosly
+
+If you use @future method trigger will run asynchronously. 
+
+
+There are various reasons why Batch Apex is better than normal Apex.
+
+SOQL queries: Normal Apex uses 100 records per cycle to execute SOQL queries. Whereas, Batch Apex does the same in 200 records per cycle.
+
+Retrieval of SOQL queries: Normal Apex can retrieve 50,000 SOQL queries but, in Batch Apex, 50,000,000 SOQL queries can be retrieved.
+
+Heap size: Normal Apex has a heap size of 6 MB; whereas, Batch Apex has a heap size of 12 MB.
+
+Errors: When executing bulk records, Normal Apex classes are more vulnerable to encountering errors as compared to Batch Apex.
+
+
+
+(1.)  Which SOQL statement can be used to fetch all records even from recycle bin ?
+Answer: “ALL Rows”  clause of SOQL can retrieve all records, including the records from recycle bin.
+	SELECT COUNT() FROM Contact WHERE AccountId = a.Id ALL ROWS
+
+(2.) How can you lock a record using SOQL to prevent it from being modified by another user?
+Answer: We will need “FOR UPDATE” clause of SOQL.
+	Account [] accts = [SELECT Id FROM Account LIMIT 2 FOR UPDATE];
+
+(3.) How can you sort a select SOQl query ?
+Ans: by using "order by clause" in select query for sorting a list of records.
+
+(4.) How many records can a SOQL query return ?
+Ans : As of now it can return upto 50,000 records.
+
+(5.) How many records can a sosl query return ?
+Ans: as of now it can return upto 2000 records
+
+(6.) How to fire dynamic query in soql?
+Ans: By using database.query method.
+	Example: List accList = Database.query('select name from account');
+
+(7.) What is the return type of SOSL?
+Answer   Return type of SOSL is list of lists of sObjects “List<List<sObject>>”.
+
+(8.) What is the batch size in SOQL?
+Answer: The maximum batch size is 2,000 records.
+
+(9.) Can we perform DML operation on SOQL and SOSL.
+Ans : We can perform DML operations with SOQL but not with SOSL.
+
+(10.) What form of data the SOQL and SOSL returns?
+Ans: SOQL returns record while SOSL returns field.
+
+(11.) What are restrictions while writing query with SOSL?
+Ans: SOSL can query on Email, Phone and Text while SOQL can query with any field type.
+
+(12.) How to count the number of SOQL statement received in a request?
+Ans : This can be done using following methods
+
+Database.countQuery
+Database.getQueryLocator
+Database.query
+
+Schedule the batch process
+==========================
+
+By using this approach, we can make the batch job will get run on the specified time based on the period interval's specified by the user.
+
+We need to create a seperate class, by implementing an interface called as "System.schedulable"
+
+Global class ScheduleMyBatchJOb implements system.Schedulable
+{
+
+}
+
+system.Schedulable interface contain a method calles as "execute", which will be invoked automatically upon the scheduling time.
+
+Global class ScheduleMyBatchJOb implements system.Schedulable
+{
+	Global void execute(System.schedulableContext Scon)
+	{
+		// Call the batch job
+	}
+
+}
+
+
+(10.) How many can concurrent batch jobs be added to the queue?
+At most, there can be 5 batch jobs queued at a time.
+
+
+(11.) How can we track the status of the current running batch job?
+You can check the AsyncApexJob.Status using the JobId from the Database.BatchableContext.
+
+
+
+
+UseCase:
+========
+	Create a Trigger on Account Object, to make sure "Account Industry, Fax and WebSite Fields are Required".
+	
+	Object Name: Account
+	Event Name : Before Insert, Before Update
+	
+	trigger AccountTrigger on Account (before insert, before update) 
+	{
+		if(Trigger.isBefore && (Trigger.IsInsert || Trigger.isUpdate) )
+		{
+			for(Account acc : Trigger.New)
+			{
+				if(acc.Industry == '' || acc.Industry == null)
+				{
+					acc.Industry.AddError('Please Select the Industry Value.');
+				}
+				else if(acc.Fax == '' || acc.Fax == null)
+				{
+					acc.Fax.AddError('Please Enter the Fax Number.');
+				}
+				else if(acc.Website == null || acc.Website == '')
+				{
+					acc.Website.AddError('Please Enter the Customer Website Name.');
+				}
+			}
+		}   
+	}	
+
+
+
+UseCase:
+========
+	Create a Trigger to Prevent the Deletion of the Related Contact Records, upon removing the Account Record from the Object.
+	
+	ObjectName : Account Object.
+	Event Name : Before Delete
+	
+	trigger PreventContactsDeletionTrigger on Account (before delete) 
+	{
+		if(Trigger.isBefore && Trigger.isDelete)
+		{
+			List<Contact> lstContacts = [Select id, firstname, lastname, accountid
+													from Contact
+														Where accountid IN : Trigger.OldMap.KeySet()];
+			
+			if(! lstContacts.isEmpty())
+			{
+				for(Contact con : lstContacts)
+				{
+					con.AccountId = null;
+				}
+				
+				update lstContacts;
+			}
+		}
+	}
+
+
+UseCase:
+========
+	Create a Trigger on the Account Object, to Prevent the Deletion of an Active Account Record.
+	
+	ObjectName: Account Object
+	Event Name: Before Delete
+	
+	trigger AccountTrigger on Account (before delete) 
+	{
+		if(Trigger.isBefore && Trigger.isDelete)
+		{
+			for(Account acc : Trigger.Old)
+			{
+				if(acc.Active__c == 'Yes')
+				{
+					acc.AddError('You Are Not Authorized to Delete an Active Account Record.');
+				}
+			}
+		}
+	}	
+
+
+	
+UseCase:
+========
+	Create a Trigger to Auto-Convert the Lead Records as the Customers upon Changing the Lead Status as "Closed - Converted".
+	
+	Object Name: Lead Object
+	Event Name : After Update
+	
+	Pre-Requisite:
+		Create a CheckBox Field with the name "Do Not Create Opportunity" in the Lead Object.
+	
+	trigger AutoLeadConvertTrigger on Lead (After Update) 
+	{
+		if(Trigger.isAfter && Trigger.isUpdate)
+		{
+			LeadStatus lStatus = [Select id, MasterLabel, isConverted
+											from LeadStatus
+												Where isConverted = true];
+			
+			List<Database.LeadConvert> lstConvert = new List<Database.LeadConvert>();       
+			
+			for(Lead ldRecord : Trigger.New)
+			{
+				if(ldRecord.Status == 'Closed - Converted' && ldRecord.IsConverted == false)
+				{
+					Database.LeadConvert lConvert = new Database.LeadConvert();
+					
+						lConvert.setLeadId(ldRecord.Id);
+						
+						lConvert.setDoNotCreateOpportunity(ldRecord.Do_Not_Create_Opportunity__c);
+					
+						lConvert.setSendNotificationEmail(true);
+					
+						lConvert.setConvertedStatus(lStatus.MasterLabel);
+					
+					// Add the record to Collection..
+					lstConvert.Add(lConvert);
+				}
+			}
+			
+			if(! lstConvert.isEmpty())
+			{
+				Database.LeadConvertResult[] result =	Database.convertLead(lstConvert, false);
+			}
+		}
+	}
+
+
+
+
+12) How to create dynamic components in aura?

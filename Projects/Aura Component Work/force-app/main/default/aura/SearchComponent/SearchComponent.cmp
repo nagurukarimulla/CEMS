@@ -1,0 +1,58 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="SearchController">
+    <!--
+Data Attributes => variables
+Standard Event Handlers 
+Attribute Change Handlers 
+Interfaces 
+Controller (server Class)
+OnLoad actions 
+Your UI Markup 
+Data Display Logic (If and else if)
+Data Handelings (Iterators)
+FOR Look and Feel ( CSS )
+EVENTS ( Standard or Custom )
+-->
+    <!-- Data Passing and Accessing Logics -->
+    <aura:attribute name="searchText" type="String" default="L" />
+    <aura:attribute name="searchTitle" type="String" />
+    <aura:attribute name="objectAPIName" type="String" />
+    <aura:attribute name="searchFieldApiName" type="String" />
+    <aura:attribute name="searchResults" type="List" />
+    <aura:attribute name="displayFields" type="String[]" default="[]"/>
+    <aura:attribute name="isEditModeIndex" type="Integer" />
+
+
+    <lightning:input class="slds-card" aura:id="enter-search" name="enter-search" label="{!v.searchTitle}" type="search"
+        value="{!v.searchText}" onkeyup="{!c.searchAction}" onkeydown="{!c.searchAction}"/>
+    <!--
+        generate Headers through fields
+        Aura Iteration to go through fields 
+        child component to display values from sobject
+      -->
+<aura:renderIf isTrue="{!v.displayFields.length > 0}">
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+        aria-labelledby="element-with-table-label other-element-with-table-label">
+        <thead>
+            <tr class="slds-line-height_reset">
+                <th>
+                    <div class="slds-truncate" >Actions</div>
+                </th>
+                <aura:iteration items="{!v.displayFields}" var="field">
+
+                    <th class="" scope="col">
+                        <div class="slds-truncate" title="{!field}">{!field}</div>
+                    </th>
+
+                </aura:iteration>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.searchResults}" var="record" indexVar="indx">
+            <c:RowComponent objectAPIName="{!v.objectAPIName}" dataSet="{!record}" fieldNames="{!v.displayFields}" rowIndex="{!indx}" isEditModeIndex="{!v.isEditModeIndex}"/>
+        </aura:iteration>
+        </tbody>
+    </table>
+</aura:renderIf>
+    
+
+</aura:component>

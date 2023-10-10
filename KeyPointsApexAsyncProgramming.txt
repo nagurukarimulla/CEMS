@@ -1,0 +1,288 @@
+Batch Programming:
+==================
+	|
+	 --> 1. We can perform the operations on the Millions of Records.
+	     2. We can process max. of 50 Million Records (i.e. 5 Crore)
+		 3. We can invoke the Callouts also.
+		 4. We can perform the Long-Running Operations.
+		 5. These are always executing outside of the organization. (i.e. Running in the Background)
+		 
+		 Database.getQueryLocator(<SOQL>): ---> 50 Million Records
+
+
+		Database.Query() --> 50,000.
+
+
+	Interface: Database.Batchable
+							|
+							 --> 3 Methods
+							 
+									1. Start()
+									2. Execute()
+									3. Finish()
+									
+									Database.BatchableContext 
+													|
+													 --> GetJobID()
+
+		AsyncApexJob Object: Contains all the Batch Job Results.
+			Fields:
+				1. ID : Batch Job ID
+				2. Status : Status of Batch Job 
+							(Holding, Queued, Processing, Completed)
+				3. TotalJobItems : Number of Batches. --> 6
+				4. NumberOfErrors: Number of Failed Batches. --> 2
+				5. JobItemsProcessed : Number of Batches has been processed by Salesforce
+				6. CreatedBy.Email: Get the Batch Job Owner's Email ID.
+				
+		System.AbortJob('Batch Job ID');
+		
+Implementation Steps:
+=====================
+Step 1: Define a Global Class, which should be implemented by an interface
+		"Database.Batchable<SObject>".
+			
+	Syntax:
+		Global Class <ClassName> implements Database.Batchable<SObject>
+		{
+			// Write the Business Logic..
+		}
+		
+Step 2: Provide the Implementation for the Batchable Interface Methods.
+	Syntax:
+		Global Class <ClassName> implements Database.Batchable<SObject>
+		{
+			Global Database.QueryLocator Start(Database.BatchableContext bContext)
+			{
+				// Write the Business Logic..
+			}
+			
+			Global void Execute(Database.BatchableContext bContext, List<SObject> records)
+			{
+				// Write the Business Logic..
+			}
+			
+			Global void Finish(Database.BatchableContext bContext)
+			{
+				// Write the Business Logic..
+			}
+		}
+
+Step 3: Invoking the Batch Class.
+		
+		Syntax:
+			1. Create the Object of the Batch Class.
+				<BatchClassName> <objectName> = new <BatchClassName>();
+				
+			2. Invoke the Batch Class by using "Database.ExecuteBatch()" method.
+				
+				ID jobID = Database.ExecuteBatch(<BatchClassObjectName>);
+								
+								(OR)
+				
+				ID jobID = Database.ExecuteBatch(<BatchClassObjectName>, Integer Size);
+
+Step 4: Track the Status of the Batch Job by using below ways.
+
+		1. By using User Interface.
+		
+				Setup --> Monitor --> Jobs --> Apex Jobs.
+				
+		2. By using Programming with the help of "AsyncApexJob Object".
+				
+				AsyncApexJob jobDetails = [Select id, status, TotalJobItems,
+											JobItemsProcessed, NumberOfErrors, CreatedBy.Email
+												from AsyncApexJob
+													Where id =: <BatchJobID> ];
+Ways to Invoke the Batch Class:
+-------------------------------
+	1. By using Execute Anonymous Window.
+	2. By using Visualforce Pages.
+	3. By using Schedule Programming
+	4. By using Another Batch Class.
+
+									
+State Management: (Database.Stateful)
+
+By default batch process will execute in stateless mechanism.
+
+To maintain states between the batches, we need to implement our class with an interface "Database.Stateful".
+
+Advantages of Batch Apex in Salesforce
+=======================================
+1. Whenever a transaction is executed, Batch Apex ensures that the code stays within the governor limit.
+
+2. Until a batch is not successfully executed, Batch Apex won’t execute the following batches.
+
+3. A large set of records can be processed together on a regular basis using Batch Apex classes.
+
+4. The interface can be scheduled to run batches at different time periods.
+
+5. Asynchronous operations can be implemented by Batch Apex classes.
+
+6. Batch jobs are invoked programmatically during the runtime and can be operated on any size of records, with a maximum of 200 records per batch. You can break down a larger record data into 200 records per batch to execute it better.
+
+7. Every transaction starts with a new set of governor limits.
+
+8. If one batch fails to process successfully, all other successful batch transactions aren’t rolled back.
+
+
+
+
+
+
+Future Method:
+=============
+A future method runs in the background asynchronously.
+You can call a future method for executing long running operations, such as callouts to external web services.
+Each future method is queued and executes when ever system resources become available.
+Objects: 
+			|
+			 --> 2 Types.
+			 
+					1. Setup Objects:
+						Setup objects are used to interact with the Salesforce Metadata for the Declarative Development.
+						
+						Ex:
+							User, Profile, BusinessProcess, CustomField, CustomObject, CustomTab, Document, Group, FieldSet, RecordType, SearchLayout, ValidationRule, WorkflowRule,...etc.					
+					
+					2. Non-Setup Objects:
+						Remaining All Standard and Custom Objects are comes under "Non-Setup" objects.
+						
+						Ex:
+							Account, Contact, Lead, Opportunity,...etc. Hiring_Manager__C, Position__C, Customer__c, Branch__C, Loan__C,...etc.
+							
+			Note: 
+				When the User tries to perform the DML operations on both "Setup" and "Non-Setup" objects within a Transaction, Salesforce will raise an Exception "MIXED_DML_OPERATION" exception.
+				
+User Object --> Setup Object 
+	|
+	 --> De-Activate the User through Programming (UPDATE)
+	 
+Hiring Manager Object --> Non-Setup Object
+	|
+	 --> Create a Hiring Manager Record (INSERT)
+					
+Rules:
+======
+	1. Method should be pre-fixed with "@future()" annotation.
+	
+	2. Future Methods should be always defined with "Static" keyword.
+	
+	3. Future method doesn't return any value to the calling environment. So that Future
+		method return type should be always "void".
+
+	4. We can supply the parameters to the Future Method which should be of "Primitive
+		Type, Arrays Of Primitive, Collection of Primitive".
+		We can't Supply the SObject Type of parameters to the Future Methods.
+		
+	Ex:
+    @future()
+    Public static void CreateHRRecord(string customerName, String[] countryNames, List<String> lstNames)
+    {
+	}
+	
+		Sol1 : We can Supply the Record ID as the Parameter and We can Write the SOQL
+				Query inside the Method, to get the record details based on the record id.
+				(Note: We can use 200 SOQL Queries inside the Future Methods)
+				
+		Sol2 : We can use "Serialization" and "DeSerialization" methods.
+		
+	5. One Future Method cannot invoke an another Future Method. (Chaining Process Not Available)
+	
+	6. Doesn't Provide any Tracking Mechanism. 
+
+
+
+
+
+
+
+
+Queueable Interface: (System.Queueable)
+--------------------
+
+Apex processess that run for a long time, such as complex database operations or external webservice callouts, you can run them asynchronously by implementing the queueable interface and adding a job to the apex job queue.
+We can track the status by using "AsyncApexJob" object.
+
+
+Step 1: We need to Create a Global Class, which should be implemented by the
+		"System.Queueable" interface.
+		
+	Syntax:
+		Global Class <ClassName> implements System.Queueable
+		{
+			// Write the Business Logic..
+		}
+		
+Step 2: We have to provide the implementation for the Interface Methods. (i.e. Execute())
+	
+	Syntax:
+		Global Class <ClassName> implements System.Queueable
+		{
+			Global void Execute(System.QueueableContext qContext)
+			{
+				// Write the Business Logic..
+			}
+		}
+		
+Step 3: Push the Queueable Class into the Apex Queue and Track the Result of the
+		Queueable Class by using "AsyncApexJob" object.
+		
+		Id jobId = System.EnqueueJob(new <QueueableClassName>());
+		
+		Track the Result:
+			AsyncApexJob jobDetails = [SOQL Query from AsyncApexJob
+											Where id =: jobId];
+	
+Schedule Programming / Apex:
+============================
+	Interface : System.Schedulable Interface.
+
+Public Class AccountsHelper
+{
+	Public static void DeleteOldAccounts()
+	{
+		// Written Business Logic..
+		// To Delete the Old Records, which are older than 30 days.
+	}
+}
+
+Step 1: Create a Global Class, which should be implemented by an interface
+		"System.Schedulable".
+		
+	Syntax:
+		Global Class <ClassName> implements System.Schedulable
+		{
+			// Write the Business Logic..
+		}
+		
+Step 2: Provide the Implementation for the Interface Methods.
+
+	Syntax:
+		Global Class <ClassName> implements System.Schedulable
+		{
+			Global void Execute(System.SchedulableContext sContext)
+			{
+				// Write the Business Logic..
+				// Write the Code to invoke the Class.
+			}
+		}
+		
+Step 3: Schedule the Global Class as below.
+		
+		Setup --> Build --> Develop --> Apex Classes.
+			1. Click on "Schedule Apex" button.
+			2. Enter the Schedule Job Name.
+			3. Select the "Schedulable Class" by using "Lookup Icon".
+			4. Select the Frequency of Interval.
+				(Daily / Weekly / Monthly).
+			5. Select the Start Date and End Date for Scheduling.
+			6. Select the "Preferred Start Time" from the Picklist.
+			7. Click on "OK". button.
+			
+Step 4: Track / Monitor the Scheduling Jobs.
+		
+		Setup -->Monitor --> Jobs --> Schedule Apex.
+			
+

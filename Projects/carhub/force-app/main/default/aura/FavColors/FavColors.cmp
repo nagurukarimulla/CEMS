@@ -1,0 +1,7 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+ <aura:attribute name="favoriteColors" type="String[]" default="['cyan', 'yellow', 'magenta']"/>
+    <aura:iteration items="{!v.favoriteColors}" var="s">
+        <p>{!s}</p>
+    </aura:iteration>
+    <lightning:button onclick="{!c.getString}" label="Update"/>	
+</aura:component>

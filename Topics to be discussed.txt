@@ -1,0 +1,23 @@
+Collections : List, Set, Map
+
+Creating bulk records, related records and records using apex.
+
+Soql : Static soql, dynamic soql, soql limit, offset, all rows, for update
+
+Dml statements : Insert, update, delete, merge
+
+Database class methods
+
+Email programming
+
+Asynchronous Programming : Batch class, Schedulable class, Queueable class, future methods, flex queue
+
+Triggers : Before and after triggers
+
+Lead conversion, record synchronization, invokable method
+
+Test classes
+
+Callouts
+
+Wrapper class

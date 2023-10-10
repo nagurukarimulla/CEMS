@@ -1,0 +1,53 @@
+
+
+<template>
+    <lightning-card title="Folder Hierarchy">
+        <template if:true={folderHierarchy}>
+            <lightning-tree items={folderHierarchy} header="Folder Hierarchy" onselect={handleFolderSelect}  ></lightning-tree>
+        </template>
+        <template if:false={folderHierarchy}>
+            <div class="slds-m-vertical_medium slds-align_absolute-center">
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+    </lightning-card>
+
+    <lightning-card title="Selected Folder">
+        <template if:true={selectedFolder}>
+            <p>{selectedFolder} </p>
+        </template>
+    </lightning-card>
+</template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<template>
+    <div class="slds-grid">
+        <div class="slds-col">
+            <lightning-card title="Folder Hierarchy" variant="base">
+                <div class="slds-p-around_medium">
+                    <template if:true={folderHierarchy}>
+                        <lightning-tree items={folderHierarchy} header="Folders" onselect={handleFolderSelect}></lightning-tree>
+                    </template>
+                </div>
+            </lightning-card>
+        </div>
+        <div class="slds-col">
+            <c-folder-details selected-folder={selectedFolder}></c-folder-details>
+        </div>
+    </div>
+</template>-->
+

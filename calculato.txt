@@ -1,0 +1,221 @@
+calculator.css
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: #f2f2f2;
+    font-family: Arial, sans-serif;
+  }
+  
+  .screen {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 80px;
+    padding-right: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .screen p {
+    font-size: 40px;
+    color: #333333;
+  }
+  
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  lightning-button {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    color: #ffffff;
+  }
+  
+  lightning-button[variant="brand"] {
+    background-color: #2196F3;
+  }
+  
+  lightning-button[variant="brand"]:hover {
+    background-color: #1565C0;
+  }
+  
+  lightning-button[variant="light"] {
+    background-color: #f5f5f5;
+    color: #333333;
+  }
+  
+  lightning-button[variant="light"]:hover {
+    background-color: #e0e0e0;
+  }
+  
+  lightning-button[variant="neutral"] {
+    background-color: #f5f5f5;
+    color: #333333;
+  }
+  
+  lightning-button[variant="neutral"]:hover {
+    background-color: #e0e0e0;
+  }
+  
+
+
+
+calculator.html
+
+
+<template>
+    <div class="container">
+        <div class="screen">
+            <p>{displayValue}</p>
+        </div>
+        <div class="buttons">
+            <div class="row">
+                <lightning-button variant="neutral" label="C" onclick={handleClear}></lightning-button>
+                <lightning-button variant="neutral" label="±" onclick={handleSign}></lightning-button>
+                <lightning-button variant="neutral" label="%" onclick={handlePercentage}></lightning-button>
+                <lightning-button variant="brand" label="÷" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="7" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="8" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="9" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="×" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="4" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="5" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="6" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="-" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="1" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="2" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label="3" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="brand" label="+" onclick={handleOperator}></lightning-button>
+            </div>
+            <div class="row">
+                <lightning-button variant="light" label="0" onclick={handleNumber}></lightning-button>
+                <lightning-button variant="light" label=". " onclick={handleDecimal}></lightning-button>
+                <lightning-button variant="brand" label="=" onclick={handleEqual}></lightning-button>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+
+calculator.js
+
+
+import { LightningElement, track } from 'lwc';
+
+export default class Calculator extends LightningElement {
+@track displayValue = '0';
+@track firstOperand = null;
+@track secondOperand = null;
+@track operator = null;
+@track isResultDisplayed = false;
+handleNumber(event) {
+    const value = event.target.label;
+    if(this.isResultDisplayed) {
+        this.displayValue = '0';
+        this.isResultDisplayed = false;
+    }
+    if(this.displayValue === '0') {
+        this.displayValue = value;
+    } else {
+        this.displayValue += value;
+    }
+}
+
+handleDecimal() {
+    if(this.isResultDisplayed) {
+        this.displayValue = '0.';
+        this.isResultDisplayed = false;
+    }
+    if(this.displayValue.indexOf('.') === -1) {
+        this.displayValue += '.';
+    }
+}
+
+handleClear() {
+    this.displayValue = '0';
+    this.firstOperand = null;
+    this.secondOperand = null;
+    this.operator = null;
+    this.isResultDisplayed = false;
+}
+
+handleSign() {
+    this.displayValue = String(-this.displayValue);
+}
+
+handlePercentage() {
+    this.displayValue = String(this.displayValue / 100);
+}
+
+handleOperator(event) {
+    if(this.firstOperand === null) {
+        this.firstOperand = Number(this.displayValue);
+    } else {
+        this.secondOperand = Number(this.displayValue);
+        this.calculateResult();
+    }
+    this.operator = event.target.label;
+    this.isResultDisplayed = true;
+}
+
+calculateResult() {
+    switch(this.operator) {
+        case '÷':
+            this.displayValue = String(this.firstOperand / this.secondOperand);
+            break;
+        case '×':
+            this.displayValue = String(this.firstOperand * this.secondOperand);
+            break;
+        case '-':
+            this.displayValue = String(this.firstOperand - this.secondOperand);
+            break;
+        case '+':
+            this.displayValue = String(this.firstOperand + this.secondOperand);
+            break;
+        default:
+            break;
+    }
+    this.firstOperand = Number(this.displayValue);
+    this.secondOperand = null;
+}
+
+handleEqual() {
+    this.secondOperand = Number(this.displayValue);
+    this.calculateResult();
+    this.isResultDisplayed = true;
+}
+}
+
+
+xml:
+
+<isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__RecordPage</target>
+    </targets>

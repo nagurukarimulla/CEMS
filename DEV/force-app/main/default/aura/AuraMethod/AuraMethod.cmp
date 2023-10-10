@@ -1,0 +1,9 @@
+<aura:component>
+    <aura:attribute name="childValue" type="String" default="Random" />
+    <!-- Only aura methods are accessable -->
+    <aura:method name="sampleMethod" action="{!c.doAction}" description="Sample method with parameters">
+        <aura:attribute name="param1" type="String" default="parameter 1" />
+        <aura:attribute name="param2" type="Object" />
+    </aura:method>
+    <h1>CHILD BODY</h1>
+</aura:component>

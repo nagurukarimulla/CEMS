@@ -1,0 +1,9 @@
+<template>
+    <lightning-card title="Send Negotiated Offer Email">
+      <div class="slds-p-horizontal--small">
+        <lightning-input label="Employee Email" value={employeeEmail} onchange={handleEmployeeEmailChange}></lightning-input>
+        <lightning-button label="Send Email" variant="brand" onclick={handleSendEmail}></lightning-button>
+      </div>
+    </lightning-card>
+  </template>
+  

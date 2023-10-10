@@ -1,0 +1,38 @@
+<template>
+    <lightning-card title="Employee Performance Assessment">
+      <div class="slds-m-around_medium">
+        <div class="slds-grid slds-wrap slds-gutters">
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-input type="date" label="Assessment Date" value={assessmentDate} onchange={handleAssessmentDateChange}></lightning-input>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-input type="text" label="Manager Name" value={managerName} onchange={handleManagerNameChange}></lightning-input>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-input type="number" label="Goal Settings" value={goalSettings} onchange={handleGoalSettingsChange}></lightning-input>
+          </div>
+          <div class="slds-col slds-size_1-of-2">
+            <lightning-combobox label="Rating" options={ratingOptions} value={selectedRating} onchange={handleRatingChange}></lightning-combobox>
+          </div>
+        </div>
+        <div class="slds-grid slds-wrap slds-gutters">
+          <div class="slds-col">
+            <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
+          </div>
+        </div>
+        <div class="slds-m-top_medium">
+          <lightning-layout>
+            <lightning-layout-item>
+              <div>{employeeName}</div>
+              <div>{employeeTitle}</div>
+            </lightning-layout-item>
+            <lightning-layout-item>
+              <div class="slds-text-color_success">{ratingIndicator}</div>
+              <div>{selectedRating}</div>
+            </lightning-layout-item>
+          </lightning-layout>
+        </div>
+      </div>
+    </lightning-card>
+  </template>
+  

@@ -1,0 +1,55 @@
+<template>
+  <div class="slds-card">
+      <lightning-input type="search" label="Search for records"
+       value={searchText} onchange={handleSearchValue}></lightning-input>
+       <lightning-input type="text" data-my-id="outputValue"
+       value={searchText}></lightning-input>
+       <template if:true={isLoaded}>
+       <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-label="Example default base table of Opportunities">
+          <thead>
+          <tr class="slds-line-height_reset">
+          <th class="" scope="col">
+          <div class="slds-truncate" title="Actions">Actions</div>
+          </th>
+          <th class="" scope="col">
+              <div class="slds-truncate" title="Account Name">Account Name</div>
+              </th>
+              <th class="" scope="col">
+                  <div class="slds-truncate" title="Rating">Rating</div>
+                  </th>
+          </tr>
+          </thead>
+          <tbody>
+       <template for:each={searchResults} for:item="record">
+          <tr class="slds-line-height_reset" key={record.Id}>
+              <td data-label="Actions">
+             <span>
+                   <lightning-button label="Edit" variant="brand" data-my-recordid={record.Id}></lightning-button>
+                   <lightning-button label="Cancel"></lightning-button>  
+               </span>
+                   </td>
+              <td data-label="Account Name">
+                  <div class="slds-truncate" title="Cloudhub">
+                  {record.Rating}
+                  </div>
+                  </td>
+              <th data-label="Name" scope="row">
+                  <div class="slds-truncate" title="Cloudhub">
+                      <a href="#" tabindex="-1">{record.Name}</a>
+                  </div>
+                  </th>
+                  <td data-label="Rating">
+                      <div class="slds-truncate" title="Cloudhub">
+                      {record.Rating}
+                      </div>
+                      </td>
+          </tr>
+
+       </template>
+          </tbody>
+          </table>
+      </template>
+
+  </div>
+  
+</template>

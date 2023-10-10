@@ -1,0 +1,34 @@
+<template>
+    <div class="container">
+        <div class="left-pane">
+            <div class="tree-container">
+                <div class="tree-header">Structure</div>
+                <div class="tree-card">
+                    <lightning-tree items={structure} onselect={handleSelect}></lightning-tree>
+                </div>
+            </div>
+        </div>
+        <div class="tree-container">
+            <div class="right-pane">
+                <div class="card-container">
+                    <div class="card">
+                        <lightning-card  title="Hello">
+                            <template if:true={optionSelected}>
+                                
+                            </template>
+                        </lightning-card>
+                    </div>
+                </div>
+                <div class="card-container">
+                    <div class="card">
+                        <lightning-card  title="Hello">
+                            <lightning-button label="New" slot="actions"></lightning-button>
+                            <p class="slds-p-horizontal_small">Lower Card</p>
+                            <p slot="footer">Card Footer</p>
+                        </lightning-card>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,62 @@
+public class contactTriggerHandler {
+     
+    public static void preventCreatePrimaryContactOnInsert(List<Contact> contactList){
+        Set<Id> accountIDSet = new Set<Id>();
+        Map<Id,Contact> accountIdContactMap = new Map<Id,Contact>();
+        for(Contact contactObj:contactList){
+            if(contactObj.primaryContact__c == true && contactObj.AccountId!=null){
+                accountIDset.add(contactObj.AccountId);
+            }
+        }
+        if(accountIDset!=null && accountIDset.size()>0){
+            //prepare map for accountIdContactMap for existing primary contact
+            for(Contact contobj:[Select id,primaryContact__c, AccountId from Contact where AccountId in : accountIDSet and primaryContact__c=true]){
+                accountIdContactMap.put(contObj.AccountId,contObj);
+            }
+            //checking validation
+            for(Contact contactObj:contactList){
+                if(contactObj.primaryContact__C = true && contactObj.AccountId!=null && accountIdContactMap.get(contactObj.AccountId)!=null){
+                    contactObj.addError('Multiple contacts cannot be marked as primary on the same Account');
+                }
+            }
+        }
+    }
+    
+    public static void preventCreatePrimaryContactOnUpdate(Map<Id,Contact> contactNewMap, Map<Id,Contact> contactOldMap){
+            Set<Id> accountIDSet = new Set<Id>();
+            Map<Id,Contact> accountIdContactMap = new Map<Id,Contact>();
+         for(Contact contactObj:contactNewMap.values()){
+             if(contactNewMap.get(contactObj.id).primaryContact__c!=contactOldMap.get(contactObj.Id).primaryContact__c && contactNewMap.get(contactObj.id).primaryContact__c == true && contactNewMap.get(contactObj.id).AccountId!=null){
+                 
+              accountIDSet.add(contactNewMap.get(contactobj.id).AccountId); 
+                //accountIDset.add(contactObj.AccountId);
+            }
+        }
+          if(accountIDset!=null && accountIDset.size()>0){
+            //prepare map for accountIdContactMap for existing primary contact
+            for(Contact contobj:[Select id,primaryContact__c, AccountId from Contact where AccountId in : accountIDSet and primaryContact__c=true]){
+                accountIdContactMap.put(contObj.AccountId,contObj);
+            }
+              for(Contact contactObj:contactNewMap.values()){
+                if(contactNewMap.get(contactObj.id).primaryContact__C != contactOldMap.get(contactObj.Id).primaryContact__c && contactNewMap.get(contactObj.id).primaryContact__c == true && contactNewMap.get(contactObj.id).AccountID != null && accountIdContactMap.get(contactNewMap.get(contactObj.id).AccountID)!=null){
+                    contactObj.addError('Multiple contacts cannot be marked as primary on the same Account');
+                }
+            }
+         }
+     }  
+
+}
+
+
+
+trigger primaryContactTrigger on Contact (before insert, before update) {
+    if(trigger.isBefore && trigger.isInsert){
+        contactTriggerHandler.preventCreatePrimaryContactOnInsert(trigger.new);
+    }
+    
+    if(trigger.isBefore && trigger.isUpdate){
+        contactTriggerHandler.preventCreatePrimaryContactOnUpdate(Trigger.newMap,Trigger.oldMap);
+    }
+}
+
+

@@ -1,0 +1,238 @@
+Dear [Employee Name],
+
+It is with regret that I must inform you that your employment with [Company Name] is being terminated, effective [Termination Date], due to the following reason: {{EMS_Termination_Reason__c}}
+
+Please be advised that your final paycheck, which includes any owed salary, unused vacation time, and any other applicable benefits, will be issued to you on [Paycheck Date].
+
+If you have any questions or concerns, please do not hesitate to contact us. We wish you the best of luck in your future endeavors.
+
+Sincerely,
+
+[Your Name]
+
+[Your Title]
+
+[Company Name]
+
+
+
+
+
+ {!$Record.EMS_Interviewer_2_Email__c},{!$Record.EMS_Applicant_Email__c},{!$Record.EMS_Interviewer_Email__c}
+
+
+
+
+{!$Record.EMS_Applicant_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c}
+
+
+
+
+
+
+{!$Record.EMS_Applicant_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c}
+
+
+
+
+
+
+{!$Record.EMS_Applicant_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c},{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c},
+{!$Record.EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c}
+
+
+
+
+
+
+cittacoretechnologies@pboedition
+
+
+
+
+
+
+
+
+
+SELECT Id, 
+       EMS_Interview_Round__c, 
+       EMS_Interview_Status__c, 
+       EMS_Interview_Type__c, 
+       EMS_Meeting_Link__c, 
+       EMS_Interviewer_Name__c, 
+       EMS_Job_Application_ID__c, 
+       EMS_Candidate_Name__c, 
+       EMS_Interview_Location__c, 
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c,
+EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c,
+EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c,
+       EMS_Applicant_Email__c, 
+        
+       EMS_Interview_Stage__c, 
+       EMS_Decline_Reason__c, 
+       EMS_Interview_Start_Time_c__c, 
+       EMS_InterviewEndTime__c 
+FROM EMS_Interview_Scheduling__c 
+
+
+// server side code for sending bulk emails to selected records
+public with sharing class InterviewEmailController {
+    
+ //fetching the interview scheduler records from salesforce database
+    @AuraEnabled
+    public static List<EMS_Interview_Scheduling__c> getInterviewRecords() {
+        List<EMS_Interview_Scheduling__c> interviewList = new List<EMS_Interview_Scheduling__c>();
+        try {
+            interviewList = [
+SELECT Id, 
+       EMS_Interview_Round__c, 
+       EMS_Interview_Status__c, 
+       EMS_Interview_Type__c, 
+       EMS_Meeting_Link__c, 
+       EMS_Interviewer_Name__c, 
+       EMS_Job_Application_ID__c, 
+       EMS_Candidate_Name__c, 
+       EMS_Interview_Location__c, 
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c,
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c,
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c,
+       EMS_Applicant_Email__c, 
+        
+       EMS_Interview_Stage__c, 
+       EMS_Decline_Reason__c, 
+       EMS_Interview_Start_Time_c__c, 
+       EMS_InterviewEndTime__c 
+FROM EMS_Interview_Scheduling__c  WITH SECURITY_ENFORCED];
+        } catch(Exception e) {
+            System.debug('Error fetching interview records: ' + e.getMessage());
+        }
+        return interviewList;
+    }
+
+    @AuraEnabled
+    public static void sendBulkEmails(List<Id> interviewIds) {
+        List<EMS_Interview_Scheduling__c> interviewList = new List<EMS_Interview_Scheduling__c>();
+        try {
+            interviewList = [SELECT Id, EMS_Interview_Start_Time_c__c, EMS_Interview_Round__c, EMS_InterviewEndTime__c, EMS_Interview_Status__c, EMS_Interview_Type__c, EMS_Meeting_Link__c, EMS_Interviewer_Name__c, EMS_Job_Application_ID__c, EMS_Candidate_Name__c, EMS_Interview_Location__c, EMS_Applicant_Email__c, EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c,
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c,
+       EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c, EMS_Interview_Stage__c, EMS_Decline_Reason__c FROM EMS_Interview_Scheduling__c WHERE EMS_Interview_Status__c = 'Accepted' AND Id IN :interviewIds WITH SECURITY_ENFORCED];
+        } catch(Exception e) {
+            System.debug('Error fetching interview records: ' + e.getMessage());
+        }
+        List<Messaging.SingleEmailMessage> emails = new List<Messaging.SingleEmailMessage>();
+        for(EMS_Interview_Scheduling__c interview : interviewList) {
+            try {
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                String[] toAddresses = new String[] { };
+                if(interview.EMS_Interview_Type__c == 'Virtual Interview' || interview.EMS_Interview_Type__c == 'In Person Interview') {
+                    toAddresses = new String[] { interview.EMS_Applicant_Email__c, interview.EMS_Interview_Panel_Members__r.EMS_Interviewer_1__r.EMS_Work_Email__c,
+       interview.EMS_Interview_Panel_Members__r.EMS_Interviewer_2__r.EMS_Work_Email__c,
+       interview.EMS_Interview_Panel_Members__r.EMS_Interviewer_3__r.EMS_Work_Email__c };
+                }
+                email.setToAddresses(toAddresses);
+                email.setSubject('Interview Schedule Details');
+                String body = '';
+                DateTime startDateTime = DateTime.newInstance(interview.EMS_Interview_Start_Time_c__c.year(), interview.EMS_Interview_Start_Time_c__c.month(), interview.EMS_Interview_Start_Time_c__c.day(), interview.EMS_Interview_Start_Time_c__c.hour(), interview.EMS_Interview_Start_Time_c__c.minute(), 0);
+                DateTime endDateTime = DateTime.newInstance(interview.EMS_InterviewEndTime__c.year(), interview.EMS_InterviewEndTime__c.month(), interview.EMS_InterviewEndTime__c.day(), interview.EMS_InterviewEndTime__c.hour(), interview.EMS_InterviewEndTime__c.minute(), 0);
+                body += 'Your interview is scheduled for ' + startDateTime.format('MM/dd/yyyy hh:mm a') + ' - ' + endDateTime.format('hh:mm a') + ' (UTC).\n';
+                if(interview.EMS_Interview_Type__c == 'Virtual Interview') {
+                    body += 'The interview will be held virtually. Please use the following link to join the virtual interview: ' + interview.EMS_Meeting_Link__c + '\n';
+                } else if(interview.EMS_Interview_Type__c == 'In Person Interview') {
+                    body += 'The interview will be held in-person at the following location: ' + interview.EMS_Interview_Location__c + '\n';
+                }
+                email.setPlainTextBody(body);
+                emails.add(email);
+            } catch(Exception e) {
+                System.debug('Error creating email: ' + e.getMessage());
+            }
+        }
+        try {
+            if(!emails.isEmpty()) {
+                System.debug('Sending emails...');
+                Messaging.sendEmail(emails);
+            }
+        } catch(Exception e) {
+            System.debug('Error sending emails: ' + e.getMessage());
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+records [{"Id":"a14DT000001tSW4YAM","EMS_Interview_Round__c":"Non Technical Round","EMS_Interview_Status__c":"Accepted","EMS_Interview_Type__c":"In Person Interview","EMS_Interviewer_Name__c":"a11DT000001xXP3YAM","EMS_Job_Application_ID__c":"a15DT0000026U7fYAE","EMS_Candidate_Name__c":"Shilpa Samudrala","EMS_Interview_Location__c":"91 Spring Board 3rd Floor , Mythri Square , Kondapur, Telangana.","EMS_Applicant_Email__c":"shilpas@cittacore.com","EMS_Interview_Stage__c":"Screening Test Passed","EMS_Interview_Start_Time_c__c":"2023-04-20T06:30:00.000Z","EMS_InterviewEndTime__c":"2023-04-20T07:00:00.000Z"},{"Id":"a14DT000001tSWiYAM","EMS_Interview_Round__c":"Technical Round","EMS_Interview_Status__c":"Accepted","EMS_Interview_Type__c":"In Person Interview","EMS_Interviewer_Name__c":"a11DT000001xXOKYA2","EMS_Job_Application_ID__c":"a15DT0000026U7zYAE","EMS_Candidate_Name__c":"Surya Teja","EMS_Interview_Location__c":"91 Spring Board 3rd Floor , Mythri Square , Kondapur, Telangana.","EMS_Interview_Panel_Members__c":"a1UDT000001KXl32AG","EMS_Applicant_Email__c":"suryatejabsm@cittacore.com","EMS_Interview_Stage__c":"Scheduled","EMS_Interview_Start_Time_c__c":"2023-04-25T06:30:00.000Z","EMS_InterviewEndTime__c":"2023-04-25T07:00:00.000Z","EMS_Interview_Panel_Members__r":{"EMS_Interviewer_1__c":"a11DT000001xXdKYAU","EMS_Interviewer_2__c":"a11DT000001xXgxYAE","EMS_Interviewer_3__c":"a11DT000001xXmlYAE","Id":"a1UDT000001KXl32AG","EMS_Interviewer_1__r":{"EMS_Work_Email__c":"suryatejak@cittacore.com","Id":"a11DT000001xXdKYAU"},"EMS_Interviewer_2__r":{"EMS_Work_Email__c":"nagarajak@cittacore.com","Id":"a11DT000001xXgxYAE"},"EMS_Interviewer_3__r":{"EMS_Work_Email__c":"anuragv@cittacore.com","Id":"a11DT000001xXmlYAE"}}},{"Id":"a14DT000001tSX2YAM","EMS_Interview_Round__c":"Technical Round","EMS_Interview_Status__c":"Accepted","EMS_Interview_Type__c":"Virtual Interview","EMS_Meeting_Link__c":"https://teams.microsoft.com/l/meetup-join/19%3ameeting_NzY3YWY3MzgtMzEzZC00YTRiLWE1YmItNTYxNzdlZTA1MGE4%40thread.v2/0?context=%7b%22Tid%22%3a%22b5064cce-6977-4e05-85e1-bb493b6f2cc9%22%2c%22Oid%22%3a%22e793f09b-45c9-44c8-82b2-a5680b2fa14a%22%7d","EMS_Interviewer_Name__c":"a11DT000001xXOKYA2","EMS_Job_Application_ID__c":"a15DT0000026U89YAE","EMS_Candidate_Name__c":"Geetha Sarvari","EMS_Interview_Panel_Members__c":"a1UDT000001KXl32AG","EMS_Applicant_Email__c":"geethasarvarip@cittacore.com","EMS_Interview_Stage__c":"Scheduled","EMS_Interview_Start_Time_c__c":"2023-05-04T05:30:00.000Z","EMS_InterviewEndTime__c":"2023-05-04T06:00:00.000Z","EMS_Interview_Panel_Members__r":{"EMS_Interviewer_1__c":"a11DT000001xXdKYAU","EMS_Interviewer_2__c":"a11DT000001xXgxYAE","EMS_Interviewer_3__c":"a11DT000001xXmlYAE","Id":"a1UDT000001KXl32AG","EMS_Interviewer_1__r":{"EMS_Work_Email__c":"suryatejak@cittacore.com","Id":"a11DT000001xXdKYAU"},"EMS_Interviewer_2__r":{"EMS_Work_Email__c":"nagarajak@cittacore.com","Id":"a11DT000001xXgxYAE"},"EMS_Interviewer_3__r":{"EMS_Work_Email__c":"anuragv@cittacore.com","Id":"a11DT000001xXmlYAE"}}}]
+aura_prod.js:55 "Interview Ids List :a14DT000001tSW4YAM,a14DT000001tSWiYAM,a14DT000001tSX2YAM"
+aura_prod.js:55 result: null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Good day,
+
+We would like to remind you that an upcoming interview has been scheduled as follows:
+
+Date: {!$Record.EMS_Interview_Start_Time_c__c}
+Time: {!$Record.EMS_Interview_Start_Time_c__c} - {!$Record.EMS_InterviewEndTime__c} UTC
+Location: Virtual interview
+
+To join the virtual interview, please use the following link:
+{!$Record.EMS_Meeting_Link__c}
+
+Thank you and best regards,
+HR Team
+
+
+
+Familiar with using Postman to test and debug RESTful APIs and integrations.
+
+
+
+
+
+
+
+
+Good day,
+
+We would like to remind you that an upcoming interview has been scheduled as follows:
+
+Date: {!$Record.EMS_Interview_Start_Time_c__c}
+Time: {!$Record.EMS_Interview_Start_Time_c__c} - {!$Record.EMS_InterviewEndTime__c} UTC
+Location: {!$Record.EMS_Interview_Location__c}
+
+Please ensure that you arrive at the interview location on time and bring along any necessary documentation or materials.
+
+Thank you and best regards,
+HR Team

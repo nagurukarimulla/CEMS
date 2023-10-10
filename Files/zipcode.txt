@@ -1,0 +1,137 @@
+<template>
+    <lightning-card title="New Case Form">
+        <template if:true={showForm}>
+            <lightning-record-edit-form object-api-name="Case" onsuccess={handleSuccess}>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Subject" required></lightning-input-field>
+                        <lightning-input-field field-name="Description"></lightning-input-field>
+                        <lightning-input-field field-name="Account__c" onchange={handleAccountChange}></lightning-input-field>
+                        <template if:true={showAccountForm}>
+                            <lightning-input-field field-name="Account_Name__c" required></lightning-input-field>
+                            <lightning-input-field field-name="Account_Phone__c"></lightning-input-field>
+                            <lightning-input-field field-name="Account_Website__c"></lightning-input-field>
+                        </template>
+                        <lightning-input-field field-name="Contact__c" onchange={handleContactChange}></lightning-input-field>
+                        <template if:true={showContactForm}>
+                            <lightning-input-field field-name="Contact_First_Name__c" required></lightning-input-field>
+                            <lightning-input-field field-name="Contact_Last_Name__c" required></lightning-input-field>
+                            <lightning-input-field field-name="Contact_Email__c" required></lightning-input-field>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-input-field field-name="Priority"></lightning-input-field>
+                        <lightning-input-field field-name="Status" value="New"></lightning-input-field>
+                        <lightning-input-field field-name="Origin" value="Web"></lightning-input-field>
+                    </div>
+                </div>
+                <div class="slds-m-top_medium">
+                    <lightning-button variant="brand" type="submit" label="Create Case"></lightning-button>
+                </div>
+            </lightning-record-edit-form>
+        </template>
+        <template if:false={showForm}>
+            <div class="slds-m-around_medium">
+                <p>A new case has been created successfully!</p>
+                <p>Case number: {newCaseNumber}</p>
+                <div class="slds-m-top_medium">
+                    <lightning-button variant="brand" label="Create Another Case" onclick={resetForm}></lightning-button>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>
+
+
+import { LightningElement, track, api } from 'lwc';
+import { createRecord, getRecord } from 'lightning/uiRecordApi';
+import ACCOUNT_OBJECT from '@salesforce/schema/Account';
+import CONTACT_OBJECT from '@salesforce/schema/Contact';
+import CASE_OBJECT from '@salesforce/schema/Case';
+import ACCOUNT_FIELD from '@salesforce/schema/Case.AccountId';
+import CONTACT_FIELD from '@salesforce/schema/Case.ContactId';
+import SUBJECT_FIELD from '@salesforce/schema/Case.Subject';
+import DESCRIPTION_FIELD from '@salesforce/schema/Case.Description';
+import PRIORITY_FIELD from '@salesforce/schema/Case.Priority';
+import STATUS_FIELD from '@salesforce/schema/Case.Status';
+import ORIGIN_FIELD from '@salesforce/schema/Case.Origin';
+
+export default class CaseForm extends LightningElement {
+    @api recordId;
+    @track accountId;
+    @track contactId;
+    @track showForm = true;
+    @track showAccountForm = false;
+    @track showContactForm = false;
+    @track newCaseNumber;
+
+    get showAccountFields() {
+        return this.accountId ? false : true;
+    }
+
+    get showContactFields() {
+        return this.contactId ? false : true;
+    }
+
+    handleAccountChange(event) {
+        this.accountId = event.detail.value;
+    }
+
+    handleContactChange(event) {
+        this.contactId = event.detail.value;
+    }
+
+    async handleSubmit(event) {
+        event.preventDefault();
+        const fields = event.detail.fields;
+        fields[ACCOUNT_FIELD.fieldApiName] = this.accountId;
+        fields[CONTACT_FIELD.fieldApiName] = this.contactId;
+
+        try {
+            const caseRecord = await createRecord({ apiName: CASE_OBJECT.objectApiName, fields });
+            this.newCaseNumber = caseRecord.id;
+            this.showForm = false;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    resetForm() {
+        this.accountId = null;
+        this.contactId = null;
+        this.showForm = true;
+        this.showAccountForm = false;
+        this.showContactForm = false;
+    }
+
+    async searchAccount(event) {
+        const searchKey = event.target.value;
+        if (searchKey.length >= 2) {
+            const result = await getRecord({ recordId: searchKey, layoutTypes: ['Compact'] }).catch((error) => {
+                console.error(error);
+            });
+            if (result) {
+                this.accountId = result.id;
+                this.showAccountForm = false;
+            } else {
+                this.showAccountForm = true;
+            }
+        }
+    }
+
+    async searchContact(event) {
+        const searchKey = event.target.value;
+        if (searchKey.length >= 2) {
+            const result = await getRecord({ recordId: searchKey, layoutTypes: ['Compact'] }).catch((error) => {
+                console.error(error);
+            });
+            if (result) {
+                this.contactId = result.id;
+                this.showContactForm = false;
+            } else {
+                this.showContactForm = true;
+            }
+        }
+    }
+}
+0zapW1tPfFgvovFgDuidJXBUMeuX5uTSWtxnPuOWniO7tdbUEywS5fkTnxYqYeVN
